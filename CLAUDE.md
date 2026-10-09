@@ -1,0 +1,29 @@
+# Notes for Claude
+
+Patient-plan converter for FrankoLab (dental clinic + in-house lab, Ivano-Frankivsk). Owners speak Ukrainian;
+all patient-facing text is Ukrainian. README.md describes the pipeline and files.
+
+## Always
+- Run `python3 check_examples.py` after any change and look at the PDFs in `out/examples/`.
+  Money must match the source to the cent; render_plan raises on any mismatch — never weaken that check.
+- Never commit patient data (PDFs, panoramas, parsed plans with names). Examples in `examples/` are anonymised.
+- Patient text follows the brand tone: plain, calm, no promises or pressure, no caps. `render.AVOID` lists banned words.
+
+## Confirmed by the clinic
+- The lab makes every construction (crowns, temporaries, abutments, splints, caps, aligners, prostheses) → `lab: true`.
+- Сегмент = секстант (1: 18–14, 2: 13–23, 3: 24–28, 4: 34–38, 5: 33–43, 6: 44–48).
+- Price-list duplicates stay as they are.
+- Included in the price: local anaesthesia, rubber dam / OptraGate (plan-wide note); endo — control X-rays and temporary filling;
+  surgery — sutures; implant — implant + cover screw; формувач — the healing abutment; bone augmentation — bone material + membrane;
+  sinus lift — bone material; soft-tissue augmentation — graft material; implant crowns (temporary and permanent) — Ti-base/abutment,
+  screw, fixation; crowns — fixation. Sedation price includes the anaesthesiologist and monitoring.
+- Pending: whether All-on-4 (€2 500) includes all four implants — keep `incl` off until confirmed.
+- Sedation memo wins over the "eat before surgery" advice (no food 4 h before sedation). «Лише рідка їжа 30 днів» stays as written.
+- Hygiene levels differ by the amount of deposits (м'який наліт < без уточнення < стійкий наліт).
+
+## Visual language (illustrations.py, stagechart.py)
+- Neutral anatomy; Storm Blue #99aabe = what the procedure does; dashed = future/temporary; hatching = bone material;
+  metal grey = implant already in place; translucent gum drawn in front; implant crown emerges from the platform with one joint line.
+- Upper-jaw scenes (All-on-4, sinus lift) use panoramic proportions; trays, splint, retainer, denture are drawn from above.
+- Brand palette: Rich black #212121, Graphite #474a50, Ice Blue #eaeff5, Storm Blue #99aabe, Soft Sand #d8c3a5,
+  Warm Linen #f0e7de, Sky Blue #9ac2f4. Font: Onest (OFL).

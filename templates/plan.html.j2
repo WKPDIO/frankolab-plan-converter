@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>План лікування — {{ h.patient }}</title>
+<style>
+@font-face { font-family: "Onest"; src: url("{{ font_url }}") format("woff2"); font-weight: 100 900; font-style: normal; }
+:root {
+  --rich-black: #212121; --graphite-grey: #474a50; --ice-blue: #eaeff5; --pure-white: #ffffff;
+  --storm-blue: #99aabe; --soft-sand: #d8c3a5; --warm-linen: #f0e7de; --hairline: #99aabe;
+  --X: 14px; --small: 11.2px; --h: 21px; --deco: 56px;
+}
+@page {
+  size: A4;
+  margin: 17mm 16mm 19mm 16mm;
+  @top-left { content: "План лікування · {{ h.patient }}"; font: 400 8pt "Onest"; color: #474a50; vertical-align: bottom; padding-bottom: 4mm; }
+  @top-right { content: "FrankoLab"; font: 400 9pt "Onest"; color: #212121; vertical-align: bottom; padding-bottom: 4mm; }
+  @bottom-left { content: "{{ h.address }} · {{ h.phone_fmt }} · {{ site_short }}"; font: 400 7.5pt "Onest"; color: #474a50; vertical-align: top; padding-top: 4mm; }
+  @bottom-right { content: counter(page) " / " counter(pages); font: 400 8pt "Onest"; color: #474a50; vertical-align: top; padding-top: 4mm; }
+}
+@page :first { @top-left { content: none; } @top-right { content: none; } }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Onest", system-ui, sans-serif; font-size: var(--X); line-height: 1.45; color: var(--rich-black);
+  background: var(--pure-white); -webkit-print-color-adjust: exact; print-color-adjust: exact; font-variant-numeric: tabular-nums; }
+h1, h2, h3, p { margin: 0; }
+.muted { color: var(--graphite-grey); }
+.small { font-size: var(--small); line-height: 1.4; }
+
+/* ---------- letterhead ---------- */
+.lh { display: flex; justify-content: space-between; align-items: flex-start; }
+.lh-patient { font-size: var(--small); line-height: 1.55; font-weight: 600; }
+.lh-patient span { font-weight: 400; color: var(--graphite-grey); }
+.lh-mark { position: relative; text-align: right; padding-left: 22px; }
+.lh-mark::before { content: ""; position: absolute; left: 0; top: -6px; bottom: -6px; width: 0; border-left: .75px solid var(--hairline); }
+.lh-mark::after { content: ""; position: absolute; left: -6px; top: 50%; width: 13px; border-top: .75px solid var(--hairline); }
+.wm { font-size: 26px; line-height: 1; letter-spacing: -.01em; font-weight: 400; }
+.wm-sub { font-size: 8.5px; color: var(--graphite-grey); margin-top: 4px; letter-spacing: .02em; }
+
+.title { margin-top: 34px; }
+.title h1 { font-size: var(--h); line-height: 1.25; font-weight: 400; }
+.title .plan-name { font-size: var(--small); color: var(--graphite-grey); margin-top: 2px; }
+.intro { margin-top: 10px; max-width: 128mm; font-weight: 300; }
+
+/* ---------- panorama ---------- */
+.pano { margin: 22px 0 0; break-inside: avoid; }
+.pano img { display: block; width: 100%; height: 62mm; object-fit: cover; border-radius: 8px; background: #000; }
+.pano figcaption { display: flex; justify-content: space-between; margin-top: 4px; font-size: 9px; }
+
+/* ---------- overview timeline ---------- */
+.sec-title { font-size: var(--h); line-height: 1.25; font-weight: 600; }
+.overview { margin-top: 26px; }
+.tl { list-style: none; margin: 12px 0 0; padding: 0; }
+.tl-stage { display: grid; grid-template-columns: 74px 1fr auto; column-gap: 14px; align-items: start;
+  border-top: .75px solid var(--hairline); padding: 12px 0 12px; break-inside: avoid; }
+.tl-num { font-size: var(--deco); font-weight: 100; line-height: .82; color: var(--storm-blue); letter-spacing: -.02em; }
+.tl-title { font-weight: 600; }
+.tl-meta { font-size: var(--small); color: var(--graphite-grey); margin-top: 1px; }
+.tl-what { margin-top: 6px; font-weight: 300; }
+.tl-what { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; }
+.chip i { width: 10px; height: 10px; border-radius: 3px; border: .5px solid rgba(71,74,80,.35); flex: none; }
+.tl-sum { text-align: right; white-space: nowrap; font-weight: 600; }
+.tl-sum div + div { margin-top: 1px; }
+.tl-gap { display: flex; align-items: center; gap: 10px; padding: 2px 0 10px 30px; font-size: var(--small); color: var(--graphite-grey); }
+.tl-gap::before { content: ""; width: 0; height: 22px; border-left: .75px dashed var(--storm-blue); margin-right: 4px; }
+.grand { display: flex; justify-content: space-between; align-items: baseline; border-top: 1.5px solid var(--rich-black); padding-top: 10px; }
+.grand .lbl { font-weight: 600; }
+.grand .val { font-size: var(--h); font-weight: 600; white-space: nowrap; }
+.rate-note { margin-top: 6px; }
+
+.teeth-overview { margin-top: 26px; break-inside: avoid; }
+.teeth-overview .chart-wrap { margin-top: 12px; }
+.fdi-note { margin-top: 10px; max-width: 150mm; }
+
+/* ---------- dental chart ---------- */
+.chart { display: block; overflow: visible; }
+.ch-line { stroke: var(--storm-blue); stroke-width: .75; }
+.ch-root-on { fill: #c4cfdc; } .ch-root-off { fill: #f4f6f9; }
+.ch-crown-on { fill: var(--storm-blue); } .ch-crown-off { fill: #ffffff; }
+.ch-edge-on { fill: none; stroke: var(--graphite-grey); stroke-width: .75; stroke-linejoin: round; }
+.ch-edge-off { fill: none; stroke: #aab5c3; stroke-width: .6; stroke-linejoin: round; }
+.ch-cej-on { fill: none; stroke: var(--graphite-grey); stroke-width: .5; }
+.ch-cej-off { fill: none; stroke: #c3ccd7; stroke-width: .45; }
+.ch-num { font: 400 7px "Onest"; fill: #8d9bb0; }
+.ch-num-on { font: 600 7.6px "Onest"; fill: var(--rich-black); }
+.ch-sides { display: flex; justify-content: space-between; font-size: 8px; color: var(--graphite-grey); margin-top: 2px; }
+
+/* ---------- stage ---------- */
+.stage { break-before: auto; margin-top: 40px; }
+.stage.first { break-before: auto; margin-top: 30px; }
+.st-head { display: grid; grid-template-columns: 74px 1fr auto; column-gap: 14px; align-items: end;
+  padding-bottom: 12px; border-bottom: 1.5px solid var(--rich-black); }
+.st-num { font-size: var(--deco); font-weight: 100; line-height: .82; color: var(--storm-blue); letter-spacing: -.02em; }
+.st-head h2 { font-size: var(--h); line-height: 1.2; font-weight: 600; }
+.st-meta { font-size: var(--small); color: var(--graphite-grey); margin-top: 2px; }
+.st-sum { text-align: right; }
+.st-sum .lbl { font-size: var(--small); color: var(--graphite-grey); }
+.st-sum .val { font-weight: 600; white-space: nowrap; }
+
+/* ---------- block ---------- */
+.blk { margin-top: 16px; padding: 16px 18px 12px; border-radius: 10px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.stage .st-head + .blk, .stage .st-head + .memo { margin-top: 18px; }
+.blk-head { display: grid; grid-template-columns: 38px 1fr; column-gap: 8px; align-items: center; break-after: avoid; break-inside: avoid; }
+.blk-head.with-chart { grid-template-columns: 38px 1fr auto; align-items: start; }
+.blk-head.with-chart .blk-ico { margin-top: 2px; }
+.blk-ico { color: var(--graphite-grey); line-height: 0; }
+.blk-head h3 { font-size: var(--X); font-weight: 700; line-height: 1.3; }
+.blk-plain { font-size: var(--small); color: var(--graphite-grey); }
+.blk-chart { margin: 0 0 2px 12px; }
+.blk-chart .ch-sides { display: none; }
+
+table.svc { width: 100%; border-collapse: collapse; margin-top: 8px; }
+table.svc th { font-size: 9.5px; font-weight: 400; color: var(--graphite-grey); text-align: right; padding: 0 7px 5px 7px;
+  border-bottom: .75px solid rgba(71,74,80,.45); vertical-align: bottom; white-space: nowrap; }
+table.svc th.c-name, table.svc th.c-teeth { text-align: left; }
+table.svc th.c-name { padding-left: 0; padding-right: 8px; }
+table.svc td { padding: 8px 7px 8px 7px; border-bottom: .5px solid rgba(33,33,33,.13); vertical-align: top; text-align: right; white-space: nowrap; }
+table.svc th + th, table.svc td + td { border-left: .6px solid rgba(71,74,80,.24); }
+table.svc th:last-child, table.svc td:last-child { padding-right: 2px; }
+table.svc tr.seg-row td { border-left: none; }
+table.svc td.c-name { padding-left: 0; padding-right: 8px; text-align: left; white-space: normal; width: 42%; border-left: none; }
+table.svc td.c-pic { width: 50px; padding: 8px 10px 8px 0; text-align: left; }
+table.svc th.c-name { border-left: none; }
+tbody.g { break-inside: avoid; }
+tr.r-main.has-more td:not(.c-pic) { border-bottom: none; padding-bottom: 1px; }
+table.svc tr.r-more td { padding: 0 2px 9px 0; text-align: left; white-space: normal; border-left: none; }
+.pic { width: 50px; height: 50px; overflow: hidden; background: var(--pure-white); border-radius: 7px; line-height: 0; }
+.pic svg { width: 50px; height: 50px; }
+.ref { font-size: 10.5px; line-height: 1.4; color: var(--graphite-grey); margin-top: 2px; font-weight: 300; }
+.incl { font-size: 10.5px; line-height: 1.4; color: var(--graphite-grey); margin-top: 3px; font-weight: 300; }
+.incl b { font-weight: 500; }
+table.svc td.c-teeth { text-align: left; white-space: normal; width: 15%; font-size: var(--small); padding-top: 9.5px; }
+table.svc tr { break-inside: avoid; }
+.nm { font-weight: 400; }
+.ds { font-weight: 300; font-size: 12.3px; line-height: 1.42; color: var(--graphite-grey); margin-top: 2px; }
+.lab { display: inline-block; margin-left: 6px; padding: 1px 6px 1.5px; border-radius: 4px; background: var(--soft-sand);
+  color: var(--rich-black); font-size: 8.5px; line-height: 1.3; font-weight: 500; vertical-align: 1.5px; white-space: nowrap; }
+.tooth-list span:not(:last-child)::after { content: ","; color: var(--graphite-grey); }
+td.c-qty { color: var(--graphite-grey); }
+td.c-uah, td.c-eur { font-weight: 500; }
+tr.total-row td { border-bottom: none; padding-top: 7px; font-weight: 600; }
+tr.total-row td.c-name { text-align: right; padding-right: 8px; font-weight: 600; }
+.seg-note { margin: 0; }
+tbody.keep { break-inside: avoid; }
+tr.seg-row td { border-bottom: none; padding: 2px 0 0 0; text-align: left; white-space: normal; }
+.st-head { break-after: avoid; }
+
+/* ---------- stage map: every tooth with its procedure ---------- */
+.stage-map { margin-top: 16px; break-inside: avoid; }
+.sm-title { font-size: 9.5px; color: var(--graphite-grey); margin-bottom: 6px; }
+.sm-chart { width: 640px; margin: 0 auto; }
+.legend { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 14px; margin-top: 10px; }
+.lg { display: flex; align-items: center; gap: 7px; break-inside: avoid; }
+.lg svg { flex: 0 0 auto; }
+.lg-name { font-size: 11px; line-height: 1.25; }
+.lg-teeth { font-size: 9.5px; color: var(--graphite-grey); line-height: 1.3; }
+.lg-other { margin: 8px 0 0; font-size: 10.5px; color: var(--graphite-grey); }
+.stage .stage-map + .blk, .stage .stage-map + .memo { margin-top: 18px; }
+
+/* ---------- patient memos (service environment) ---------- */
+.memo { margin-top: 16px; background: var(--pure-white); border: 1px solid var(--soft-sand); border-radius: 10px; padding: 14px 18px 14px; break-inside: avoid; }
+.memo-label { font-size: 9.5px; color: var(--graphite-grey); }
+.memo h3 { font-size: var(--X); font-weight: 700; line-height: 1.3; margin-top: 2px; }
+.memo ul { margin: 8px 0 0; padding: 0; list-style: none; }
+.memo li { position: relative; padding-left: 14px; font-size: 12.3px; line-height: 1.42; font-weight: 300; }
+.memo li + li { margin-top: 4px; }
+.memo li::before { content: ""; position: absolute; left: 1px; top: .58em; width: 5px; height: 5px; border-radius: 50%; background: var(--soft-sand); border: .75px solid var(--graphite-grey); box-sizing: border-box; }
+.memo-rx { margin-top: 10px; font-size: var(--small); color: var(--graphite-grey); }
+.memo-rx i { display: block; height: 20px; border-bottom: .75px solid var(--graphite-grey); }
+
+/* ---------- summary ---------- */
+.summary { break-before: auto; break-inside: avoid; margin-top: 30px; }
+table.sum { width: 100%; border-collapse: collapse; margin-top: 12px; }
+table.sum th { font-size: 9.5px; font-weight: 400; color: var(--graphite-grey); text-align: right; padding: 0 0 5px 10px; border-bottom: .75px solid var(--storm-blue); }
+table.sum th:first-child { text-align: left; padding-left: 0; }
+table.sum td { padding: 9px 0 9px 10px; border-bottom: .5px solid #d5dce6; text-align: right; white-space: nowrap; }
+table.sum td:first-child { text-align: left; padding-left: 0; white-space: normal; }
+table.sum tr.grand-row td { border-top: 1.5px solid var(--rich-black); border-bottom: none; font-weight: 600; font-size: 15px; }
+.terms { margin-top: 24px; font-size: var(--small); color: var(--graphite-grey); max-width: 150mm; }
+.terms p + p { margin-top: 4px; }
+.consent { margin-top: 22px; }
+.sign { margin-top: 26px; display: flex; gap: 60px; }
+.sign div { flex: 1; border-top: .75px solid var(--rich-black); padding-top: 4px; font-size: var(--small); color: var(--graphite-grey); }
+.contacts { margin-top: 40px; display: flex; align-items: flex-end; gap: 16px; position: relative; padding-top: 16px; }
+.contacts::before { content: ""; position: absolute; left: 0; top: 0; width: 46px; border-top: .75px solid var(--hairline); }
+.contacts::after { content: ""; position: absolute; left: 22px; top: -6px; height: 13px; border-left: .75px solid var(--hairline); }
+.contacts .qr { line-height: 0; }
+.contacts .qr svg { width: 58px; height: 58px; }
+.contacts .txt { font-size: var(--small); color: var(--graphite-grey); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<!-- ======================= page 1: overview ======================= -->
+<section class="cover">
+  <header class="lh">
+    <div class="lh-patient">
+      <div><span>Пацієнт:</span> {{ h.patient }}</div>
+      <div><span>Лікар:</span> {{ h.doctor }}</div>
+      <div><span>Дата плану:</span> {{ h.date }}</div>
+    </div>
+    <div class="lh-mark">
+      <div class="wm">FrankoLab</div>
+      <div class="wm-sub">Clinic &amp; Tech Lab</div>
+    </div>
+  </header>
+
+  <div class="title">
+    <h1>План лікування</h1>
+    {% if plan_name and plan_name|lower != 'план лікування' %}<div class="plan-name">{{ plan_name }}</div>{% endif %}
+  </div>
+  <p class="intro">Тут зібрано все лікування, яке рекомендує лікар: етапи, зуби, пояснення до кожної процедури та вартість. Якщо щось незрозуміло — запитайте, ми пояснимо.</p>
+
+  {% if pano %}
+  <figure class="pano">
+    <img src="{{ pano }}" alt="Панорамний знімок зубів">
+    <figcaption class="small muted"><span>права сторона</span><span>Панорамний знімок</span><span>ліва сторона</span></figcaption>
+  </figure>
+  {% endif %}
+
+  <section class="overview">
+    <h2 class="sec-title">Етапи лікування</h2>
+    <ol class="tl">
+      {% for ph in phases %}
+      {% if not loop.first and ph.timing %}<li class="tl-gap">{{ ph.timing }}</li>{% endif %}
+      <li class="tl-stage">
+        <div class="tl-num">{{ ph.num }}</div>
+        <div>
+          <div class="tl-title">{{ ph.title }}</div>
+          <div class="tl-meta">{{ ph.duration }}</div>
+          <div class="tl-what">{% for w, tint in ph.what %}<span class="chip"><i style="background:{{ tint }}"></i>{{ w }}</span>{% endfor %}</div>
+        </div>
+        <div class="tl-sum">{% if ph.total_uah %}<div>{{ ph.total_uah }}</div>{% endif %}{% if ph.total_eur %}<div>{{ '+ ' if ph.total_uah }}{{ ph.total_eur }}</div>{% endif %}</div>
+      </li>
+      {% endfor %}
+    </ol>
+    <div class="grand"><div class="lbl">Разом за планом</div><div class="val">{{ grand }}</div></div>
+    {% if has_eur or included_note %}<p class="rate-note small muted">{% if has_eur %}Суми в євро сплачуються в гривнях за комерційним курсом на день оплати. {% endif %}{{ included_note }}</p>{% endif %}
+  </section>
+
+  {% if overview_chart %}
+  <section class="teeth-overview">
+    <h2 class="sec-title">Зуби, з якими працюємо</h2>
+    {{ overview_chart }}
+    <p class="fdi-note small muted">Зуби пронумеровано за міжнародною схемою: перша цифра — частина щелепи (1 — верхня права, 2 — верхня ліва, 3 — нижня ліва, 4 — нижня права), друга — місце зуба від центру. На схемі ви дивитеся на свої зуби так, як їх бачить лікар.</p>
+  </section>
+  {% endif %}
+</section>
+
+{% macro memo(m) %}
+<aside class="memo memo-{{ m.kind }}">
+  <div class="memo-label">Пам'ятка · {{ 'перед процедурою' if m.kind == 'before' else 'після процедури' }}</div>
+  <h3>{{ m.title }}</h3>
+  <ul>{% for it in m["items"] %}<li>{{ it }}</li>{% endfor %}</ul>
+  {% if m.rx %}<div class="memo-rx"><span>{{ m.rx }}:</span><i></i><i></i></div>{% endif %}
+</aside>
+{% endmacro %}
+
+<!-- ======================= stages ======================= -->
+{% for ph in phases %}
+<section class="stage{{ ' first' if loop.first }}">
+  <header class="st-head">
+    <div class="st-num">{{ ph.num }}</div>
+    <div>
+      <h2>{{ ph.title }}</h2>
+      <div class="st-meta">{% if ph.timing %}{{ ph.timing }} · {% endif %}{{ ph.duration }}</div>
+    </div>
+    <div class="st-sum"><div class="lbl">Вартість етапу</div><div class="val">{{ ph.total }}</div></div>
+  </header>
+  {% if ph.map or ph.legend %}
+  <section class="stage-map">
+    <div class="sm-title">Що відбувається із зубами на цьому етапі</div>
+    {% if ph.map %}<div class="sm-chart">{{ ph.map }}<div class="ch-sides"><span>права сторона</span><span>ліва сторона</span></div></div>{% endif %}
+    <div class="legend">{% for e in ph.legend %}<div class="lg">{{ e.glyph }}<div><div class="lg-name">{{ e.label }}</div>{% if e.teeth %}<div class="lg-teeth">{{ e.teeth }}</div>{% endif %}</div></div>{% endfor %}</div>
+    {% if ph.other %}<p class="lg-other">Також на цьому етапі: {{ ph.other|join(', ') }}.</p>{% endif %}
+  </section>
+  {% endif %}
+
+  {% for b in ph.blocks %}
+  {% for m in b.memos_before %}{{ memo(m) }}{% endfor %}
+  <article class="blk" style="background:{{ b.tint }}">
+    <div class="blk-head{{ ' with-chart' if b.chart }}">
+      <div class="blk-ico">{{ b.icon }}</div>
+      <div><h3>{{ b.title }}</h3>{% if b.plain %}<div class="blk-plain">{{ b.plain }}</div>{% endif %}</div>
+      {% if b.chart %}<div class="blk-chart">{{ b.chart }}</div>{% endif %}
+    </div>
+    <table class="svc">
+      <thead><tr>
+        <th class="c-name" colspan="2">Послуга</th><th class="c-teeth">Зуби</th><th class="c-price">Ціна</th>
+        {% if has_discount %}<th class="c-disc">Знижка</th>{% endif %}
+        <th class="c-qty">К-сть</th><th class="c-uah">До сплати, грн</th>{% if has_eur %}<th class="c-eur">До сплати, €</th>{% endif %}
+      </tr></thead>
+      {% set ncols = (7 if has_discount else 6) + (1 if has_eur else 0) %}
+      {% macro svc_row(r) %}
+        {% set more = r.desc or r.ref or r.incl %}
+        <tr class="r-main{{ ' has-more' if more }}">
+          <td class="c-pic"{% if more %} rowspan="2"{% endif %}>{% if r.pic %}<div class="pic">{{ r.pic }}</div>{% endif %}</td>
+          <td class="c-name"><div class="nm">{{ r.name }}{% if r.lab %}<span class="lab">наша лабораторія</span>{% endif %}</div></td>
+          <td class="c-teeth"><span class="tooth-list">{% for t in r.teeth %}<span>{{ t }}</span>{{ ' ' if not loop.last }}{% endfor %}</span>{% if not r.teeth %}<span class="muted">—</span>{% endif %}</td>
+          <td class="c-price">{{ r.unit }}</td>
+          {% if has_discount %}<td class="c-disc">{{ r.disc }}</td>{% endif %}
+          <td class="c-qty">{{ r.qty }}</td>
+          <td class="c-uah">{{ r.uah }}</td>{% if has_eur %}<td class="c-eur">{{ r.eur }}</td>{% endif %}
+        </tr>
+        {% if more %}<tr class="r-more"><td colspan="{{ ncols - 1 }}">{% if r.desc %}<div class="ds">{{ r.desc }}</div>{% elif r.ref %}<div class="ref">{{ r.ref }}</div>{% endif %}{% if r.incl %}<div class="incl"><b>У ціні:</b> {{ r.incl }}</div>{% endif %}</td></tr>{% endif %}
+      {% endmacro %}
+      {% for r in b.rows[:-1] %}<tbody class="g">{{ svc_row(r) }}</tbody>{% endfor %}
+      <tbody class="g keep">
+        {{ svc_row(b.rows[-1]) }}
+        <tr class="total-row"><td class="c-name" colspan="{{ ncols - 2 if has_eur else ncols - 1 }}">Разом</td><td class="c-uah">{{ b.total_uah }}</td>{% if has_eur %}<td class="c-eur">{{ b.total_eur }}</td>{% endif %}</tr>
+        {% if b.segments %}<tr class="seg-row"><td colspan="{{ ncols }}"><p class="seg-note small muted">Сегмент — ділянка щелепи: {% for s, n in b.segments %}сегмент {{ s }} — {{ n }}{{ '; ' if not loop.last else '.' }}{% endfor %}</p></td></tr>{% endif %}
+      </tbody>
+    </table>
+  </article>
+  {% for m in b.memos_after %}{{ memo(m) }}{% endfor %}
+  {% endfor %}
+</section>
+{% endfor %}
+
+<!-- ======================= summary ======================= -->
+<section class="summary">
+  <h2 class="sec-title">Підсумок вартості</h2>
+  <table class="sum">
+    <thead><tr><th>Етап</th><th>Тривалість</th><th>Гривні</th>{% if has_eur %}<th>Євро</th>{% endif %}</tr></thead>
+    <tbody>
+      {% for ph in phases %}
+      <tr><td>{{ ph.num }} · {{ ph.title }}{% if ph.timing %} <span class="small muted">({{ ph.timing }})</span>{% endif %}</td><td class="small muted">{{ ph.duration }}</td><td>{{ ph.total_uah or '—' }}</td>{% if has_eur %}<td>{{ ph.total_eur or '—' }}</td>{% endif %}</tr>
+      {% endfor %}
+      <tr class="grand-row"><td>Разом за планом</td><td></td><td>{{ grand_uah or '—' }}</td>{% if has_eur %}<td>{{ grand_eur or '—' }}</td>{% endif %}</tr>
+    </tbody>
+  </table>
+  {% if has_eur %}<p class="rate-note small muted">Суми в євро сплачуються в гривнях за комерційним курсом на день оплати.</p>{% endif %}
+  {% if included_note %}<p class="rate-note small muted">{{ included_note }}</p>{% endif %}
+
+  <div class="terms">{% for t in terms %}<p>{{ t }}</p>{% endfor %}</div>
+  {% if consent %}<p class="consent">{{ consent }}</p>{% endif %}
+  <div class="sign"><div>Дата</div><div>Підпис пацієнта</div></div>
+
+  <div class="contacts">
+    {% if qr %}<div class="qr">{{ qr }}</div>{% endif %}
+    <div class="txt">
+      <div style="color:#212121">FrankoLab · {{ h.clinic_name }}</div>
+      <div>{{ h.address }}</div>
+      <div>{{ h.phone_fmt }} · {{ h.email }} · {{ site_short }}</div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

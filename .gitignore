@@ -1,0 +1,15 @@
+# generated plans and previews
+out/
+*.html
+!templates/*.html.j2
+
+# real patient files never go into the repository
+private/
+uploads/
+*.pdf
+pano_*.png
+
+__pycache__/
+*.pyc
+.venv/
+.DS_Store

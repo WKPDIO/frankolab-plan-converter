@@ -1,0 +1,371 @@
+"""Stage chart: the full anatomical tooth chart where every tooth shows what happens to it in this stage.
+
+Each procedure is drawn on the tooth itself, in the language of the big illustrations:
+Storm Blue — what we do, dashed — future / temporary, hatching — bone material, metal grey — implant already in place.
+Effects are picked from the service picture (services.json → pic); the legend repeats each effect on one tooth.
+"""
+import math
+from itertools import count
+
+import graphics as G
+
+INK = "#474a50"
+FADE = "#c3ccd7"
+ACCENT = "#99aabe"
+ACCENT_DEEP = "#6f839c"
+LIGHT_ACCENT = "#dbe2ea"
+METAL = "#cfd5dc"
+METAL_DEEP = "#8a939e"
+OLD = "#e4e6ea"
+SAND = "#d8c3a5"
+SAND_EDGE = "#a88f6c"
+PINK = "#e6bdb2"
+PINK_EDGE = "#b98c80"
+ROOT = "#f1f4f8"
+
+# service picture -> what is drawn on the tooth
+EFFECT_OF_PIC = {
+    "filling": "filling", "aesthetic": "aesthetic", "endo": "endo", "fiber": "fiber", "post_removal": "post_removal",
+    "core_buildup": "core", "crown_removal": "crown_removal", "temp_crown": "temp_crown", "crown": "crown",
+    "crown_layered": "crown", "onlay": "onlay", "extraction": "extraction", "implant": "implant",
+    "healing_cap": "healing_cap", "custom_abutment": "abutment", "multi_unit": "abutment", "implant_crown": "implant_crown",
+    "temp_implant_crown": "temp_implant_crown", "bone_graft": "bone_graft", "soft_tissue": "soft_tissue",
+    "sinus_lift": "sinus_lift", "srp": "srp", "crown_lengthening": "crown_lengthening", "modeling": "modeling",
+    "all_on_4": "all_on_4", "superstructure": "superstructure", "denture": "denture", "aligner": "aligner",
+    "retention_tray": "retention_tray", "splint": "splint", "retainer": "retainer", "separation": "separation",
+}
+JAW_EFFECTS = {"all_on_4", "superstructure", "denture", "aligner", "retention_tray", "splint", "retainer"}
+IMPLANT_EFFECTS = {"implant", "implant_crown", "temp_implant_crown", "healing_cap", "abutment"}
+
+LABEL = {
+    "filling": "Лікування карієсу, пломба", "aesthetic": "Естетична реставрація", "endo": "Лікування каналів",
+    "fiber": "Зміцнення скловолокном", "post_removal": "Видалення штифта", "core": "Відновлення культі",
+    "crown_removal": "Зняття старої коронки", "temp_crown": "Тимчасова коронка", "crown": "Постійна коронка",
+    "onlay": "Накладка, вкладка, вінір", "extraction": "Видалення зуба", "implant": "Імплантат",
+    "healing_cap": "Формувач ясен", "abutment": "Абатмент", "implant_crown": "Коронка на імплантаті",
+    "temp_implant_crown": "Тимчасова коронка на імплантаті", "bone_graft": "Нарощування кістки",
+    "soft_tissue": "Пластика ясен", "sinus_lift": "Синус-ліфтинг", "srp": "Глибоке чищення під яснами",
+    "crown_lengthening": "Видовження коронки", "modeling": "Цифрове моделювання",
+    "all_on_4": "All-on-4: чотири імплантати", "superstructure": "Незнімний протез на імплантатах",
+    "denture": "Знімний протез", "aligner": "Елайнери", "retention_tray": "Ретенційна капа", "splint": "Сплінт",
+    "retainer": "Ретейнер", "separation": "Сепарація",
+}
+ORDER = list(LABEL)
+
+# All-on-4 implant positions: two straight in front, two tilted at the back (apex toward the midline)
+A4_POS = {12: 0, 22: 0, 15: 28, 25: 28, 32: 0, 42: 0, 35: 28, 45: 28}
+
+_ids = count(1)
+
+
+def _defs(uid):
+    return (f'<defs><pattern id="{uid}h" width="3.4" height="3.4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
+            f'<rect width="3.4" height="3.4" fill="{ACCENT}" fill-opacity=".45"/><path d="M0 0V3.4" stroke="{ACCENT_DEEP}" stroke-width=".9"/></pattern>'
+            f'<pattern id="{uid}o" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">'
+            f'<rect width="3" height="3" fill="{OLD}"/><path d="M0 0V3" stroke="#a9b0b9" stroke-width=".8"/></pattern></defs>')
+
+
+def _p(g, cmds):
+    return G._fmt(cmds, g["tf"])
+
+
+def _rect(g, x0, y0, x1, y1, r=.8):
+    return _p(g, [("M", (x0 + r, y0)), ("L", (x1 - r, y0)), ("Q", (x1, y0), (x1, y0 + r)), ("L", (x1, y1 - r)),
+                  ("Q", (x1, y1), (x1 - r, y1)), ("L", (x0 + r, y1)), ("Q", (x0, y1), (x0, y1 - r)),
+                  ("L", (x0, y0 + r)), ("Q", (x0, y0), (x0 + r, y0)), ("Z",)])
+
+
+def _ellipse_pts(g, cx, cy, rx, ry):
+    k = .552
+    return _p(g, [("M", (cx + rx, cy)), ("C", (cx + rx, cy + ry * k), (cx + rx * k, cy + ry), (cx, cy + ry)),
+                  ("C", (cx - rx * k, cy + ry), (cx - rx, cy + ry * k), (cx - rx, cy)),
+                  ("C", (cx - rx, cy - ry * k), (cx - rx * k, cy - ry), (cx, cy - ry)),
+                  ("C", (cx + rx * k, cy - ry), (cx + rx, cy - ry * k), (cx + rx, cy)), ("Z",)])
+
+
+def _canal(g, lobe):
+    hc, cw = g["hc"], g["cw"]
+    x, y, h = lobe
+    return _p(g, [("M", (x * .25, hc * .66)), ("Q", (x * .85, hc + (y - hc) * .4), (x, y - h * 1.6))])
+
+
+def _implant(g, fill, tilt=0, length=None):
+    """implant in place of the root: platform at the neck, apex toward the root tip; tilt in degrees toward mesial"""
+    hc, hr, cw = g["hc"], g["hr"], g["cw"]
+    iw = min(4.2, cw * .8)
+    L = length or hr * .9
+    a = math.radians(tilt)
+
+    def rot(x, y):                      # rotate around the platform centre (0, hc)
+        dy = y - hc
+        return (x * math.cos(a) + dy * math.sin(a), hc + dy * math.cos(a) - x * math.sin(a))
+    body = [("M", rot(-iw / 2, hc)), ("L", rot(iw / 2, hc)),
+            ("C", rot(iw / 2 + .1, hc + L * .6), rot(iw * .42, hc + L * .92), rot(iw * .26, hc + L)),
+            ("Q", rot(0, hc + L + .7), rot(-iw * .26, hc + L)),
+            ("C", rot(-iw * .42, hc + L * .92), rot(-iw / 2 - .1, hc + L * .6), rot(-iw / 2, hc)), ("Z",)]
+    out = f'<path d="{_p(g, body)}" fill="{fill}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
+    thr = []
+    y = hc + 1.4
+    while y < hc + L - 1:
+        half = iw / 2 * (1 - (y - hc) / L * .35)
+        thr += [("M", rot(-half, y + .5)), ("L", rot(half, y - .5))]
+        y += 1.5
+    out += f'<path d="{_p(g, thr)}" fill="none" stroke="{INK if fill == ACCENT else METAL_DEEP}" stroke-width=".55"/>'
+    return out
+
+
+def _stump(g):
+    hc, cw = g["hc"], g["cw"]
+    return _p(g, [("M", (-cw * .46, hc)), ("C", (-cw * .48, hc * .55), (-cw * .42, hc * .32), (-cw * .3, hc * .3)),
+                  ("L", (cw * .3, hc * .3)), ("C", (cw * .42, hc * .32), (cw * .48, hc * .55), (cw * .46, hc)), ("Z",)])
+
+
+def draw_tooth(g, fx, uid, active=True):
+    """svg for one tooth with its set of effects (local frame of tooth_geom)"""
+    hc, hr, w, cw = g["hc"], g["hr"], g["w"], g["cw"]
+    n = g["n"]
+    under, base, over = "", "", ""
+    if "absent" in fx:
+        return "", "", "", ""
+    clip = f"{uid}c{n}"
+    clipdef = f'<clipPath id="{clip}"><path d="{g["crown"]}"/></clipPath>'
+    stroke = INK if active else FADE
+    sw = .8 if active else .6
+
+    # behind the tooth: bone material and the lifted sinus floor
+    if "bone_graft" in fx:
+        under += f'<path d="{_rect(g, -w * .62, hc + hr * .1, w * .62, hc + hr * .8, 1.5)}" fill="url(#{uid}h)" stroke="{ACCENT_DEEP}" stroke-width=".5"/>'
+    if "sinus_lift" in fx:
+        dome = [("M", (-w * .62, hc + hr * .98)), ("Q", (-w * .62, hc + hr * .52), (0, hc + hr * .48)),
+                ("Q", (w * .62, hc + hr * .52), (w * .62, hc + hr * .98)), ("Z",)]
+        under += f'<path d="{_p(g, dome)}" fill="url(#{uid}h)" stroke="{ACCENT_DEEP}" stroke-width=".6"/>'
+
+    implantish = fx & (IMPLANT_EFFECTS | {"a4_new", "a4_metal"})
+    edentulous = bool(implantish or fx & {"a4_future", "prosthesis", "denture"})
+
+    if edentulous:
+        if implantish:
+            new = bool(fx & {"implant", "a4_new"})
+            base += _implant(g, ACCENT if new else METAL, tilt=fx_tilt(fx))
+        if "healing_cap" in fx:
+            cap = _rect(g, -cw * .3, hc * .68, cw * .3, hc + .4, .9)
+            base += f'<path d="{cap}" fill="{ACCENT}" stroke="{INK}" stroke-width=".8"/>'
+        if "abutment" in fx:
+            ab = _p(g, [("M", (-cw * .34, hc)), ("L", (-cw * .3, hc * .42)), ("Q", (0, hc * .36), (cw * .3, hc * .42)),
+                        ("L", (cw * .34, hc)), ("Z",)])
+            base += f'<path d="{ab}" fill="{ACCENT}" stroke="{INK}" stroke-width=".8"/>'
+        if fx & {"implant_crown"} or "prosthesis" in fx:
+            base += f'<path d="{g["crown"]}" fill="{ACCENT}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
+        elif "denture" in fx:
+            base += f'<path d="{g["crown"]}" fill="#ffffff" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
+        elif "temp_implant_crown" in fx:
+            base += (f'<path d="{g["crown"]}" fill="{LIGHT_ACCENT}" fill-opacity=".85" stroke="{ACCENT_DEEP}" stroke-width=".9" '
+                     f'stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
+        elif fx & {"implant", "a4_future", "a4_new"} and "healing_cap" not in fx:
+            base += (f'<path d="{g["crown"]}" fill="#ffffff" fill-opacity=".5" stroke="{INK}" stroke-width=".75" '
+                     f'stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
+        elif "abutment" in fx:
+            base += (f'<path d="{g["crown"]}" fill="none" stroke="{INK}" stroke-width=".75" stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
+        if fx & {"prosthesis", "denture"} and "flange_local" in fx:
+            fl = _rect(g, -w / 2 - .5, hc - .9, w / 2 + .5, hc + 2.8, .6)
+            base += f'<path d="{fl}" fill="{PINK}" stroke="{PINK_EDGE}" stroke-width=".5"/>'
+    elif "extraction" in fx:
+        base += (f'<path d="{g["sil"]}" fill="#ffffff" fill-opacity=".4" stroke="{INK}" stroke-width=".75" stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
+        x = w * .2
+        base += (f'<path d="{_p(g, [("M", (-x, hc * .3)), ("L", (x, hc * .78)), ("M", (x, hc * .3)), ("L", (-x, hc * .78))])}" '
+                 f'stroke="{ACCENT_DEEP}" stroke-width="1.5" stroke-linecap="round"/>')
+    else:
+        base += f'<path d="{g["sil"]}" fill="{ROOT if active else "#f7f9fb"}"/>'
+        base += f'<path d="{g["crown"]}" fill="#ffffff"/>'
+        # root canal layers
+        if "endo" in fx:
+            ch = _rect(g, -cw * .22, hc * .55, cw * .22, hc * .9, 1)
+            base += f'<path d="{ch}" fill="{ACCENT}"/>'
+            base += "".join(f'<path d="{_canal(g, lb)}" fill="none" stroke="{ACCENT_DEEP}" stroke-width="1.3" stroke-linecap="round"/>' for lb in g["lobes"])
+        if "fiber" in fx:
+            x, y, h = g["lobes"][0]
+            post = _p(g, [("M", (0, hc * .7)), ("Q", (x * .5, hc + (y - hc) * .2), (x * .8, hc + (y - hc) * .5))])
+            base += f'<path d="{post}" fill="none" stroke="{INK}" stroke-width="2" stroke-linecap="round"/>'
+            base += f'<path d="{post}" fill="none" stroke="{ACCENT}" stroke-width="1.1" stroke-linecap="round"/>'
+        if "post_removal" in fx:
+            x, y, h = g["lobes"][0]
+            post = _p(g, [("M", (0, hc * .7)), ("Q", (x * .5, hc + (y - hc) * .2), (x * .8, hc + (y - hc) * .5))])
+            base += f'<path d="{post}" fill="none" stroke="{INK}" stroke-width="1" stroke-dasharray="1.6 1.4" stroke-linecap="round"/>'
+        # crown layers, from the inside out
+        if "core" in fx:
+            base += f'<path d="{_stump(g)}" fill="{ACCENT}" stroke="{INK}" stroke-width=".7"/>'
+        if "filling" in fx:
+            front = g["kind"] in ("incisor", "canine")
+            spot = _ellipse_pts(g, w * .04, hc * (.45 if front else .2), w * (.2 if front else .24), hc * (.16 if front else .16))
+            base += f'<g clip-path="url(#{clip})"><path d="{spot}" fill="{ACCENT}" stroke="{INK}" stroke-width=".6"/></g>'
+        if "aesthetic" in fx:
+            band = _rect(g, -w, -1, w, hc * .4, 0)
+            base += f'<g clip-path="url(#{clip})"><path d="{band}" fill="{ACCENT}"/></g>'
+        if "onlay" in fx:
+            cap = _p(g, [("M", (-w, -1)), ("L", (w, -1)), ("L", (w, hc * .42)), ("Q", (w * .2, hc * .55), (0, hc * .44)),
+                         ("Q", (-w * .25, hc * .34), (-w, hc * .48)), ("Z",)])
+            base += f'<g clip-path="url(#{clip})"><path d="{cap}" fill="{ACCENT}" stroke="{INK}" stroke-width=".6"/></g>'
+        if "modeling" in fx:
+            grid = []
+            step = w / 5
+            xg = -w / 2
+            while xg <= w / 2:
+                grid += [("M", (xg, 0)), ("L", (xg, hc))]
+                xg += step
+            yg = 0
+            while yg <= hc:
+                grid += [("M", (-w / 2, yg)), ("L", (w / 2, yg))]
+                yg += hc / 5
+            base += f'<g clip-path="url(#{clip})"><path d="{_p(g, grid)}" stroke="{ACCENT}" stroke-width=".5"/></g>'
+        if "crown_removal" in fx and not fx & {"crown", "temp_crown"}:
+            base += f'<path d="{g["crown"]}" fill="url(#{uid}o)" stroke="{INK}" stroke-width=".7" stroke-dasharray="2 1.4"/>'
+        if "crown" in fx:
+            base += f'<path d="{g["crown"]}" fill="{ACCENT}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
+        elif "temp_crown" in fx:
+            base += (f'<path d="{g["crown"]}" fill="{LIGHT_ACCENT}" fill-opacity=".7" stroke="{ACCENT_DEEP}" stroke-width=".9" '
+                     f'stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
+        base += f'<path d="{g["sil"]}" fill="none" stroke="{stroke}" stroke-width="{sw}" stroke-linejoin="round"/>'
+        base += f'<path d="{g["cej"]}" fill="none" stroke="{stroke}" stroke-width="{sw * .6:.2f}"/>'
+
+    # on top: gum, tartar, trays
+    if "soft_tissue" in fx:
+        band = _rect(g, -w * .56, hc - .6, w * .56, hc + hr * .18, 1)
+        over += f'<path d="{band}" fill="{ACCENT}" fill-opacity=".55" stroke="{ACCENT_DEEP}" stroke-width=".5"/>'
+    if "srp" in fx:
+        for side in (-1, 1):
+            over += f'<path d="{_ellipse_pts(g, side * cw * .5, hc + hr * .14, .55, 1.5)}" fill="{SAND}" stroke="{SAND_EDGE}" stroke-width=".5"/>'
+    if "crown_lengthening" in fx:
+        line = _p(g, [("M", (-w * .6, hc + hr * .14)), ("L", (w * .6, hc + hr * .14))])
+        over += f'<path d="{line}" stroke="{ACCENT_DEEP}" stroke-width="1.1" stroke-dasharray="2 1.4"/>'
+    if fx & {"aligner", "retention_tray", "splint"}:
+        thick = 3.4 if "splint" in fx else 1.8
+        over += (f'<path d="{g["crown"]}" fill="{ACCENT}" fill-opacity="{.38 if "splint" in fx else .18}" stroke="{ACCENT_DEEP}" '
+                 f'stroke-width="{thick}" stroke-opacity=".75" stroke-linejoin="round"/>')
+        if "aligner" in fx and g["kind"] in ("canine", "premolar"):
+            over += f'<path d="{_rect(g, -w * .2, hc * .38, w * .2, hc * .62, .4)}" fill="{ACCENT_DEEP}"/>'
+    if "separation" in fx:
+        line = _p(g, [("M", (w / 2 + .3, hc * .05)), ("L", (w / 2 + .3, hc * .7))])
+        over += f'<path d="{line}" stroke="{ACCENT_DEEP}" stroke-width="1.2" stroke-linecap="round"/>'
+    return clipdef, under, base, over
+
+
+def fx_tilt(fx):
+    for f in fx:
+        if isinstance(f, str) and f.startswith("tilt:"):
+            return float(f[5:])
+    return 0
+
+
+def expand_jaw(fx_by_tooth, jaw_fx):
+    """turn jaw-wide effects into per-tooth ones"""
+    fx = {n: set(v) for n, v in fx_by_tooth.items()}
+    for jaw, effects in jaw_fx.items():
+        teeth = G.UPPER if jaw == "upper" else G.LOWER
+        for n in teeth:
+            pos = n % 10
+            e = fx.setdefault(n, set())
+            last = 7 if "denture" in effects and not effects & {"all_on_4", "superstructure"} else 6
+            if effects & {"all_on_4", "superstructure", "denture"} and pos > last:
+                e.add("absent")
+                continue
+            if "all_on_4" in effects:
+                e.add("a4_future")
+                if n in A4_POS:
+                    e.add("a4_new")
+                    e.add(f"tilt:{A4_POS[n]}")
+            if "superstructure" in effects:
+                e.add("prosthesis")
+                if n in A4_POS:
+                    e.add("a4_metal")
+                    e.add(f"tilt:{A4_POS[n]}")
+            if "denture" in effects:
+                e.add("denture")
+            for t in ("aligner", "retention_tray", "splint"):
+                if t in effects:
+                    e.add(t)
+            if "retainer" in effects and pos <= 3:
+                e.add("retainer")
+    return fx
+
+
+def stage_chart(fx_by_tooth, jaw_fx=None, width=600):
+    uid = f"s{next(_ids)}"
+    fx = expand_jaw(fx_by_tooth, jaw_fx or {})
+    L = G.chart_layout(width)
+    s = L["s"]
+    clips, unders, bases, overs, nums = [], [], [], [], []
+    retainer_pts = {"upper": [], "lower": []}
+    flange = {"upper": [], "lower": []}
+    for jaw, seq, y0 in (("upper", G.UPPER, L["occl_up"]), ("lower", G.LOWER, L["occl_lo"])):
+        for n in seq:
+            e = fx.get(n, set())
+            g = G.tooth_geom(n, L["centres"][n], y0, s, jaw == "upper")
+            c, u, b, o = draw_tooth(g, e, uid, active=bool(e))
+            clips.append(c), unders.append(u), bases.append(b), overs.append(o)
+            if "retainer" in e:
+                retainer_pts[jaw].append(g["tf"](0, g["hc"] * .5))
+            if e & {"prosthesis", "denture"}:
+                hc, w = g["hc"], g["w"]
+                a, b = sorted([g["tf"](-w / 2 - .35, hc - 1.1), g["tf"](w / 2 + .35, hc - 1.1)])
+                ta, tb = sorted([g["tf"](-w / 2 - .35, hc + 3.4), g["tf"](w / 2 + .35, hc + 3.4)])
+                flange[jaw].append((a, g["tf"](0, hc + .5), b, ta, tb))
+            on = bool({x for x in e if not x.startswith("tilt:") and x != "absent"})
+            ny = L["num_h"] - 1.5 if jaw == "upper" else L["height"] - 1.5
+            nums.append(f'<text x="{L["centres"][n]:.1f}" y="{ny:.1f}" class="{"ch-num-on" if on else "ch-num"}" text-anchor="middle">{n}</text>')
+    for teeth in flange.values():
+        if not teeth:
+            continue
+        teeth.sort(key=lambda t: t[0][0])
+        ys = [p[1] for t in teeth for p in (t[3], t[4])]
+        upper_jaw = teeth[0][3][1] < teeth[0][0][1]
+        yt = min(ys) if upper_jaw else max(ys)
+        x0, x1 = teeth[0][3][0], teeth[-1][4][0]
+        d = f"M{x0:.1f} {yt:.1f} L{x1:.1f} {yt:.1f}"
+        for a, m, b, _, _ in reversed(teeth):
+            d += f" L{b[0]:.1f} {b[1]:.1f} Q{m[0]:.1f} {m[1] + (m[1] - b[1]) * .9:.1f} {a[0]:.1f} {a[1]:.1f}"
+        d += "Z"
+        overs.append(f'<path d="{d}" fill="{PINK}" stroke="{PINK_EDGE}" stroke-width=".7" stroke-linejoin="round"/>')
+    for pts in retainer_pts.values():
+        if pts:
+            pts.sort()
+            d = "M" + " L".join(f"{x:.1f} {y:.1f}" for x, y in pts)
+            overs.append(f'<path d="{d}" fill="none" stroke="{ACCENT_DEEP}" stroke-width="1.8" stroke-linecap="round"/>')
+            overs += [f'<circle cx="{x:.1f}" cy="{y:.1f}" r="1.9" fill="{ACCENT}" stroke="{ACCENT_DEEP}" stroke-width=".6"/>' for x, y in pts]
+    guide = (f'<line x1="0" y1="{L["occl"]:.1f}" x2="{width}" y2="{L["occl"]:.1f}" class="ch-line"/>'
+             f'<line x1="{L["mid"]:.1f}" y1="{L["num_h"] + 1:.1f}" x2="{L["mid"]:.1f}" y2="{L["bot"]:.1f}" class="ch-line"/>')
+    defs = _defs(uid).replace("</defs>", "".join(clips) + "</defs>")
+    h = L["height"]
+    return (f'<svg class="chart stage-chart" width="{width}" height="{h:.0f}" viewBox="0 0 {width} {h:.1f}" role="img" '
+            f'aria-label="Зубна формула етапу" xmlns="http://www.w3.org/2000/svg">{defs}{guide}{"".join(unders)}'
+            f'{"".join(bases)}{"".join(overs)}{"".join(nums)}</svg>')
+
+
+# ---- legend: one tooth per effect ------------------------------------------------------
+GLYPH_TOOTH = {"aesthetic": 21, "sinus_lift": 26, "retainer": 31, "separation": 35, "aligner": 34, "retention_tray": 36,
+               "splint": 36, "denture": 36, "superstructure": 36, "all_on_4": 35, "filling": 36, "crown_lengthening": 36}
+
+
+def glyph(effect, size=34):
+    """one tooth showing the effect, for the legend"""
+    uid = f"g{next(_ids)}"
+    n = GLYPH_TOOTH.get(effect, 36)
+    upper = n < 30
+    s = 2.0
+    if effect == "sinus_lift":          # upper tooth, roots up — the lifted floor sits above them
+        g = G.tooth_geom(n, 15, 38, s, True)
+    else:
+        g = G.tooth_geom(n, 15, 3.5, s, upper, grow_down=True)
+    fx = {effect}
+    if effect == "all_on_4":
+        fx = {"a4_new", "a4_future"}
+    elif effect == "superstructure":
+        fx = {"prosthesis", "a4_metal", "flange_local"}
+    elif effect == "denture":
+        fx = {"denture", "flange_local"}
+    c, u, b, o = draw_tooth(g, fx, uid)
+    if effect == "retainer":
+        x, y = g["tf"](0, g["hc"] * .5)
+        o += (f'<path d="M{x - 13:.1f} {y:.1f}H{x + 13:.1f}" stroke="{ACCENT_DEEP}" stroke-width="1.8" stroke-linecap="round"/>'
+              f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2" fill="{ACCENT}" stroke="{ACCENT_DEEP}" stroke-width=".6"/>')
+    return (f'<svg width="{size * 30 / 46:.0f}" height="{size}" viewBox="0 0 30 46" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">'
+            f'{_defs(uid).replace("</defs>", c + "</defs>")}{u}{b}{o}</svg>')
