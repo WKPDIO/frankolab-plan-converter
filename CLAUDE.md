@@ -30,6 +30,9 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
 - Hygiene levels differ by the amount of deposits (м'який наліт < без уточнення < стійкий наліт).
 - One set of implants per jaw: the implantation decides it (All-on-6 → six). A prosthesis never adds implants of its own —
   a temporary bridge "in the All-on-4 concept" on six implants is drawn on six (stagechart.implant_sites, render.plan_implant_sites).
+- Stages carry over (render.build): a tooth removed earlier is not drawn again; work on a tooth implanted earlier sits on
+  that (pale) implant — a plain crown there becomes a crown on the implant; a crown on a removed tooth with no implant is a
+  bridge pontic (no root).
 - A service given per segment or quadrant (квадрант 1–4 = 18–11, 21–28, 31–38, 41–48) means "somewhere in this area": bone/sinus/soft-tissue work on a segment is drawn only on the
   implant sites of that segment (extraction sites only when the segment gets no implant) (render.py area_fx, stagechart SITE_EFFECTS), never on healthy teeth.
 

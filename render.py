@@ -31,6 +31,7 @@ def norm(name):
     s = s.replace(" )", ")").replace("( ", "(")
     s = re.sub(r"(\d)-\s+(?=[^\W\d_])", r"\1-", s)   # "3- го" -> "3-го"
     s = re.sub(r"(?<=[a-z])-\s+(?=[a-z])", "-", s)      # "all- on-6" -> "all-on-6"
+    s = re.sub(r"\)\.\s*(?=\w)", "). ", s)                # "фіксація).встановлення" = "фіксація). встановлення"
     return s
 
 
@@ -142,6 +143,13 @@ def group_thousands(n):
     return s
 
 
+def css_str(v):
+    """text inside a CSS string in <style> (page header and footer): HTML escaping does not apply there —
+    "Том'як" would print as "Том&#39;як" — so escape for CSS instead"""
+    s = str(v).replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ")
+    return Markup(re.sub(r"[<>&]", lambda m: f"\\{ord(m.group()):x} ", s))
+
+
 def money(v, cur):
     v = Decimal(v)
     whole = v == v.to_integral()
@@ -202,6 +210,8 @@ def area_teeth(label):
 
 
 OTHER_NAME = {"ct_scan": "консультація і 3D-знімок", "exam": "консультація", "scan": "цифрове сканування", "impression": "відбиток щелепи",
+              "perio_chart": "пародонтологічна карта", "interdental_brush": "підбір засобів домашнього догляду",
+              "functiography": "функціографія",
               "hygiene": "професійна гігієна", "sedation": "лікування уві сні (седація)", "axiography": "аксіографія"}
 
 
@@ -305,6 +315,7 @@ def build(plan, dic):
     seen = {}   # service key -> number of the stage where its description was first shown
     seen_desc = {}  # description text -> the same, for different positions explained by one text
     known_sites = plan_implant_sites(plan, services, rules)
+    removed, implanted = set(), set()   # teeth extracted / given an implant in the stages so far
     for i, ph in enumerate(plan["phases"], 1):
         ph_tot = {}
         blocks = []
@@ -433,20 +444,42 @@ def build(plan, dic):
             jaw_sites |= set(SC.implant_sites(jaw, effects, known_sites.get(jaw)))
         for teeth_of_area, effect in area_fx:
             if effect in SC.SITE_EFFECTS:
-                # implant sites first: bone, sinus and gum work there is for the implant; extraction sites only
-                # when the area gets no implant in this stage (e.g. preserving the socket after an extraction)
-                sites = [n for n in teeth_of_area if fx_teeth.get(n, set()) & SC.IMPLANT_ANCHORS or n in jaw_sites] or \
+                # implant sites first (this stage's or earlier ones): bone, sinus and gum work there is for the implant;
+                # extraction sites only when the area has no implant (e.g. preserving the socket after an extraction)
+                sites = [n for n in teeth_of_area if fx_teeth.get(n, set()) & SC.IMPLANT_ANCHORS or n in jaw_sites
+                         or n in implanted] or \
                         [n for n in teeth_of_area if fx_teeth.get(n, set()) & SC.SITE_ANCHORS]
                 for n in sites:
                     fx_teeth.setdefault(n, set()).add(effect)
             else:
                 for n in teeth_of_area:
                     fx_teeth.setdefault(n, set()).add(effect)
+        has_map = bool(fx_teeth) or any(jaw_fx.values())
+        # teeth changed in earlier stages: work on a tooth that got an implant earlier is on that implant (a crown there is
+        # a crown on the implant); a crown where a tooth is or was removed, with no implant, is a bridge pontic
+        for n, e in fx_teeth.items():
+            if e & SC.IMPLANT_EFFECTS:
+                continue
+            if n in implanted:
+                for natural, on_implant in (("crown", "implant_crown"), ("temp_crown", "temp_implant_crown")):
+                    if natural in e:
+                        e.discard(natural)
+                        e.add(on_implant)
+                if not e & SC.IMPLANT_EFFECTS:
+                    e.add("a4_metal")                     # the implant already in place
+            elif e & {"crown", "temp_crown"} and ("extraction" in e or n in removed):
+                e.add("pontic")
+        # untouched in this stage: a removed tooth is not drawn again, an earlier implant stays in view (pale) —
+        # unless a full-arch prosthesis or a denture replaces that jaw's teeth in this stage
+        for n in removed | implanted:
+            if n not in fx_teeth and not jaw_fx["upper" if n // 10 in (1, 2) else "lower"] & (SC.FULL_ARCH | {"denture"}):
+                fx_teeth[n] = {"a4_metal", "ctx"} if n in implanted else {"absent"}
+        removed |= {n for n, e in fx_teeth.items() if "extraction" in e}
+        implanted |= {n for n, e in fx_teeth.items() if e & SC.IMPLANT_EFFECTS}
         attach_memos(blocks, memos)
         for k, v in ph_tot.items():
             add(grand, k, v)
         ph_title, ph_timing = phase_names(ph["title"], ph.get("timing", ""))
-        has_map = bool(fx_teeth) or any(jaw_fx.values())
         legend_view = []
         for e in sorted(legend, key=SC.ORDER.index):
             labs = legend[e]
@@ -523,6 +556,7 @@ def render_plan(src, out_dir, pano=None, preview=None):
     dic = json.loads((ROOT / "data" / "services.json").read_text())
     view, missing, flagged = build(plan, dic)
     env = Environment(loader=FileSystemLoader(str(ROOT / "templates")), autoescape=True)
+    env.filters["css_str"] = css_str
     pano_uri = Path(pano).resolve().as_uri() if pano else None
     html = env.get_template("plan.html.j2").render(**view, pano=pano_uri, font_url=(ROOT / "assets/fonts/Onest-wght.woff2").as_uri())
     stem = re.sub(r"\s+", "_", plan["header"].get("patient", src.stem))

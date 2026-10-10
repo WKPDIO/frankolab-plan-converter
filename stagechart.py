@@ -168,6 +168,13 @@ def _implant_crown_path(g, cw_top=None):
     return _p(g, outline + tail), plat
 
 
+def _pontic_path(g):
+    """bridge pontic: the anatomical crown closed by a gentle oval base resting on the gum — no root"""
+    hc, cw, w = g["hc"], g["cw"], g["w"]
+    outline = G._crown_outline(g["kind"], w, cw, hc)      # from (-cw/2, hc) ... to (cw/2, hc)
+    return _p(g, outline + [("Q", (0, hc + 2.6), (-cw / 2, hc)), ("Z",)])
+
+
 def _stump(g):
     hc, cw = g["hc"], g["cw"]
     return _p(g, [("M", (-cw * .46, hc)), ("C", (-cw * .48, hc * .55), (-cw * .42, hc * .32), (-cw * .3, hc * .3)),
@@ -197,7 +204,17 @@ def draw_tooth(g, fx, uid, active=True):
     implantish = fx & (IMPLANT_EFFECTS | {"a4_new", "a4_metal"})
     edentulous = bool(implantish or fx & {"a4_future", "prosthesis", "prosthesis_temp", "denture"})
 
-    if edentulous:
+    if "pontic" in fx and not implantish:
+        # a crown where the tooth is removed: a bridge pontic, resting on the gum
+        pon = _pontic_path(g)
+        if "crown" in fx:
+            base += f'<path d="{pon}" fill="{CROWN}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
+            base += _facets(g, clip, 1.4)
+            base += f'<path d="{g["relief"]}" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width=".5" stroke-linecap="round"/>'
+        else:
+            base += (f'<path d="{pon}" fill="{TEMP}" fill-opacity=".85" stroke="{TEMP_DEEP}" stroke-width=".9" '
+                     f'stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
+    elif edentulous:
         if implantish:
             new = bool(fx & {"implant", "a4_new"})
             base += _implant(g, METAL if new else "#e3e7ec", tilt=fx_tilt(fx))
@@ -378,7 +395,9 @@ def stage_chart(fx_by_tooth, jaw_fx=None, width=600, known=None):
         for n in seq:
             e = fx.get(n, set())
             g = G.tooth_geom(n, L["centres"][n], y0, s, jaw == "upper")
-            c, u, b, o = draw_tooth(g, e, uid, active=bool(e))
+            # "ctx" — context from earlier stages (an implant already in place): drawn, but the tooth is not worked on now
+            on = bool({x for x in e if not x.startswith("tilt:") and x not in ("absent", "ctx")})
+            c, u, b, o = draw_tooth(g, e, uid, active=on)
             clips.append(c), unders.append(u), bases.append(b), overs.append(o)
             if "retainer" in e:
                 retainer_pts[jaw].append(g["tf"](0, g["hc"] * .5))
@@ -387,7 +406,6 @@ def stage_chart(fx_by_tooth, jaw_fx=None, width=600, known=None):
                 a, b = sorted([g["tf"](-w / 2 - .35, hc - 1.1), g["tf"](w / 2 + .35, hc - 1.1)])
                 ta, tb = sorted([g["tf"](-w / 2 - .35, hc + 3.4), g["tf"](w / 2 + .35, hc + 3.4)])
                 flange[jaw].append((a, g["tf"](0, hc + .5), b, ta, tb))
-            on = bool({x for x in e if not x.startswith("tilt:") and x != "absent"})
             ny = L["num_h"] - 1.5 if jaw == "upper" else L["height"] - 1.5
             nums.append(f'<text x="{L["centres"][n]:.1f}" y="{ny:.1f}" class="{"ch-num-on" if on else "ch-num"}" text-anchor="middle">{n}</text>')
     for teeth in flange.values():

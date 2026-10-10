@@ -309,6 +309,42 @@ def srp():
     return svg(body, u, "Глибоке чищення під яснами")
 
 
+def perio_chart():
+    """Пародонтологічна карта: тонкий зонд з міліметровими мітками заходить у ясенну кишеню, поруч — карта глибин."""
+    u = "pc"
+    # probe shaft past the crown's bulge into the pocket along the root; the bands are millimetre marks, the translucent
+    # gum in front shows how deep the probe goes
+    body = _jaw(u) + _tooth()
+    x_at = lambda y: 124 - (y - 30) * 22.8 / 71
+    body += f'<path d="M124 30L101.2 101" stroke="{INK}" stroke-width="2" stroke-linecap="round"/>'
+    for y0, y1 in ((76, 81.5), (86, 91.5), (96, 100.5)):
+        body += f'<path d="M{x_at(y0):.1f} {y0}L{x_at(y1):.1f} {y1}" stroke="{ACCENT_DEEP}" stroke-width="4.2"/>'
+    body += _gum()
+    body += f'<path d="M132 9L124.6 28" stroke="{INK}" stroke-width="5.5" stroke-linecap="round"/>'
+    # the chart: pocket depths around the teeth
+    body += f'<rect x="16" y="20" width="44" height="34" rx="5" fill="#f6f8fb" {SW}/>'
+    body += "".join(f'<path d="M{x} 26V49" stroke="{LIGHT_ACCENT}" stroke-width="1"/>' for x in (27, 38, 49))
+    body += (f'<path d="M21 42L27 38L32 44L38 35L43 40L49 33L55 39" fill="none" stroke="{ACCENT_DEEP}" stroke-width="1.6" '
+             f'stroke-linecap="round" stroke-linejoin="round"/>')
+    return svg(body, u, "Пародонтологічна карта — вимірювання ясенних кишень")
+
+
+def interdental_brush():
+    """Міжзубний йоржик: щіточка між двома зубами біля ясен, ручка — вгору вбік."""
+    u = "ib"
+    teeth = _tooth_at(54, .62) + _tooth_at(106, .62)
+    body = _jaw(u) + teeth + _gum()
+    body += f'<path d="M80 80L124 36" stroke="{INK}" stroke-width="1.6" stroke-linecap="round"/>'
+    body += f'<path d="M124 36L144 16" stroke="{INK}" stroke-width="9" stroke-linecap="round"/>'
+    body += f'<path d="M124 36L144 16" stroke="{ACCENT}" stroke-width="6.2" stroke-linecap="round"/>'
+    # bristle head in the gap: a small soft cylinder, its bristles across the wire
+    body += f'<ellipse cx="80" cy="82" rx="6.4" ry="9" fill="{LIGHT_ACCENT}" stroke="{ACCENT_DEEP}" stroke-width="1.1"/>'
+    body += "".join(f'<path d="M{80 - w:.1f} {y}H{80 + w:.1f}" stroke="{ACCENT_DEEP}" stroke-width=".9" stroke-linecap="round"/>'
+                    for y, w in ((76, 3.6), (79, 5.2), (82, 5.8), (85, 5.2), (88, 3.6)))
+    body += f'<path d="M80 73V91" stroke="{INK}" stroke-width="1.3" stroke-linecap="round"/>'
+    return svg(body, u, "Міжзубний йоржик")
+
+
 def filling():
     """Пломба: відновлена ділянка жувальної поверхні."""
     u = "fi"
@@ -1060,7 +1096,7 @@ def axiography():
 
 
 ALL = ALL + [("Огляд", exam), ("Сканування", scan), ("Моделювання", modeling), ("Аксіографія", axiography),
-             ("Глибоке чищення", srp), ("Пломба", filling), ("Естетична реставрація", aesthetic),
+             ("Глибоке чищення", srp), ("Пародонтологічна карта", perio_chart), ("Міжзубний йоржик", interdental_brush), ("Пломба", filling), ("Естетична реставрація", aesthetic),
              ("Відновлення культі", core_buildup), ("Скловолокно", fiber), ("Зняття коронки", crown_removal),
              ("Видалення штифта", post_removal), ("Видалення зуба", extraction), ("Зуб, який не зберегти", hopeless_tooth), ("Видовження коронки", crown_lengthening),
              ("Кісткова пластика", bone_graft), ("Синус-ліфтинг", sinus_lift), ("Пластика ясен", soft_tissue),
@@ -1085,7 +1121,7 @@ THUMB_VIEW = {"default": "24 34 112 112", "ct_scan": "6 12 148 148", "sedation":
               "all_on_4": "10 14 140 140", "superstructure": "10 14 140 140",
               "all_on_6": "10 14 140 140", "superstructure_6": "10 14 140 140", "denture": "8 8 144 144",
               "splint": "8 8 144 144", "aligner": "8 8 144 144", "retention_tray": "8 8 144 144",
-              "retainer": "8 8 144 144", "impression": "6 0 148 148", "functiography": "8 10 144 144", "separation": "18 22 124 124", "scan": "22 20 124 124",
+              "retainer": "8 8 144 144", "impression": "6 0 148 148", "perio_chart": "10 12 136 136", "interdental_brush": "18 12 128 128", "functiography": "8 10 144 144", "separation": "18 22 124 124", "scan": "22 20 124 124",
               "exam": "22 22 124 124", "endo": "22 22 124 124", "hygiene": "16 22 124 124", "srp": "14 22 124 124",
               "extraction": "20 16 128 128", "hopeless_tooth": "22 30 116 116", "crown_removal": "20 18 128 128", "post_removal": "20 18 128 128",
               "aesthetic": "22 30 116 116"}
