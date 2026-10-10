@@ -226,9 +226,14 @@ def draw_tooth(g, fx, uid, active=True):
             cap = _rect(g, -cw * .3, hc * .68, cw * .3, hc + .4, .9)
             base += f'<path d="{cap}" fill="{METAL}" stroke="{INK}" stroke-width=".8"/>'
         if "abutment" in fx:
-            ab = _p(g, [("M", (-cw * .34, hc)), ("L", (-cw * .3, hc * .42)), ("Q", (0, hc * .36), (cw * .3, hc * .42)),
-                        ("L", (cw * .34, hc)), ("Z",)])
-            base += f'<path d="{ab}" fill="{METAL}" stroke="{INK}" stroke-width=".8"/>'
+            # like the real part: widens from the implant platform to a shoulder at the gum (emergence profile),
+            # above it a tapered core that the crown sits on
+            iw, plat = min(4.2, cw * .8), hc + 2.6
+            ab = _p(g, [("M", (-iw / 2, plat)), ("C", (-iw / 2 - .5, plat - 1), (-cw * .42, hc + 1), (-cw * .42, hc)),
+                        ("L", (-cw * .33, hc - .7)), ("L", (-cw * .26, hc * .42)), ("Q", (0, hc * .3), (cw * .26, hc * .42)),
+                        ("L", (cw * .33, hc - .7)), ("L", (cw * .42, hc)),
+                        ("C", (cw * .42, hc + 1), (iw / 2 + .5, plat - 1), (iw / 2, plat)), ("Z",)])
+            base += f'<path d="{ab}" fill="{METAL}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
         if fx & {"implant_crown"} or "prosthesis" in fx:
             icp, plat = _implant_crown_path(g)
             # over an abutment of this stage the crown is a little see-through, so the abutment inside stays visible

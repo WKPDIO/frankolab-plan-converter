@@ -396,22 +396,31 @@ def whitening():
     return svg(body, u, "Професійне відбілювання зубів")
 
 
+PUS, PUS_EDGE = "#f3d77c", "#a8862e"
+INFLAMED_DEEP = "#c2635c"
+
+
 def implant_removal():
-    """Видалення імплантату з периімплантитом: навколо шийки імплантату кістку зруйновано запаленням (кратер),
-    різьба оголена, ясна запалені, біля краю — гній; стрілка — імплантат видаляють."""
+    """Видалення імплантату через периімплантит: навколо імплантату запалення з'їло кістку (червоний кратер),
+    ясна запалені, з-під них — гній. Імплантат виходить вгору, на його місці — лунка пунктиром."""
     u = "ir"
     body = _jaw(u)
-    # bone lost around the implant neck: a crater of inflamed tissue in place of bone
-    body += (f'<path d="M48 106C57 106 62 110 65 118C67 124 68.5 130 71 133H89C91.5 130 93 124 95 118C98 110 103 106 112 106Z" '
-             f'fill="{INFLAMED}" fill-opacity=".55" stroke="{BONE_DOT}" stroke-width="1"/>')
+    # the crater: bone eaten away by inflammation around the upper part of the implant
+    body += (f'<path d="M50 106C58 106 63 110 66 118C68 124 69 128 70 131H90C91 128 92 124 94 118C97 110 102 106 110 106Z" '
+             f'fill="{INFLAMED}" stroke="{INFLAMED_DEEP}" stroke-width="1.4" stroke-linejoin="round"/>')
+    body += f'<path d="{IMPLANT}" fill="none" stroke="{INK}" stroke-width="1.2" stroke-dasharray="3.5 3"/>'
     body += _gum()
-    # inflamed, swollen gum around the implant and a drop of pus at its edge
-    body += f'<path d="M56 95C63 88 72 86 80 86.5C88 86 97 88 104 95C97 98.5 88 100 80 100C72 100 63 98.5 56 95Z" fill="{INFLAMED}" fill-opacity=".75"/>'
-    # the implant on its way out: in front, its threads bare
-    body += f'<g transform="translate(0 -18)"><path d="{IMPLANT}" fill="#e3e7ec" {SW}/>{_threads("#8a939e")}</g>'
-    body += f'<path d="M100 88C103.5 84 105.5 81.5 105.5 78.8C105.5 76.2 103.6 74.6 101.4 74.6C99.2 74.6 97.3 76.2 97.3 78.8C97.3 81.5 98.8 84 100 88Z" fill="#efe1b0" stroke="{SAND_EDGE}" stroke-width="1.1"/>'
-    body += _arrow_up(124, 76, 40)
-    return svg(body, u, "Видалення імплантату, навколо якого запалення")
+    # red, swollen gum at the edges of the crater, pus coming out
+    for cx in (60, 100):
+        body += f'<ellipse cx="{cx}" cy="95" rx="10" ry="5.5" fill="{INFLAMED}" stroke="{INFLAMED_DEEP}" stroke-width="1.2"/>'
+    body += (f'<path d="M57 92C54.5 89 53.5 86.6 53.5 84.8C53.5 82.6 55.1 81.2 57 81.2C58.9 81.2 60.5 82.6 60.5 84.8C60.5 86.6 59.5 89 57 92Z" '
+             f'fill="{PUS}" stroke="{PUS_EDGE}" stroke-width="1.1"/>'
+             f'<path d="M103 92C100.8 89.4 100 87.5 100 86C100 84.2 101.3 83 103 83C104.7 83 106 84.2 106 86C106 87.5 105.2 89.4 103 92Z" '
+             f'fill="{PUS}" stroke="{PUS_EDGE}" stroke-width="1.1"/>')
+    # the implant on its way out
+    body += f'<g transform="translate(0 -40)"><path d="{IMPLANT}" fill="{METAL}" stroke="{INK}" stroke-width="1.8" stroke-linejoin="round"/>{_threads(INK)}</g>'
+    body += _arrow_up(130, 70, 34)
+    return svg(body, u, "Видалення імплантату через запалення навколо нього")
 
 
 def filling():
@@ -600,14 +609,21 @@ def healing_cap():
 
 
 
+ABUTMENT = ("M70 104C66.5 100 61.5 95 60 90L65.5 88C66.5 80 68 71 70 64Q80 57.5 90 64C92 71 93.5 80 94.5 88"
+            "L100 90C98.5 95 93.5 100 90 104Z")
+
+
 def custom_abutment():
-    """Індивідуальний абатмент: перехідна деталь під форму ясен, коронка — пунктиром."""
+    """Індивідуальний абатмент, як справжня деталь: від платформи імплантату розширюється до уступу на рівні ясен
+    (профіль виходу), вище — звужена кукса, на яку сяде коронка; коронка — прозора, пунктиром."""
     u = "ca"
     body = _jaw(u)
     body += f'<path d="{IMPLANT}" fill="{METAL}" {SW}/>' + _threads("#8a939e")
-    body += (f'<path d="{IMPLANT_CROWN}" fill="#ffffff" fill-opacity=".55" stroke="{INK}" stroke-width="1.4" '
+    body += f'<path d="{ABUTMENT}" fill="{ACCENT}" {SW}/>'
+    body += f'<path d="M73.5 67C72 74 71 81 70.5 87" fill="none" stroke="#ffffff" stroke-opacity=".6" stroke-width="2" stroke-linecap="round"/>'
+    body += f'<path d="M65.5 88H94.5" stroke="{INK}" stroke-width="1.1" stroke-opacity=".7"/>'
+    body += (f'<path d="{CROWN}" fill="#ffffff" fill-opacity=".35" stroke="{INK}" stroke-width="1.4" '
              f'stroke-dasharray="4 3.2" stroke-linejoin="round"/>')
-    body += f'<path d="M70.5 104C67 98 64 93 64 88C64 80 66 74 69 70H91C94 74 96 80 96 88C96 93 93 98 89.5 104Z" fill="{ACCENT}" {SW}/>'
     body += _gum()
     return svg(body, u, "Індивідуальний абатмент")
 
