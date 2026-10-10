@@ -4,7 +4,7 @@ services:
     name: frankolab-plans
     runtime: docker
     region: frankfurt          # EU: patient data stays in Europe
-    plan: starter
+    plan: free                 # free to start: sleeps after 15 min idle, wakes in ~1 min; switch to starter if it feels slow
     healthCheckPath: /healthz
     autoDeploy: true           # every push to main goes live
     envVars:

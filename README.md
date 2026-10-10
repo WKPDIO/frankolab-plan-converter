@@ -84,13 +84,14 @@ OFFICE_PASSWORD=пароль SECRET_KEY=будь-який-довгий-рядо�
 ### Розгортання (Render)
 
 1. render.com → увійти через GitHub.
-2. **New → Blueprint** → вибрати цей репозиторій. Render прочитає `render.yaml` (Docker, Франкфурт, план Starter).
+2. **New → Blueprint** → вибрати цей репозиторій. Render прочитає `render.yaml` (Docker, Франкфурт, безкоштовний план).
 3. Ввести `OFFICE_PASSWORD` — пароль офісу. `SECRET_KEY` Render згенерує сам.
 4. Після збірки (5–10 хв) сайт доступний за адресою `https://frankolab-plans.onrender.com` (або схожою).
    Кожен push у `main` оновлює сайт автоматично.
 5. Власна адреса (необов'язково): Render → Settings → Custom Domain, потім запис CNAME у DNS домену.
 
-Якщо на плані Starter не вистачить пам'яті для Chromium (помилки під час створення PDF), перейти на більший план.
+Безкоштовний план засинає після 15 хв без відвідувань і прокидається приблизно за хвилину; процесор у ньому слабкий, тож PDF створюється довше.
+Якщо це заважає або не вистачає пам'яті для Chromium — перейти на Starter (Render → Settings → Instance Type).
 
 ### Підключення ClinicCards
 
