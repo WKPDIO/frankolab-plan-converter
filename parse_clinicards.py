@@ -271,7 +271,8 @@ def parse_block(b, words, rects, hl, vl):
         lo = sorted([w for w in chart_words if y is not None and w["top"] + w["bottom"] >= 2 * y], key=lambda w: w["x0"])
         blk["chart"] = {"upper": [w["text"] for w in up], "lower": [w["text"] for w in lo]}
     # rows
-    item_words = [w for w in words if is_close(grey(w), ITEM_GREY) and w["text"] not in MARKERS]
+    # row text is grey; the price before a discount is printed darker ("3 600.00 | 15% | 3 060.00")
+    item_words = [w for w in words if (is_close(grey(w), ITEM_GREY) or is_close(grey(w), DARK)) and w["text"] not in MARKERS]
     markers = [w for w in words if w["text"] in MARKERS]
     for top, bottom in row_bands:
         cells = sorted([r for r in rects if abs(r["top"] - top) < 0.6 and abs(r["bottom"] - bottom) < 0.6], key=lambda r: r["x0"])

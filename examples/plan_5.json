@@ -26,7 +26,8 @@
        "name": "Комплексна консультація (огляд в кріслі, комп'ютерна томографія усіх зубів,план лікування)",
        "tooth": "",
        "currency": "UAH",
-       "final": "2400.00"
+       "final": "2400.00",
+       "done": false
       }
      ],
      "total": {
@@ -47,6 +48,8 @@
        "tooth": "",
        "currency": "UAH",
        "final": "2030.00",
+       "done": false,
+       "price": "2900.00",
        "discount": {
         "type": "percent",
         "value": "30"
@@ -80,6 +83,8 @@
        "tooth": "18",
        "currency": "UAH",
        "final": "320.00",
+       "done": false,
+       "price": "800.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -90,6 +95,8 @@
        "tooth": "17",
        "currency": "UAH",
        "final": "320.00",
+       "done": false,
+       "price": "800.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -100,6 +107,8 @@
        "tooth": "27",
        "currency": "UAH",
        "final": "320.00",
+       "done": false,
+       "price": "800.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -110,6 +119,8 @@
        "tooth": "28",
        "currency": "UAH",
        "final": "320.00",
+       "done": false,
+       "price": "800.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -158,6 +169,8 @@
        "tooth": "18",
        "currency": "UAH",
        "final": "1485.00",
+       "done": false,
+       "price": "3300.00",
        "discount": {
         "type": "percent",
         "value": "55"
@@ -168,6 +181,8 @@
        "tooth": "17",
        "currency": "UAH",
        "final": "1485.00",
+       "done": false,
+       "price": "3300.00",
        "discount": {
         "type": "percent",
         "value": "55"
@@ -178,6 +193,8 @@
        "tooth": "15",
        "currency": "UAH",
        "final": "860.00",
+       "done": false,
+       "price": "2000.00",
        "discount": {
         "type": "percent",
         "value": "57"
@@ -188,6 +205,8 @@
        "tooth": "14",
        "currency": "UAH",
        "final": "860.00",
+       "done": false,
+       "price": "2000.00",
        "discount": {
         "type": "percent",
         "value": "57"
@@ -198,6 +217,8 @@
        "tooth": "13",
        "currency": "UAH",
        "final": "1120.00",
+       "done": false,
+       "price": "2800.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -208,6 +229,8 @@
        "tooth": "12",
        "currency": "UAH",
        "final": "1800.00",
+       "done": false,
+       "price": "4500.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -218,6 +241,8 @@
        "tooth": "11",
        "currency": "UAH",
        "final": "1320.00",
+       "done": false,
+       "price": "3300.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -228,6 +253,8 @@
        "tooth": "21",
        "currency": "UAH",
        "final": "1320.00",
+       "done": false,
+       "price": "3300.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -238,6 +265,8 @@
        "tooth": "22",
        "currency": "UAH",
        "final": "1800.00",
+       "done": false,
+       "price": "4500.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -248,6 +277,8 @@
        "tooth": "23",
        "currency": "UAH",
        "final": "1960.00",
+       "done": false,
+       "price": "2800.00",
        "discount": {
         "type": "percent",
         "value": "30"
@@ -258,6 +289,8 @@
        "tooth": "24",
        "currency": "UAH",
        "final": "1960.00",
+       "done": false,
+       "price": "2800.00",
        "discount": {
         "type": "percent",
         "value": "30"
@@ -268,6 +301,8 @@
        "tooth": "25",
        "currency": "UAH",
        "final": "2310.00",
+       "done": false,
+       "price": "3300.00",
        "discount": {
         "type": "percent",
         "value": "30"
@@ -278,6 +313,8 @@
        "tooth": "27",
        "currency": "UAH",
        "final": "1960.00",
+       "done": false,
+       "price": "2800.00",
        "discount": {
         "type": "percent",
         "value": "30"
@@ -288,6 +325,8 @@
        "tooth": "38",
        "currency": "UAH",
        "final": "1386.00",
+       "done": false,
+       "price": "3300.00",
        "discount": {
         "type": "percent",
         "value": "58"
@@ -298,6 +337,8 @@
        "tooth": "37",
        "currency": "UAH",
        "final": "1386.00",
+       "done": false,
+       "price": "3300.00",
        "discount": {
         "type": "percent",
         "value": "58"
@@ -308,6 +349,8 @@
        "tooth": "35",
        "currency": "UAH",
        "final": "1320.00",
+       "done": false,
+       "price": "3300.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -318,6 +361,8 @@
        "tooth": "34",
        "currency": "UAH",
        "final": "920.00",
+       "done": false,
+       "price": "2300.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -328,6 +373,8 @@
        "tooth": "48",
        "currency": "UAH",
        "final": "1120.00",
+       "done": false,
+       "price": "2800.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -358,6 +405,8 @@
        "tooth": "15",
        "currency": "UAH",
        "final": "2600.00",
+       "done": false,
+       "price": "6500.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -368,6 +417,8 @@
        "tooth": "14",
        "currency": "UAH",
        "final": "2600.00",
+       "done": false,
+       "price": "6500.00",
        "discount": {
         "type": "percent",
         "value": "60"
@@ -400,6 +451,8 @@
        "tooth": "15",
        "currency": "EUR",
        "final": "24.00",
+       "done": false,
+       "price": "30.00",
        "discount": {
         "type": "percent",
         "value": "20"
@@ -410,6 +463,8 @@
        "tooth": "14",
        "currency": "EUR",
        "final": "24.00",
+       "done": false,
+       "price": "30.00",
        "discount": {
         "type": "percent",
         "value": "20"
@@ -420,6 +475,8 @@
        "tooth": "24",
        "currency": "EUR",
        "final": "32.00",
+       "done": false,
+       "price": "40.00",
        "discount": {
         "type": "percent",
         "value": "20"
@@ -430,6 +487,8 @@
        "tooth": "",
        "currency": "UAH",
        "final": "1000.00",
+       "done": false,
+       "price": "2000.00",
        "discount": {
         "type": "percent",
         "value": "50"
@@ -464,6 +523,8 @@
        "tooth": "36",
        "currency": "EUR",
        "final": "467.50",
+       "done": false,
+       "price": "550.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -474,6 +535,8 @@
        "tooth": "36",
        "currency": "EUR",
        "final": "170.00",
+       "done": false,
+       "price": "200.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -484,6 +547,8 @@
        "tooth": "44",
        "currency": "EUR",
        "final": "467.50",
+       "done": false,
+       "price": "550.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -494,6 +559,8 @@
        "tooth": "46",
        "currency": "EUR",
        "final": "467.50",
+       "done": false,
+       "price": "550.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -504,6 +571,8 @@
        "tooth": "47",
        "currency": "EUR",
        "final": "467.50",
+       "done": false,
+       "price": "550.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -514,6 +583,8 @@
        "tooth": "сегмент 6",
        "currency": "EUR",
        "final": "340.00",
+       "done": false,
+       "price": "400.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -523,25 +594,29 @@
        "name": "Медикаментозний сон (1 година)",
        "tooth": "",
        "currency": "EUR",
-       "final": "100.00"
+       "final": "100.00",
+       "done": false
       },
       {
        "name": "Медикаментозний сон (1 година)",
        "tooth": "",
        "currency": "EUR",
-       "final": "100.00"
+       "final": "100.00",
+       "done": false
       },
       {
        "name": "Медикаментозний сон (1 година)",
        "tooth": "",
        "currency": "EUR",
-       "final": "100.00"
+       "final": "100.00",
+       "done": false
       },
       {
        "name": "Медикаментозний сон (1 година)",
        "tooth": "",
        "currency": "EUR",
-       "final": "100.00"
+       "final": "100.00",
+       "done": false
       }
      ],
      "total": {
@@ -575,7 +650,8 @@
        "name": "Професійна гігієна порожнини рота",
        "tooth": "",
        "currency": "UAH",
-       "final": "3600.00"
+       "final": "3600.00",
+       "done": false
       }
      ],
      "total": {
@@ -600,55 +676,64 @@
        "name": "Аугментація м'яких тканин 2 ст. складності",
        "tooth": "сегмент 6",
        "currency": "UAH",
-       "final": "6000.00"
+       "final": "6000.00",
+       "done": false
       },
       {
        "name": "Аугментація м'яких тканин 1 ст. складності",
        "tooth": "36",
        "currency": "UAH",
-       "final": "4000.00"
+       "final": "4000.00",
+       "done": false
       },
       {
        "name": "Постановка формувача ясен",
        "tooth": "36",
        "currency": "UAH",
-       "final": "2500.00"
+       "final": "2500.00",
+       "done": false
       },
       {
        "name": "\"Послуга\" індивідуальний титановий абатмент",
        "tooth": "36",
        "currency": "EUR",
-       "final": "200.00"
+       "final": "200.00",
+       "done": false
       },
       {
        "name": "Постановка формувача ясен",
        "tooth": "44",
        "currency": "UAH",
-       "final": "2500.00"
+       "final": "2500.00",
+       "done": false
       },
       {
        "name": "Постановка формувача ясен",
        "tooth": "46",
        "currency": "UAH",
-       "final": "2500.00"
+       "final": "2500.00",
+       "done": false
       },
       {
        "name": "\"Послуга\" індивідуальний титановий абатмент",
        "tooth": "46",
        "currency": "EUR",
-       "final": "200.00"
+       "final": "200.00",
+       "done": false
       },
       {
        "name": "Постановка формувача ясен",
        "tooth": "47",
        "currency": "UAH",
-       "final": "2500.00"
+       "final": "2500.00",
+       "done": false
       },
       {
        "name": "\"Послуга\" індивідуальний титановий абатмент",
        "tooth": "47",
        "currency": "EUR",
-       "final": "200.00"
+       "final": "200.00",
+       "done": false
       }
      ],
      "total": {
@@ -675,31 +760,36 @@
        "name": "\"Послуга \"\"Тимчасова коронка на імпланті \"",
        "tooth": "36",
        "currency": "EUR",
-       "final": "120.00"
+       "final": "120.00",
+       "done": false
       },
       {
        "name": "\"Послуга \"\"Тимчасова коронка на імпланті \"",
        "tooth": "44",
        "currency": "EUR",
-       "final": "120.00"
+       "final": "120.00",
+       "done": false
       },
       {
        "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
        "tooth": "45",
        "currency": "EUR",
-       "final": "80.00"
+       "final": "80.00",
+       "done": false
       },
       {
        "name": "\"Послуга \"\"Тимчасова коронка на імпланті \"",
        "tooth": "46",
        "currency": "EUR",
-       "final": "120.00"
+       "final": "120.00",
+       "done": false
       },
       {
        "name": "\"Послуга \"\"Тимчасова коронка на імпланті \"",
        "tooth": "47",
        "currency": "EUR",
-       "final": "120.00"
+       "final": "120.00",
+       "done": false
       }
      ],
      "total": {
@@ -730,7 +820,8 @@
        "name": "Професійна гігієна порожнини рота",
        "tooth": "",
        "currency": "UAH",
-       "final": "3600.00"
+       "final": "3600.00",
+       "done": false
       }
      ],
      "total": {
@@ -760,6 +851,8 @@
        "tooth": "15",
        "currency": "EUR",
        "final": "200.00",
+       "done": false,
+       "price": "250.00",
        "discount": {
         "type": "percent",
         "value": "20"
@@ -770,6 +863,8 @@
        "tooth": "14",
        "currency": "EUR",
        "final": "200.00",
+       "done": false,
+       "price": "250.00",
        "discount": {
         "type": "percent",
         "value": "20"
@@ -780,6 +875,8 @@
        "tooth": "36",
        "currency": "EUR",
        "final": "200.00",
+       "done": false,
+       "price": "250.00",
        "discount": {
         "type": "percent",
         "value": "20"
@@ -790,6 +887,8 @@
        "tooth": "44",
        "currency": "EUR",
        "final": "200.00",
+       "done": false,
+       "price": "250.00",
        "discount": {
         "type": "percent",
         "value": "20"
@@ -800,6 +899,8 @@
        "tooth": "45",
        "currency": "EUR",
        "final": "160.00",
+       "done": false,
+       "price": "200.00",
        "discount": {
         "type": "percent",
         "value": "20"
@@ -810,6 +911,8 @@
        "tooth": "46",
        "currency": "EUR",
        "final": "200.00",
+       "done": false,
+       "price": "250.00",
        "discount": {
         "type": "percent",
         "value": "20"
@@ -820,6 +923,8 @@
        "tooth": "47",
        "currency": "EUR",
        "final": "200.00",
+       "done": false,
+       "price": "250.00",
        "discount": {
         "type": "percent",
         "value": "20"
@@ -830,6 +935,8 @@
        "tooth": "",
        "currency": "UAH",
        "final": "1600.00",
+       "done": false,
+       "price": "2000.00",
        "discount": {
         "type": "percent",
         "value": "20"
@@ -867,9 +974,14 @@
  "totals": [
   {
    "label": "Невиконані",
+   "done": false,
    "amounts": {
     "UAH": "67082.00",
     "EUR": "5380.00"
+   },
+   "before_discount": {
+    "UAH": "108400.00",
+    "EUR": "6160.00"
    }
   }
  ]

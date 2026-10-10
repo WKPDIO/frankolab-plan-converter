@@ -28,6 +28,7 @@
        "currency": "UAH",
        "final": "3060.00",
        "done": false,
+       "price": "3600.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -435,6 +436,7 @@
        "currency": "UAH",
        "final": "5100.00",
        "done": false,
+       "price": "6000.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -460,6 +462,7 @@
        "currency": "UAH",
        "final": "5100.00",
        "done": false,
+       "price": "6000.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -797,6 +800,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -808,6 +812,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -819,6 +824,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -830,6 +836,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -841,6 +848,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -852,6 +860,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -863,6 +872,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -874,6 +884,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -885,6 +896,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -896,6 +908,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -907,6 +920,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -918,6 +932,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -929,6 +944,7 @@
        "currency": "EUR",
        "final": "2550.00",
        "done": false,
+       "price": "3000.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -940,6 +956,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -951,6 +968,7 @@
        "currency": "EUR",
        "final": "297.50",
        "done": false,
+       "price": "350.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -962,6 +980,7 @@
        "currency": "UAH",
        "final": "2125.00",
        "done": false,
+       "price": "2500.00",
        "discount": {
         "type": "percent",
         "value": "15"
@@ -973,6 +992,7 @@
        "currency": "UAH",
        "final": "2125.00",
        "done": false,
+       "price": "2500.00",
        "discount": {
         "type": "percent",
         "value": "15"

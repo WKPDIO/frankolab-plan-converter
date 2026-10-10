@@ -30,6 +30,7 @@ PDF з ClinicCards ─► parse_clinicards.py ─► render.py (довідник
 | `stagechart.py` | зубна формула етапу: як кожна процедура малюється на зубі, легенда | розробник |
 | `graphics.py` | анатомічні форми зубів, загальна зубна формула, іконки блоків | розробник |
 | `parse_clinicards.py` | читання PDF з ClinicCards | розробник |
+| `review_plans.py` | перевірка пачки планів: що скаже конвертер, послуги без опису, назви блоків, ціни проти прайсу | розробник |
 | `examples/` | 8 знеособлених планів для перевірки після змін (`plan_7`–`plan_9` — з позначками «виконано»; `plan_8` — All-on-6 на обидві щелепи з тимчасовим протезом All-on-4; `plan_9` — пародонтологія, квадранти, апостроф у прізвищі) | — |
 
 ## Запуск
@@ -43,6 +44,9 @@ python3 render.py plan.pdf out/ panorama.png
 
 # перевірка після будь-яких змін: перезбирає 8 прикладів (PDF і кабінет) і звіряє суми
 python3 check_examples.py
+
+# пачка нових планів: звіт про кожен (і ціни проти прайсу) → out/review/report.md, out/review/maps.html
+python3 review_plans.py out/review плани/*.pdf --prices Price.xlsx
 
 # аркуш з усіма ілюстраціями → out/illus.png
 python3 preview_illustrations.py 8
