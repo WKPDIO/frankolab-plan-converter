@@ -39,6 +39,9 @@ EFFECT_OF_PIC = {
     "retention_tray": "retention_tray", "splint": "splint", "retainer": "retainer", "separation": "separation",
 }
 JAW_EFFECTS = {"all_on_4", "superstructure", "denture", "aligner", "retention_tray", "splint", "retainer"}
+# work on the site, not on a tooth: when given per segment it attaches to the implant / extraction sites in that segment
+SITE_EFFECTS = {"bone_graft", "sinus_lift", "soft_tissue"}
+SITE_ANCHORS = {"implant", "extraction", "healing_cap", "abutment", "implant_crown", "temp_implant_crown", "a4_new"}
 IMPLANT_EFFECTS = {"implant", "implant_crown", "temp_implant_crown", "healing_cap", "abutment"}
 
 LABEL = {

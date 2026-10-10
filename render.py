@@ -222,6 +222,7 @@ def build(plan, dic):
         ph_tot = {}
         blocks = []
         fx_teeth, jaw_fx = {}, {"upper": set(), "lower": set()}
+        area_fx = []       # (teeth of the area, effect) for services given per segment / jaw, resolved after the stage
         legend, other = OrderedDict(), []
         for b in ph["blocks"]:
             title = clean_title(b["title"])
@@ -282,8 +283,7 @@ def build(plan, dic):
                         elif t.isdigit():
                             fx_teeth.setdefault(int(t), set()).add(effect)
                         else:
-                            for n in area_teeth(t):
-                                fx_teeth.setdefault(n, set()).add(effect)
+                            area_fx.append((area_teeth(t), effect))
                 ref = ""
                 if desc and g["key"] in seen:
                     ref = "Про цю послугу — вище." if seen[g["key"]] == i else f"Про цю послугу — в етапі {seen[g['key']]:02d}."
@@ -320,6 +320,17 @@ def build(plan, dic):
                 "keys": [g["key"] for g in groups.values()],
                 "memos_before": [], "memos_after": [],
             })
+        # a service on a segment means "somewhere in this area", not "on every tooth of it": bone, gum and sinus work
+        # goes only to the teeth of the area that get an implant or are extracted in this plan; anything else on an area
+        # is shown on all its teeth
+        for teeth_of_area, effect in area_fx:
+            if effect in SC.SITE_EFFECTS:
+                sites = [n for n in teeth_of_area if fx_teeth.get(n, set()) & SC.SITE_ANCHORS]
+                for n in sites:
+                    fx_teeth[n].add(effect)
+            else:
+                for n in teeth_of_area:
+                    fx_teeth.setdefault(n, set()).add(effect)
         attach_memos(blocks, memos)
         for k, v in ph_tot.items():
             add(grand, k, v)
