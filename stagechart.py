@@ -126,6 +126,18 @@ def _facets(g, clip, k=1.0):
     return (f'<g clip-path="url(#{clip})">' + "".join(f'<path d="{d}" fill="#1e2a3a" fill-opacity="{op * k:.3f}"/>' for d, op in g["facets"]) + "</g>")
 
 
+def _implant_crown_path(g, cw_top=None):
+    """crown on an implant: the anatomical crown continued below the neck by a smooth emergence profile
+    that narrows to the implant platform (no mushroom step)"""
+    hc, cw, w = g["hc"], g["cw"], g["w"]
+    iw = min(4.2, cw * .8)
+    plat = hc + 2.6                       # platform a little below the gum line
+    outline = G._crown_outline(g["kind"], w, cw, hc)      # from (-cw/2, hc) ... to (cw/2, hc)
+    tail = [("C", (cw / 2 - .1, hc + 1.2), (iw / 2 + .4, plat - .9), (iw / 2, plat)), ("L", (-iw / 2, plat)),
+            ("C", (-iw / 2 - .4, plat - .9), (-cw / 2 + .1, hc + 1.2), (-cw / 2, hc)), ("Z",)]
+    return _p(g, outline + tail), plat
+
+
 def _stump(g):
     hc, cw = g["hc"], g["cw"]
     return _p(g, [("M", (-cw * .46, hc)), ("C", (-cw * .48, hc * .55), (-cw * .42, hc * .32), (-cw * .3, hc * .3)),
@@ -159,6 +171,10 @@ def draw_tooth(g, fx, uid, active=True):
         if implantish:
             new = bool(fx & {"implant", "a4_new"})
             base += _implant(g, METAL if new else "#e3e7ec", tilt=fx_tilt(fx))
+            if fx & {"implant_crown", "temp_implant_crown", "prosthesis"} and not fx_tilt(fx):
+                # hide the top of the implant under the emergence profile (the crown path is drawn over it)
+                icp, _ = _implant_crown_path(g)
+                base += f'<path d="{icp}" fill="{ROOT if active else "#f7f9fb"}"/>'
         if "healing_cap" in fx:
             cap = _rect(g, -cw * .3, hc * .68, cw * .3, hc + .4, .9)
             base += f'<path d="{cap}" fill="{METAL}" stroke="{INK}" stroke-width=".8"/>'
@@ -167,13 +183,16 @@ def draw_tooth(g, fx, uid, active=True):
                         ("L", (cw * .34, hc)), ("Z",)])
             base += f'<path d="{ab}" fill="{METAL}" stroke="{INK}" stroke-width=".8"/>'
         if fx & {"implant_crown"} or "prosthesis" in fx:
-            base += f'<path d="{g["crown"]}" fill="{CROWN}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
+            icp, plat = _implant_crown_path(g)
+            base += f'<path d="{icp}" fill="{CROWN}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
             base += _facets(g, clip, 1.4)
             base += f'<path d="{g["relief"]}" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width=".5" stroke-linecap="round"/>'
+            base += f'<path d="{_p(g, [("M", (-min(4.2, cw * .8) / 2, plat)), ("L", (min(4.2, cw * .8) / 2, plat))])}" stroke="{INK}" stroke-width=".9" stroke-linecap="round"/>'
         elif "denture" in fx:
             base += f'<path d="{g["crown"]}" fill="#ffffff" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
         elif "temp_implant_crown" in fx:
-            base += (f'<path d="{g["crown"]}" fill="{TEMP}" fill-opacity=".85" stroke="{TEMP_DEEP}" stroke-width=".9" '
+            icp, plat = _implant_crown_path(g)
+            base += (f'<path d="{icp}" fill="{TEMP}" fill-opacity=".85" stroke="{TEMP_DEEP}" stroke-width=".9" '
                      f'stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
         elif fx & {"implant", "a4_future", "a4_new"} and "healing_cap" not in fx:
             base += (f'<path d="{g["crown"]}" fill="#ffffff" fill-opacity=".5" stroke="{INK}" stroke-width=".75" '
