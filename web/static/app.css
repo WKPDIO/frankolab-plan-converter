@@ -103,6 +103,8 @@ label.field { display: block; font-size: 13px; color: var(--graphite); margin: 0
 .stats { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 6px 28px; margin: 18px 0 4px; }
 .stats div { font-size: 12px; color: var(--muted); }
 .stats b { display: block; font-size: 17px; color: var(--ink); font-weight: 600; margin-top: 1px; white-space: nowrap; }
+.small-note { margin: 10px 0 0; font-size: 13px; color: var(--graphite); }
+.small-note b { color: var(--ink); font-weight: 500; white-space: nowrap; }
 .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
 .missing { margin: 8px 0 0; padding-left: 18px; font-size: 13px; }
 .missing li + li { margin-top: 2px; }

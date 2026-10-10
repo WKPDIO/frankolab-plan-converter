@@ -136,6 +136,16 @@ table.svc tr { break-inside: avoid; }
 .ds { font-weight: 300; font-size: 12.3px; line-height: 1.42; color: var(--graphite-grey); margin-top: 2px; }
 .lab { display: inline-block; margin-left: 6px; padding: 1px 6px 1.5px; border-radius: 4px; background: var(--soft-sand);
   color: var(--rich-black); font-size: 8.5px; line-height: 1.3; font-weight: 500; vertical-align: 1.5px; white-space: nowrap; }
+.done { display: inline-block; margin-left: 6px; padding: 1px 6px 1.5px; border-radius: 4px; background: #e3efe6; color: #2f5a44;
+  font-size: 8.5px; line-height: 1.3; font-weight: 500; vertical-align: 1.5px; white-space: nowrap; }
+.done.part { background: var(--pure-white); box-shadow: inset 0 0 0 .6px #9fc9b0; }
+.blk-head h3 .done, .tl-title .done { vertical-align: 2px; }
+.progress { margin-top: 8px; display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; font-size: var(--small); }
+.progress .val { text-align: right; white-space: nowrap; font-weight: 500; }
+.progress .lbl { color: var(--graphite-grey); }
+.progress i { display: inline-block; width: 7px; height: 7px; border-radius: 2px; margin-right: 7px; vertical-align: .5px; }
+table.sum tr.prog-row td { font-size: var(--small); padding-top: 6px; padding-bottom: 6px; border-bottom: none; color: var(--graphite-grey); }
+table.sum tr.prog-row td + td { color: var(--rich-black); }
 .tooth-list span:not(:last-child)::after { content: ","; color: var(--graphite-grey); }
 td.c-qty { color: var(--graphite-grey); }
 td.c-uah, td.c-eur { font-weight: 500; }
@@ -227,7 +237,7 @@ table.sum tr.grand-row td { border-top: 1.5px solid var(--rich-black); border-bo
       <li class="tl-stage">
         <div class="tl-num">{{ ph.num }}</div>
         <div>
-          <div class="tl-title">{{ ph.title }}</div>
+          <div class="tl-title">{{ ph.title }}{% if ph.done_state == 'all' %}<span class="done">виконано</span>{% elif ph.done_state == 'some' %}<span class="done part">частково виконано</span>{% endif %}</div>
           <div class="tl-meta">{{ ph.duration }}</div>
           <div class="tl-what">{% for w, tint in ph.what %}<span class="chip"><i style="background:{{ tint }}"></i>{{ w }}</span>{% endfor %}</div>
         </div>
@@ -236,6 +246,10 @@ table.sum tr.grand-row td { border-top: 1.5px solid var(--rich-black); border-bo
       {% endfor %}
     </ol>
     <div class="grand"><div class="lbl">Разом за планом</div><div class="val">{{ grand }}</div></div>
+    {% if has_progress %}<div class="progress">
+      <div class="lbl"><i style="background:#9fc9b0"></i>Уже виконано</div><div class="val">{{ done_total }}</div>
+      <div class="lbl"><i style="background:var(--pure-white);box-shadow:inset 0 0 0 .75px var(--storm-blue)"></i>Залишилось виконати</div><div class="val">{{ left_total }}</div>
+    </div>{% endif %}
     {% if has_eur or included_note %}<p class="rate-note small muted">{% if has_eur %}Суми в євро сплачуються в гривнях за комерційним курсом на день оплати. {% endif %}{{ included_note }}</p>{% endif %}
   </section>
 
@@ -282,7 +296,7 @@ table.sum tr.grand-row td { border-top: 1.5px solid var(--rich-black); border-bo
   <article class="blk" style="background:{{ b.tint }}">
     <div class="blk-head{{ ' with-chart' if b.chart }}">
       <div class="blk-ico">{{ b.icon }}</div>
-      <div><h3>{{ b.title }}</h3>{% if b.plain %}<div class="blk-plain">{{ b.plain }}</div>{% endif %}</div>
+      <div><h3>{{ b.title }}{% if b.done_state == 'all' %}<span class="done">виконано</span>{% elif b.done_state == 'some' %}<span class="done part">виконано {{ b.done_n }} з {{ b.n }}</span>{% endif %}</h3>{% if b.plain %}<div class="blk-plain">{{ b.plain }}</div>{% endif %}</div>
       {% if b.chart %}<div class="blk-chart">{{ b.chart }}</div>{% endif %}
     </div>
     <table class="svc">
@@ -296,7 +310,7 @@ table.sum tr.grand-row td { border-top: 1.5px solid var(--rich-black); border-bo
         {% set more = r.desc or r.ref or r.incl %}
         <tr class="r-main{{ ' has-more' if more }}">
           <td class="c-pic"{% if more %} rowspan="2"{% endif %}>{% if r.pic %}<div class="pic">{{ r.pic }}</div>{% endif %}</td>
-          <td class="c-name"><div class="nm">{{ r.name }}{% if r.lab %}<span class="lab">наша лабораторія</span>{% endif %}</div></td>
+          <td class="c-name"><div class="nm">{{ r.name }}{% if r.lab %}<span class="lab">наша лабораторія</span>{% endif %}{% if r.done_state == 'all' %}<span class="done">виконано</span>{% elif r.done_state == 'some' %}<span class="done part">виконано {{ r.done_n }} з {{ r.qty }}</span>{% endif %}</div></td>
           <td class="c-teeth"><span class="tooth-list">{% for t in r.teeth %}<span>{{ t }}</span>{{ ' ' if not loop.last }}{% endfor %}</span>{% if not r.teeth %}<span class="muted">—</span>{% endif %}</td>
           <td class="c-price">{{ r.unit }}</td>
           {% if has_discount %}<td class="c-disc">{{ r.disc }}</td>{% endif %}
@@ -328,6 +342,10 @@ table.sum tr.grand-row td { border-top: 1.5px solid var(--rich-black); border-bo
       <tr><td>{{ ph.num }} · {{ ph.title }}{% if ph.timing %} <span class="small muted">({{ ph.timing }})</span>{% endif %}</td><td class="small muted">{{ ph.duration }}</td><td>{{ ph.total_uah or '—' }}</td>{% if has_eur %}<td>{{ ph.total_eur or '—' }}</td>{% endif %}</tr>
       {% endfor %}
       <tr class="grand-row"><td>Разом за планом</td><td></td><td>{{ grand_uah or '—' }}</td>{% if has_eur %}<td>{{ grand_eur or '—' }}</td>{% endif %}</tr>
+      {% if has_progress %}
+      <tr class="prog-row"><td>Уже виконано</td><td></td><td>{{ done_uah or '—' }}</td>{% if has_eur %}<td>{{ done_eur or '—' }}</td>{% endif %}</tr>
+      <tr class="prog-row"><td>Залишилось виконати</td><td></td><td>{{ left_uah or '—' }}</td>{% if has_eur %}<td>{{ left_eur or '—' }}</td>{% endif %}</tr>
+      {% endif %}
     </tbody>
   </table>
   {% if has_eur %}<p class="rate-note small muted">Суми в євро сплачуються в гривнях за комерційним курсом на день оплати.</p>{% endif %}

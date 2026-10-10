@@ -10,7 +10,9 @@ Layout facts this parser relies on (ClinicCards print form, 2026):
 - block total: size 9, dark grey, below the rows ("€3 370.00, 25 000.00");
 - free text outside blocks (size 10.5) is a phase heading when a block
   follows it, otherwise the closing terms;
-- "Невиконані: ..." / "Виконані: ..." carry the plan totals.
+- "Невиконані: ..." / "Виконано: ..." carry the plan totals (not done / done);
+- a row or a total line starts with a marker: "✓" (green) — already done, "●" (blue) — still to do.
+  A block with both shows two total lines, one per marker; a fully discounted line shows only the base and "-100%".
 Money: "2 400.00" (space = thousands), "€550.00"; currency of a row is the
 currency of its final amount.
 """
@@ -24,6 +26,7 @@ import pdfplumber
 ITEM_GREY = 0.3647
 DARK = 0.2
 CHART_SIZE = 11.22
+MARKERS = {"✓": True, "●": False}       # row / total-line marker -> done?
 
 
 def grey(w):
@@ -57,6 +60,9 @@ def parse_total_line(text):
         seen.setdefault(cur, []).append(Decimal(m.group(3).replace(" ", "")))
     if not seen:
         raise ValueError(f"cannot parse total: {text!r}")
+    if pct and Decimal(pct.rstrip("%").replace(",", ".")) == Decimal(-100) and all(len(v) == 1 for v in seen.values()):
+        # ClinicCards prints a fully discounted total as "14 300.00 -100%": the base only, the zero is left out
+        return {"final": {k: Decimal("0.00") for k in seen}, "base": {k: v[0] for k, v in seen.items()}, "percent": pct}
     final = {k: v[-1] for k, v in seen.items()}
     base = {k: v[0] for k, v in seen.items() if len(v) > 1}
     return {"final": final, "base": base, "percent": pct}
@@ -159,12 +165,15 @@ def parse(path):
                 b_h = [l for l in hlines if b["top"] <= l["top"] <= b["bottom"]]
                 b_v = [l for l in vlines if b["top"] <= l["top"] <= b["bottom"]]
                 flow.append(("block", pno, b["top"], parse_block(b, inside, b_rects, b_h, b_v)))
-            rest = [w for w in words if id(w) not in used and w["text"] != "●"]
-            # totals line(s)
-            for label in ("Невиконані:", "Виконані:"):
+            rest = [w for w in words if id(w) not in used and w["text"] not in MARKERS]
+            # totals line(s): "Невиконані:" — still to do, "Виконано:" / "Виконані:" — already done
+            for label in ("Невиконані:", "Виконано:", "Виконані:"):
                 for w in [w for w in rest if w["text"] == label]:
                     line = [x for x in rest if abs(x["top"] - w["top"]) < 2 and x["x0"] > w["x0"]]
-                    plan["totals"].append({"label": label.rstrip(":"), "amounts": {k: str(v) for k, v in parse_money_list(join_words(line)).items()}})
+                    t = parse_total_line(join_words(line))
+                    plan["totals"].append({"label": label.rstrip(":"), "done": label != "Невиконані:",
+                                           "amounts": {k: str(v) for k, v in t["final"].items()},
+                                           "before_discount": {k: str(v) for k, v in t["base"].items()}})
                     rest = [x for x in rest if not (abs(x["top"] - w["top"]) < 2 and x["x0"] >= w["x0"])]
             # free text lines grouped into paragraphs
             rest.sort(key=lambda w: (round(w["top"]), w["x0"]))
@@ -262,7 +271,8 @@ def parse_block(b, words, rects, hl, vl):
         lo = sorted([w for w in chart_words if y is not None and w["top"] + w["bottom"] >= 2 * y], key=lambda w: w["x0"])
         blk["chart"] = {"upper": [w["text"] for w in up], "lower": [w["text"] for w in lo]}
     # rows
-    item_words = [w for w in words if is_close(grey(w), ITEM_GREY) and w["text"] != "●"]
+    item_words = [w for w in words if is_close(grey(w), ITEM_GREY) and w["text"] not in MARKERS]
+    markers = [w for w in words if w["text"] in MARKERS]
     for top, bottom in row_bands:
         cells = sorted([r for r in rects if abs(r["top"] - top) < 0.6 and abs(r["bottom"] - bottom) < 0.6], key=lambda r: r["x0"])
         cells = [c for c in cells if (c["x1"] - c["x0"]) > 3]
@@ -290,7 +300,10 @@ def parse_block(b, words, rects, hl, vl):
                 bc, base = parse_amount(t)
             else:
                 discount = {"type": "amount", "value": str(Decimal(t.replace(" ", "").replace(",", ".")))}
+        mk = [m for m in markers if top - 1 <= (m["top"] + m["bottom"]) / 2 <= bottom + 1 and m["x0"] < cells[0]["x0"] + 12]
         item = {"name": name, "tooth": tooth, "currency": cur, "final": str(final)}
+        if mk:
+            item["done"] = MARKERS[mk[0]["text"]]
         if base is not None:
             item["price"] = str(base)
         if discount:
@@ -300,12 +313,30 @@ def parse_block(b, words, rects, hl, vl):
     last_bottom = row_bands[-1][1] if row_bands else b["top"]
     tw = [w for w in words if is_close(grey(w), DARK) and abs(w["size"] - 9.0) < 0.1 and w["top"] >= last_bottom - 1]
     if tw:
-        t = parse_total_line(join_words(tw))
-        blk["total"] = {k: str(v) for k, v in t["final"].items()}
-        if t["base"]:
-            blk["total_before_discount"] = {k: str(v) for k, v in t["base"].items()}
-        if t["percent"]:
-            blk["total_discount"] = t["percent"]
+        # a block with done and not-done rows has two total lines (✓ and ●); each is parsed on its own and summed
+        lines = []
+        for w in sorted(tw, key=lambda w: w["top"]):
+            if lines and abs(lines[-1][0] - w["top"]) < 3:
+                lines[-1][1].append(w)
+            else:
+                lines.append([w["top"], [w]])
+        final, base, parts = {}, {}, []
+        for top, ws in lines:
+            t = parse_total_line(join_words(ws))
+            mk = [m for m in markers if abs((m["top"] + m["bottom"]) / 2 - (top + ws[0]["bottom"]) / 2) < 4]
+            done = MARKERS[mk[0]["text"]] if mk else None
+            for k, v in t["final"].items():
+                final[k] = final.get(k, Decimal(0)) + v
+                base[k] = base.get(k, Decimal(0)) + t["base"].get(k, v)
+            parts.append({"done": done, "amounts": {k: str(v) for k, v in t["final"].items()}, "percent": t["percent"]})
+        blk["total"] = {k: str(v) for k, v in final.items()}
+        if base != final:
+            blk["total_before_discount"] = {k: str(v) for k, v in base.items()}
+        pcts = {p["percent"] for p in parts if p["percent"]}
+        if len(pcts) == 1:
+            blk["total_discount"] = pcts.pop()
+        if len(parts) > 1:
+            blk["total_parts"] = parts
     return blk
 
 
@@ -369,12 +400,34 @@ def check(plan):
             tot = {k: Decimal(v) for k, v in b.get("total", {}).items()}
             if {k: v for k, v in s.items() if v} != {k: v for k, v in tot.items() if v}:
                 problems.append(f"block '{b['title']}': items {s} vs printed {tot}")
+            # done / not done: each part of a split total must match the rows with the same marker
+            for part in b.get("total_parts", []):
+                if part["done"] is None:
+                    continue
+                ps = {}
+                for it in b["items"]:
+                    if it.get("done") is part["done"]:
+                        ps[it["currency"]] = ps.get(it["currency"], Decimal(0)) + Decimal(it["final"])
+                pt = {k: Decimal(v) for k, v in part["amounts"].items()}
+                if {k: v for k, v in ps.items() if v} != {k: v for k, v in pt.items() if v}:
+                    problems.append(f"block '{b['title']}' ({'done' if part['done'] else 'to do'}): items {ps} vs printed {pt}")
             for k, v in s.items():
                 grand[k] = grand.get(k, Decimal(0)) + v
     printed = {}
     for t in plan["totals"]:
         for k, v in t["amounts"].items():
             printed[k] = printed.get(k, Decimal(0)) + Decimal(v)
+        # "Виконано" must equal the rows marked ✓, "Невиконані" the rows marked ●
+        if "done" in t and any("done" in it for ph in plan["phases"] for b in ph["blocks"] for it in b["items"]):
+            part = {}
+            for ph in plan["phases"]:
+                for b in ph["blocks"]:
+                    for it in b["items"]:
+                        if bool(it.get("done")) is t["done"]:
+                            part[it["currency"]] = part.get(it["currency"], Decimal(0)) + Decimal(it["final"])
+            pt = {k: Decimal(v) for k, v in t["amounts"].items()}
+            if {k: v for k, v in part.items() if v} != {k: v for k, v in pt.items() if v}:
+                problems.append(f"plan '{t['label']}': items {part} vs printed {pt}")
     if printed and {k: v for k, v in grand.items() if v} != {k: v for k, v in printed.items() if v}:
         problems.append(f"plan total: items {grand} vs printed {printed}")
     return {"items": n, "sum": {k: str(v) for k, v in grand.items()}, "printed": {k: str(v) for k, v in printed.items()}, "problems": problems}

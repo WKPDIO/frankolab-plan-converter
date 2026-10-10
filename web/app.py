@@ -46,7 +46,7 @@ from render import render_plan  # noqa: E402
 
 from .clinicards_api import ClinicCardsClient  # noqa: E402
 from .icons import icon  # noqa: E402
-from .sources import DemoSource, PdfSource, dictionary  # noqa: E402
+from .sources import DemoSource, PdfSource, dictionary, status_from_plan  # noqa: E402
 
 OFFICE_PASSWORD = os.environ.get("OFFICE_PASSWORD", "")
 SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_hex(32)     # random per start if unset: logins reset on restart
@@ -276,7 +276,7 @@ async def result_cabinet(request):
         return templates.TemplateResponse(request, "gone.html.j2", {"ttl_min": TTL // 60}, status_code=404)
     plan = json.loads((job / "plan.json").read_text())
     out = job / "cabinet.html"
-    await run_in_threadpool(render_cabinet, plan, dictionary(), {"done": [], "payments": []}, out,
+    await run_in_threadpool(render_cabinet, plan, dictionary(), status_from_plan(plan), out,
                             preview=True, back_url=f"/r/{token}")
     return HTMLResponse(out.read_text(), headers={"Cache-Control": "no-store"})
 

@@ -141,7 +141,7 @@ a.pill { text-decoration: none; }
 {%- endmacro %}
 {% set chev %}<svg class="chev" viewBox="0 0 22 22"><path d="M6 8.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endset %}
 
-{% if preview %}<div class="preview-bar"><div class="wrap"><span>Попередній перегляд для клініки: так пацієнт побачить свій план. Прогрес і оплати з'являться після підключення ClinicCards.</span>{% if back_url %}<a href="{{ back_url }}">← Назад</a>{% endif %}</div></div>{% endif %}
+{% if preview %}<div class="preview-bar"><div class="wrap"><span>Попередній перегляд для клініки: так пацієнт побачить свій план. {% if progress_from_plan %}Прогрес узято з позначок «виконано» в плані; оплати з'являться після підключення ClinicCards.{% else %}Прогрес і оплати з'являться після підключення ClinicCards.{% endif %}</span>{% if back_url %}<a href="{{ back_url }}">← Назад</a>{% endif %}</div></div>{% endif %}
 <header class="top"><div class="wrap">
   <div class="wm">FrankoLab<small>Clinic &amp; Tech Lab</small></div>
   {% if demo %}<span class="pill">демо</span>{% elif home_url %}<a class="pill" href="{{ home_url }}">Вийти</a>{% endif %}
@@ -168,12 +168,21 @@ a.pill { text-decoration: none; }
   </section>
 
   <section class="card">
+    {% if payments_known %}
     <div class="label">Оплата</div>
     <div class="money-grid">
       <div class="m"><div class="label">Сплачено</div><div class="v">{{ paid }}</div></div>
       <div class="m {{ 'debt' if debt }}"><div class="label">До сплати за виконане</div><div class="v">{{ debt or '0 грн' }}</div></div>
       <div class="m wide"><div class="label">Залишок за всім планом</div><div class="v">{{ left or '0 грн' }}</div><div class="label" style="margin-top:4px">Вартість плану: {{ total }}</div></div>
     </div>
+    {% else %}
+    <div class="label">Вартість</div>
+    <div class="money-grid">
+      <div class="m"><div class="label">Виконано на суму</div><div class="v">{{ done_value }}</div></div>
+      <div class="m"><div class="label">Залишилось виконати</div><div class="v">{{ to_do or '0 грн' }}</div></div>
+      <div class="m wide"><div class="label">Вартість плану</div><div class="v">{{ total }}</div></div>
+    </div>
+    {% endif %}
     {% if payments %}
     <details class="sub"><summary>Історія оплат</summary>
       <ul class="list">{% for p in payments %}<li><span>{{ p.date }}</span><b>{{ p.amount }}</b></li>{% endfor %}</ul>

@@ -25,11 +25,11 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
   surgery — sutures; implant — implant + cover screw; формувач — the healing abutment; bone augmentation — bone material + membrane;
   sinus lift — bone material; soft-tissue augmentation — graft material; implant crowns (temporary and permanent) — Ti-base/abutment,
   screw, fixation; crowns — fixation. Sedation price includes the anaesthesiologist and monitoring.
-- Pending: whether All-on-4 (€2 500) includes all four implants — keep `incl` off until confirmed.
+- Pending: whether All-on-4 (€2 500) / All-on-6 (€3 000) include all the implants — keep `incl` off until confirmed.
 - Sedation memo wins over the "eat before surgery" advice (no food 4 h before sedation). «Лише рідка їжа 30 днів» stays as written.
 - Hygiene levels differ by the amount of deposits (м'який наліт < без уточнення < стійкий наліт).
 - A service given per segment means "somewhere in this area": bone/sinus/soft-tissue work on a segment is drawn only on the
-  implant or extraction sites of that segment (render.py area_fx, stagechart SITE_EFFECTS), never on healthy teeth.
+  implant sites of that segment (extraction sites only when the segment gets no implant) (render.py area_fx, stagechart SITE_EFFECTS), never on healthy teeth.
 
 ## Visual language (illustrations.py, stagechart.py)
 - Stage chart colour code (one hue per family, keep it): crowns/prostheses Storm Blue; temporaries Sky Blue dashed;

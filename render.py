@@ -30,6 +30,7 @@ def norm(name):
     s = re.sub(r"\s+", " ", s).strip()
     s = s.replace(" )", ")").replace("( ", "(")
     s = re.sub(r"(\d)-\s+(?=[^\W\d_])", r"\1-", s)   # "3- го" -> "3-го"
+    s = re.sub(r"(?<=[a-z])-\s+(?=[a-z])", "-", s)      # "all- on-6" -> "all-on-6"
     return s
 
 
@@ -47,7 +48,8 @@ def clean_title(t):
 def pic_for(key, entry, rules):
     name = (entry or {}).get("pic")
     if not name:
-        name = next((r["pic"] for r in rules if any(m in key for m in r["match"])), None)
+        name = next((r["pic"] for r in rules
+                     if any(m in key for m in r["match"]) and all(m in key for m in r.get("all", []))), None)
     return name if name in ILL.BY_KEY else None
 
 
@@ -57,6 +59,9 @@ def display_name(name):
     s = re.sub(r"\s+", " ", s).strip().replace(" )", ")")
     s = re.sub(r",(?=\S)", ", ", s)
     s = re.sub(r"(\d)-\s+(?=[^\W\d_])", r"\1-", s)
+    s = re.sub(r"(?<=[A-Za-z])-\s+(?=[A-Za-z])", "-", s)
+    s = re.sub(r"\)\.(?=[^\W\d_])", "). ", s)            # "фіксація).Встановлення" -> "фіксація). Встановлення"
+    s = re.sub(r"\s*\+\s*", " + ", s)                         # "PMMA+ титанова балка" -> "PMMA + титанова балка"
     return s[:1].upper() + s[1:]
 
 
@@ -117,7 +122,7 @@ def area_teeth(label):
     return set()
 
 
-OTHER_NAME = {"ct_scan": "консультація і 3D-знімок", "exam": "консультація", "scan": "цифрове сканування",
+OTHER_NAME = {"ct_scan": "консультація і 3D-знімок", "exam": "консультація", "scan": "цифрове сканування", "impression": "відбиток щелепи",
               "hygiene": "професійна гігієна", "sedation": "лікування уві сні (седація)", "axiography": "аксіографія"}
 
 
@@ -216,8 +221,10 @@ def build(plan, dic):
     has_discount = any("discount" in it for ph in plan["phases"] for b in ph["blocks"] for it in b["items"])
     view_phases = []
     grand = {}
+    done_tot = {}
     all_teeth = set()
     seen = {}   # service key -> number of the stage where its description was first shown
+    seen_desc = {}  # description text -> the same, for different positions explained by one text
     for i, ph in enumerate(plan["phases"], 1):
         ph_tot = {}
         blocks = []
@@ -229,15 +236,20 @@ def build(plan, dic):
             cat = next((c for c in cats if any(m in title.lower() for m in c["match"])), {"plain": "", "icon": "tooth", "tint": "#eef1f4"})
             groups = OrderedDict()
             b_tot = {}
+            b_done = 0
             teeth = set()
             segs = []
             for it in b["items"]:
                 key = (norm(it["name"]), it["currency"], it.get("price"), json.dumps(it.get("discount"), sort_keys=True), it["final"])
                 g = groups.setdefault(key, {"name": display_name(it["name"]), "key": norm(it["name"]), "currency": it["currency"],
                                             "price": it.get("price"), "discount": it.get("discount"), "final": it["final"],
-                                            "teeth": [], "qty": 0, "sum": Decimal(0)})
+                                            "teeth": [], "qty": 0, "sum": Decimal(0), "done": 0})
                 g["qty"] += 1
                 g["sum"] += Decimal(it["final"])
+                if it.get("done"):
+                    g["done"] += 1
+                    add(done_tot, it["currency"], it["final"])
+                    b_done += 1
                 if it["tooth"]:
                     g["teeth"].append(it["tooth"])
                     if it["tooth"].isdigit():
@@ -288,8 +300,13 @@ def build(plan, dic):
                 if desc and g["key"] in seen:
                     ref = "Про цю послугу — вище." if seen[g["key"]] == i else f"Про цю послугу — в етапі {seen[g['key']]:02d}."
                     desc = ""
+                elif desc and desc in seen_desc:      # another price-list position with the very same explanation
+                    seen[g["key"]] = seen_desc[desc]
+                    ref = "Пояснення таке саме, як вище." if seen_desc[desc] == i else f"Пояснення таке саме, як в етапі {seen_desc[desc]:02d}."
+                    desc = ""
                 elif desc:
                     seen[g["key"]] = i
+                    seen_desc[desc] = i
                 rows.append({
                     # raw fields for other views (patient cabinet): full description, picture name, money as numbers
                     "key": g["key"], "pic_name": pic, "effect": effect, "desc_full": (s or {}).get("desc", ""),
@@ -300,6 +317,7 @@ def build(plan, dic):
                     "pic_slot": bool(pic),
                     "teeth": [teeth_label(t, seg_names) for t in teeth_runs(tl)],
                     "unit": money(unit, g["currency"]), "disc": disc, "qty": g["qty"],
+                    "done_n": g["done"], "done_state": "all" if g["done"] == g["qty"] else ("some" if g["done"] else ""),
                     "uah": money(g["sum"], "UAH") if g["currency"] == "UAH" else "",
                     "eur": money(g["sum"], "EUR") if g["currency"] == "EUR" else "",
                 })
@@ -314,20 +332,29 @@ def build(plan, dic):
                 "title": title, "plain": cat["plain"], "icon": Markup(icon(cat["icon"], 30)), "tint": cat.get("tint", "#eef1f4"),
                 "chart": None,
                 "rows": rows, "total": money_pair({k: str(v) for k, v in b_tot.items()}),
-                "total_uah": money(b_tot["UAH"], "UAH") if b_tot.get("UAH") else "",
-                "total_eur": money(b_tot["EUR"], "EUR") if b_tot.get("EUR") else "",
+                "total_uah": money(b_tot["UAH"], "UAH") if "UAH" in b_tot and (b_tot["UAH"] or not any(b_tot.values())) else "",
+                "total_eur": money(b_tot["EUR"], "EUR") if "EUR" in b_tot and (b_tot["EUR"] or not any(b_tot.values())) else "",
                 "segments": [(s, seg_names.get(s, "")) for s in segs],
                 "keys": [g["key"] for g in groups.values()],
                 "memos_before": [], "memos_after": [],
+                "done_state": "all" if b_done and b_done == len(b["items"]) else ("some" if b_done else ""),
+                "done_n": b_done, "n": len(b["items"]),
             })
         # a service on a segment means "somewhere in this area", not "on every tooth of it": bone, gum and sinus work
-        # goes only to the teeth of the area that get an implant or are extracted in this plan; anything else on an area
-        # is shown on all its teeth
+        # goes only to the teeth of the area that get an implant (or, if none, are extracted) in this stage; anything else
+        # on an area is shown on all its teeth
+        jaw_sites = set()
+        for jaw, effects in jaw_fx.items():
+            for e in effects:
+                jaw_sites |= {n for n in SC.JAW_IMPLANT_SITES.get(e, {}) if (n // 10 in (1, 2)) == (jaw == "upper")}
         for teeth_of_area, effect in area_fx:
             if effect in SC.SITE_EFFECTS:
-                sites = [n for n in teeth_of_area if fx_teeth.get(n, set()) & SC.SITE_ANCHORS]
+                # implant sites first: bone, sinus and gum work there is for the implant; extraction sites only
+                # when the area gets no implant in this stage (e.g. preserving the socket after an extraction)
+                sites = [n for n in teeth_of_area if fx_teeth.get(n, set()) & SC.IMPLANT_ANCHORS or n in jaw_sites] or \
+                        [n for n in teeth_of_area if fx_teeth.get(n, set()) & SC.SITE_ANCHORS]
                 for n in sites:
-                    fx_teeth[n].add(effect)
+                    fx_teeth.setdefault(n, set()).add(effect)
             else:
                 for n in teeth_of_area:
                     fx_teeth.setdefault(n, set()).add(effect)
@@ -352,6 +379,8 @@ def build(plan, dic):
             "blocks": blocks, "total": money_pair({k: str(v) for k, v in ph_tot.items()}),
             "total_uah": money(ph_tot["UAH"], "UAH") if ph_tot.get("UAH") else "",
             "total_eur": money(ph_tot["EUR"], "EUR") if ph_tot.get("EUR") else "",
+            "done_state": ("all" if all(b["done_state"] == "all" for b in blocks) else
+                           "some" if any(b["done_state"] for b in blocks) else ""),
         })
     printed = {}
     for t in plan["totals"]:
@@ -359,6 +388,14 @@ def build(plan, dic):
             add(printed, k, v)
     if printed and {k: v for k, v in grand.items() if v} != {k: v for k, v in printed.items() if v}:
         raise SystemExit(f"STOP: plan sum {grand} differs from printed {printed}")
+    has_progress = any(it.get("done") for ph in plan["phases"] for b in ph["blocks"] for it in b["items"])
+    printed_done = {}
+    for t in plan["totals"]:
+        if t.get("done"):
+            for k, v in t["amounts"].items():
+                add(printed_done, k, v)
+    if (printed_done or has_progress) and {k: v for k, v in done_tot.items() if v} != {k: v for k, v in printed_done.items() if v}:
+        raise SystemExit(f"STOP: done sum {done_tot} differs from printed {printed_done}")
     h = dict(plan["header"])
     h["website"] = h.get("website", "").replace("\x00", "tt").replace("h ps", "https")
     h["phone_fmt"] = phone_fmt(h.get("phone", ""))
@@ -374,6 +411,13 @@ def build(plan, dic):
         "grand_uah": money(grand["UAH"], "UAH") if grand.get("UAH") else "",
         "grand_eur": money(grand["EUR"], "EUR") if grand.get("EUR") else "",
         "has_eur": bool(grand.get("EUR")),
+        "has_progress": has_progress,
+        "done_total": money_pair({k: str(v) for k, v in done_tot.items()}) if has_progress else "",
+        "left_total": money_pair({k: str(grand.get(k, Decimal(0)) - done_tot.get(k, Decimal(0))) for k in grand}),
+        "done_uah": money(done_tot["UAH"], "UAH") if done_tot.get("UAH") else "",
+        "done_eur": money(done_tot["EUR"], "EUR") if done_tot.get("EUR") else "",
+        "left_uah": money(grand.get("UAH", 0) - done_tot.get("UAH", 0), "UAH") if grand.get("UAH", 0) - done_tot.get("UAH", 0) else "",
+        "left_eur": money(grand.get("EUR", 0) - done_tot.get("EUR", 0), "EUR") if grand.get("EUR", 0) - done_tot.get("EUR", 0) else "",
         "included_note": dic.get("included_everywhere", ""),
         "overview_chart": Markup(chart(all_teeth, 520)) if all_teeth else None,
         "terms": terms, "consent": consent,
@@ -418,7 +462,8 @@ def render_plan(src, out_dir, pano=None, preview=None):
         doc.close()
     report = {"items": chk["items"], "sum": chk["sum"], "printed": chk["printed"], "missing": missing, "avoid_words": flagged,
               "patient": plan["header"].get("patient", ""), "doctor": plan["header"].get("doctor", ""),
-              "date": plan["header"].get("date", ""), "phases": len(view["phases"]), "total": view["grand"]}
+              "date": plan["header"].get("date", ""), "phases": len(view["phases"]), "total": view["grand"],
+              "done_total": view["done_total"], "left_total": view["left_total"] if view["has_progress"] else ""}
     return pdf_path, report
 
 

@@ -18,7 +18,8 @@
         <div>Позицій<b>{{ m['items'] }}</b></div>
         <div>Разом<b>{{ m.total }}</b></div>
       </div>
-      <div class="note ok">{{ icon('check') }}<div>Усі суми збігаються з ClinicCards.</div></div>
+      {% if m.done_total %}<p class="small-note">Уже виконано: <b>{{ m.done_total }}</b> · залишилось: <b>{{ m.left_total }}</b></p>{% endif %}
+      <div class="note ok">{{ icon('check') }}<div>Усі суми збігаються з ClinicCards{% if m.done_total %}, зокрема виконане й невиконане{% endif %}.</div></div>
       {% if m.missing %}
       <div class="note warn">{{ icon('alert') }}<div>
         <b>{{ m.missing|length }} {{ 'послуга' if m.missing|length == 1 else ('послуги' if m.missing|length < 5 else 'послуг') }} без опису</b> — у плані вони є, просто без пояснення й картинки. Передайте список, і ми додамо їх у довідник.

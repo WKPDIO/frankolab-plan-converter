@@ -3,7 +3,8 @@
 Every source returns the same two things, so the PDF, the office preview and the patient cabinet never care where
 the data came from:
     plan   — the dict parse_clinicards.parse() produces (header, phases → blocks → items, terms, totals)
-    status — {"done": [{key, tooth, date}], "payments": [{date, amount, currency}], "demo"?: bool}
+    status — {"done": [{key, tooth, date}], "payments": [{date, amount, currency}], "demo"?: bool,
+              "progress_from_plan"?: bool, "payments_known"?: bool}
 
 Today:  PdfSource (the office uploads a ClinicCards PDF) and DemoSource (an anonymised example with made-up progress).
 Later:  ClinicCardsSource reads everything from the ClinicCards API — or, if the API has no treatment plans,
@@ -21,13 +22,20 @@ ROOT = Path(__file__).resolve().parent.parent
 EMPTY_STATUS = {"done": [], "payments": []}
 
 
+def status_from_plan(plan):
+    """what an uploaded plan alone can tell: which procedures ClinicCards marked as done (✓) — no dates, no payments,
+    so the cabinet shows the value of the work done and left, never a debt"""
+    marked = any(it.get("done") for ph in plan["phases"] for b in ph["blocks"] for it in b["items"])
+    return {**EMPTY_STATUS, "progress_from_plan": marked, "payments_known": False}
+
+
 def dictionary():
     """services, categories, pictures — re-read on every call so edits to data/services.json apply at once"""
     return json.loads((ROOT / "data" / "services.json").read_text())
 
 
 class PdfSource:
-    """a plan uploaded as a ClinicCards PDF; no progress yet"""
+    """a plan uploaded as a ClinicCards PDF; progress only from its done marks, no payments"""
 
     def __init__(self, pdf_path):
         self.pdf_path = Path(pdf_path)
@@ -42,7 +50,7 @@ class PdfSource:
         return plan
 
     def status(self):
-        return dict(EMPTY_STATUS)
+        return status_from_plan(self.plan())
 
 
 class DemoSource:

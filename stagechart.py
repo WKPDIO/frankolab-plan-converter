@@ -35,13 +35,15 @@ EFFECT_OF_PIC = {
     "healing_cap": "healing_cap", "custom_abutment": "abutment", "multi_unit": "abutment", "implant_crown": "implant_crown",
     "temp_implant_crown": "temp_implant_crown", "bone_graft": "bone_graft", "soft_tissue": "soft_tissue",
     "sinus_lift": "sinus_lift", "srp": "srp", "crown_lengthening": "crown_lengthening", "modeling": "modeling",
-    "all_on_4": "all_on_4", "superstructure": "superstructure", "denture": "denture", "aligner": "aligner",
+    "all_on_4": "all_on_4", "superstructure": "superstructure", "all_on_6": "all_on_6", "superstructure_6": "superstructure_6",
+    "denture": "denture", "aligner": "aligner",
     "retention_tray": "retention_tray", "splint": "splint", "retainer": "retainer", "separation": "separation",
 }
-JAW_EFFECTS = {"all_on_4", "superstructure", "denture", "aligner", "retention_tray", "splint", "retainer"}
+JAW_EFFECTS = {"all_on_4", "superstructure", "all_on_6", "superstructure_6", "denture", "aligner", "retention_tray", "splint", "retainer"}
 # work on the site, not on a tooth: when given per segment it attaches to the implant / extraction sites in that segment
 SITE_EFFECTS = {"bone_graft", "sinus_lift", "soft_tissue"}
 SITE_ANCHORS = {"implant", "extraction", "healing_cap", "abutment", "implant_crown", "temp_implant_crown", "a4_new"}
+IMPLANT_ANCHORS = SITE_ANCHORS - {"extraction"}
 IMPLANT_EFFECTS = {"implant", "implant_crown", "temp_implant_crown", "healing_cap", "abutment"}
 
 LABEL = {
@@ -54,6 +56,7 @@ LABEL = {
     "soft_tissue": "Пластика ясен", "sinus_lift": "Синус-ліфтинг", "srp": "Глибоке чищення під яснами",
     "crown_lengthening": "Видовження коронки", "modeling": "Цифрове моделювання",
     "all_on_4": "All-on-4: чотири імплантати", "superstructure": "Незнімний протез на імплантатах",
+    "all_on_6": "All-on-6: шість імплантатів", "superstructure_6": "Незнімний протез на шести імплантатах",
     "denture": "Знімний протез", "aligner": "Елайнери", "retention_tray": "Ретенційна капа", "splint": "Сплінт",
     "retainer": "Ретейнер", "separation": "Сепарація",
 }
@@ -61,6 +64,10 @@ ORDER = list(LABEL)
 
 # All-on-4 implant positions: two straight in front, two tilted at the back (apex toward the midline)
 A4_POS = {12: 0, 22: 0, 15: 28, 25: 28, 32: 0, 42: 0, 35: 28, 45: 28}
+# All-on-6: two in front, two at the premolars, two at the first molars (slightly tilted)
+A6_POS = {12: 0, 22: 0, 14: 0, 24: 0, 16: 18, 26: 18, 32: 0, 42: 0, 34: 0, 44: 0, 36: 18, 46: 18}
+# where a full-arch concept puts implants: used to place segment-level bone / sinus work on the right teeth
+JAW_IMPLANT_SITES = {"all_on_4": A4_POS, "superstructure": A4_POS, "all_on_6": A6_POS, "superstructure_6": A6_POS}
 
 _ids = count(1)
 
@@ -303,20 +310,23 @@ def expand_jaw(fx_by_tooth, jaw_fx):
         for n in teeth:
             pos = n % 10
             e = fx.setdefault(n, set())
-            last = 7 if "denture" in effects and not effects & {"all_on_4", "superstructure"} else 6
-            if effects & {"all_on_4", "superstructure", "denture"} and pos > last:
+            full_arch = {"all_on_4", "superstructure", "all_on_6", "superstructure_6"}
+            last = 7 if "denture" in effects and not effects & full_arch else 6
+            if effects & (full_arch | {"denture"}) and pos > last:
                 e.add("absent")
                 continue
-            if "all_on_4" in effects:
-                e.add("a4_future")
-                if n in A4_POS:
-                    e.add("a4_new")
-                    e.add(f"tilt:{A4_POS[n]}")
-            if "superstructure" in effects:
-                e.add("prosthesis")
-                if n in A4_POS:
-                    e.add("a4_metal")
-                    e.add(f"tilt:{A4_POS[n]}")
+            for eff, pos_map in (("all_on_4", A4_POS), ("all_on_6", A6_POS)):
+                if eff in effects:
+                    e.add("a4_future")
+                    if n in pos_map:
+                        e.add("a4_new")
+                        e.add(f"tilt:{pos_map[n]}")
+            for eff, pos_map in (("superstructure", A4_POS), ("superstructure_6", A6_POS)):
+                if eff in effects:
+                    e.add("prosthesis")
+                    if n in pos_map:
+                        e.add("a4_metal")
+                        e.add(f"tilt:{pos_map[n]}")
             if "denture" in effects:
                 e.add("denture")
             for t in ("aligner", "retention_tray", "splint"):
@@ -395,9 +405,9 @@ def glyph(effect, size=34):
     else:
         g = G.tooth_geom(n, 15, 3.5, s, upper, grow_down=True)
     fx = {effect}
-    if effect == "all_on_4":
+    if effect in ("all_on_4", "all_on_6"):
         fx = {"a4_new", "a4_future"}
-    elif effect == "superstructure":
+    elif effect in ("superstructure", "superstructure_6"):
         fx = {"prosthesis", "a4_metal", "flange_local"}
     elif effect == "denture":
         fx = {"denture", "flange_local"}

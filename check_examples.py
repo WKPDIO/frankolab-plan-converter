@@ -4,15 +4,19 @@ usage: python3 check_examples.py [out_dir]
 
 Each example in examples/ is a parsed ClinicCards plan with the patient's name removed.
 render_plan() stops with an error if any block, stage or plan total differs from the source,
-so a clean run means the layout changes did not touch the numbers. Open the PDFs in out/examples
-to look at the result.
+so a clean run means the layout changes did not touch the numbers. It also builds the patient cabinet
+for each example (office preview and demo). Open the PDFs and cabinets in out/examples to look at the result.
 """
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).parent
 sys.path.insert(0, str(ROOT))
+import json  # noqa: E402
+
+from portal.cabinet import demo_status, render_cabinet  # noqa: E402
 from render import render_plan  # noqa: E402
+from web.sources import status_from_plan  # noqa: E402
 
 
 def main():
@@ -26,6 +30,13 @@ def main():
             print(f"FAIL {src.name}: {e}")
             continue
         ok = r["sum"] == r["printed"] or {k: v for k, v in r["sum"].items() if float(v)} == {k: v for k, v in r["printed"].items() if float(v)}
+        # the patient cabinet from the same plan: as the office preview shows it, and with demo progress and payments
+        plan = json.loads(src.read_text())
+        dic = json.loads((ROOT / "data" / "services.json").read_text())
+        _, c = render_cabinet(plan, dic, status_from_plan(plan), out / f"cabinet_{src.stem}.html", preview=True)
+        render_cabinet(plan, dic, demo_status(plan, dic), out / f"cabinet_{src.stem}_demo.html")
+        if r.get("done_total"):
+            print(f"     progress from the plan: {c['n_done']}/{c['n_all']} done, {r['done_total']} · left {r['left_total']}")
         failed += not ok
         print(f"{'ok  ' if ok else 'FAIL'} {src.name}: {r['items']} items, sum {r['sum']}"
               + (f", missing descriptions: {len(r['missing'])}" if r["missing"] else "")

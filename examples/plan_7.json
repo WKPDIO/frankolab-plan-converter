@@ -1,0 +1,1034 @@
+{
+ "source": "example_7.pdf",
+ "header": {
+  "patient": "Пацієнт Приклад 7",
+  "doctor": "Олена Приклад",
+  "date": "10.10.2026",
+  "clinic_name": "ТОВ \"ФРАНКОЛАБ\"",
+  "address": "Івано-Франківськ — с. Черніїв, вул.Надвірнянська 2Б",
+  "phone": "+380500112000",
+  "email": "frankolabclinic@gmail.com",
+  "website": "h\u0000ps://www.frankolabclinic.com.ua/",
+  "plan_name": "Приклад 7"
+ },
+ "phases": [
+  {
+   "blocks": [
+    {
+     "page": 1,
+     "title": "Професійна гігієна порожнини рота",
+     "chart": {
+      "upper": [],
+      "lower": []
+     },
+     "items": [
+      {
+       "name": "Професійна гігієна порожнини рота",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "3060.00",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "3060.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "3600.00"
+     },
+     "total_discount": "-15%"
+    },
+    {
+     "page": 1,
+     "title": "Лікування каріозних уражень",
+     "chart": {
+      "upper": [],
+      "lower": [
+       "47",
+       "45",
+       "33",
+       "34",
+       "38"
+      ]
+     },
+     "items": [
+      {
+       "name": "Зняття ортопедичної конструкції (зуб)",
+       "tooth": "38",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "Відновлення культі зуба",
+       "tooth": "34",
+       "currency": "UAH",
+       "final": "3000.00",
+       "done": true
+      },
+      {
+       "name": "Зняття ортопедичної конструкції (зуб)",
+       "tooth": "34",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "Відновлення культі зуба",
+       "tooth": "33",
+       "currency": "UAH",
+       "final": "3000.00",
+       "done": true
+      },
+      {
+       "name": "Зняття ортопедичної конструкції (зуб)",
+       "tooth": "33",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "Відновлення культі зуба",
+       "tooth": "45",
+       "currency": "UAH",
+       "final": "3000.00",
+       "done": true
+      },
+      {
+       "name": "Зняття ортопедичної конструкції (зуб)",
+       "tooth": "45",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "Відновлення культі зуба",
+       "tooth": "47",
+       "currency": "UAH",
+       "final": "3000.00",
+       "done": true
+      },
+      {
+       "name": "Зняття ортопедичної конструкції (зуб)",
+       "tooth": "47",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "Видалення штифтової конструкції",
+       "tooth": "47",
+       "currency": "UAH",
+       "final": "2000.00",
+       "done": true
+      }
+     ],
+     "total": {
+      "UAH": "18000.00"
+     },
+     "continued": false
+    },
+    {
+     "page": 1,
+     "title": "Ендодонтичне лікування",
+     "chart": {
+      "upper": [],
+      "lower": [
+       "47",
+       "45",
+       "34"
+      ]
+     },
+     "items": [
+      {
+       "name": "Ендодонтичне лікування зуба (премоляр)",
+       "tooth": "34",
+       "currency": "UAH",
+       "final": "7900.00",
+       "done": true
+      },
+      {
+       "name": "Використання рідкого скловолоконного матеріалу",
+       "tooth": "34",
+       "currency": "UAH",
+       "final": "1800.00",
+       "done": true
+      },
+      {
+       "name": "Ендодонтичне лікування зуба (премоляр)",
+       "tooth": "45",
+       "currency": "UAH",
+       "final": "7900.00",
+       "done": true
+      },
+      {
+       "name": "Ендодонтичне лікування зуба (моляр)",
+       "tooth": "47",
+       "currency": "UAH",
+       "final": "10200.00",
+       "done": true
+      },
+      {
+       "name": "Використання рідкого скловолоконного матеріалу",
+       "tooth": "47",
+       "currency": "UAH",
+       "final": "1800.00",
+       "done": true
+      }
+     ],
+     "total": {
+      "UAH": "29600.00"
+     },
+     "continued": false
+    },
+    {
+     "page": 2,
+     "title": "Хірургічна санація",
+     "chart": {
+      "upper": [
+       "18",
+       "16",
+       "13",
+       "12",
+       "11",
+       "21",
+       "22",
+       "23",
+       "24",
+       "26",
+       "28"
+      ],
+      "lower": [
+       "48",
+       "38"
+      ]
+     },
+     "items": [
+      {
+       "name": "Видалення зуба 2-3 ступеня рухомості",
+       "tooth": "18",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Видалення зуба 2-3 ступеня рухомості",
+       "tooth": "16",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Видалення зуба 2-3 ступеня рухомості",
+       "tooth": "13",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Видалення зуба 2-3 ступеня рухомості",
+       "tooth": "12",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Видалення зуба 2-3 ступеня рухомості",
+       "tooth": "11",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Видалення зуба 2-3 ступеня рухомості",
+       "tooth": "21",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Видалення зуба 2-3 ступеня рухомості",
+       "tooth": "22",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Видалення зуба 2-3 ступеня рухомості",
+       "tooth": "23",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Видалення зуба 2-3 ступеня рухомості",
+       "tooth": "24",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Видалення зуба 2-3 ступеня рухомості",
+       "tooth": "26",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Видалення зуба 2-3 ступеня рухомості",
+       "tooth": "28",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Видалення зуба 1-го ступеня складності",
+       "tooth": "38",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "1500.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Атипове видалення зуба 1 ст. складності",
+       "tooth": "48",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "4000.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "0.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "14300.00"
+     },
+     "total_discount": "-100%"
+    },
+    {
+     "page": 3,
+     "title": "Імплантація",
+     "chart": {
+      "upper": [],
+      "lower": [
+       "46",
+       "35",
+       "37"
+      ]
+     },
+     "items": [
+      {
+       "name": "Імплантація в концепції All-On-6 (Osstem)",
+       "tooth": "в/щ",
+       "currency": "EUR",
+       "final": "3000.00",
+       "done": true
+      },
+      {
+       "name": "Синус-ліфтинг відкритий 2 ст. складності",
+       "tooth": "сегмент 1",
+       "currency": "EUR",
+       "final": "600.00",
+       "done": true
+      },
+      {
+       "name": "Аугментація кісткової тканини в ділянці 1 зуба 3-го ст. складності",
+       "tooth": "сегмент 2",
+       "currency": "EUR",
+       "final": "300.00",
+       "done": true
+      },
+      {
+       "name": "Аугментація кісткової тканини в ділянці 1 зуба 2-го ст. складності",
+       "tooth": "сегмент 3",
+       "currency": "EUR",
+       "final": "250.00",
+       "done": true
+      },
+      {
+       "name": "Встановлення дентального імплантату Osstem",
+       "tooth": "37",
+       "currency": "EUR",
+       "final": "400.00",
+       "done": true
+      },
+      {
+       "name": "Постановка формувача ясен",
+       "tooth": "37",
+       "currency": "UAH",
+       "final": "2500.00",
+       "done": true
+      },
+      {
+       "name": "Аугментація м'яких тканин 2 ст. складності",
+       "tooth": "37",
+       "currency": "UAH",
+       "final": "5100.00",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Встановлення дентального імплантату Osstem",
+       "tooth": "35",
+       "currency": "EUR",
+       "final": "400.00",
+       "done": true
+      },
+      {
+       "name": "Постановка формувача ясен",
+       "tooth": "35",
+       "currency": "UAH",
+       "final": "2500.00",
+       "done": true
+      },
+      {
+       "name": "Аугментація м'яких тканин 2 ст. складності",
+       "tooth": "35",
+       "currency": "UAH",
+       "final": "5100.00",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Встановлення дентального імплантату Osstem",
+       "tooth": "46",
+       "currency": "EUR",
+       "final": "400.00",
+       "done": true
+      },
+      {
+       "name": "Постановка формувача ясен",
+       "tooth": "46",
+       "currency": "UAH",
+       "final": "2500.00",
+       "done": true
+      },
+      {
+       "name": "Аугментація м'яких тканин 2 ст. складності",
+       "tooth": "46",
+       "currency": "UAH",
+       "final": "6000.00",
+       "done": true
+      },
+      {
+       "name": "Медикаментозний сон (1 година)",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "100.00",
+       "done": true
+      },
+      {
+       "name": "Медикаментозний сон (1 година)",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "100.00",
+       "done": true
+      },
+      {
+       "name": "Медикаментозний сон (1 година)",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "100.00",
+       "done": true
+      },
+      {
+       "name": "Медикаментозний сон (1 година)",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "100.00",
+       "done": true
+      },
+      {
+       "name": "Медикаментозний сон (1 година)",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "100.00",
+       "done": true
+      },
+      {
+       "name": "Медикаментозний сон (1 година)",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "100.00",
+       "done": true
+      },
+      {
+       "name": "Медикаментозний сон (1 година)",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "100.00",
+       "done": true
+      },
+      {
+       "name": "Медикаментозний сон (1 година)",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "100.00",
+       "done": false
+      },
+      {
+       "name": "Медикаментозний сон (30 хв)",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "50.00",
+       "done": true
+      }
+     ],
+     "total": {
+      "EUR": "6200.00",
+      "UAH": "23700.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "EUR": "6200.00",
+      "UAH": "25500.00"
+     },
+     "total_parts": [
+      {
+       "done": true,
+       "amounts": {
+        "EUR": "6100.00",
+        "UAH": "13500.00"
+       },
+       "percent": null
+      },
+      {
+       "done": false,
+       "amounts": {
+        "EUR": "100.00",
+        "UAH": "10200.00"
+       },
+       "percent": null
+      }
+     ]
+    },
+    {
+     "page": 4,
+     "title": "Протезування тимчасове",
+     "chart": {
+      "upper": [],
+      "lower": [
+       "47",
+       "45",
+       "44",
+       "43",
+       "42",
+       "41",
+       "31",
+       "32",
+       "33",
+       "34",
+       "35"
+      ]
+     },
+     "items": [
+      {
+       "name": "Цифрове інтраоральне сканування",
+       "tooth": "в/щ",
+       "currency": "UAH",
+       "final": "2500.00",
+       "done": true
+      },
+      {
+       "name": "Зняття відбитку (1 щелепа)",
+       "tooth": "в/щ",
+       "currency": "UAH",
+       "final": "1800.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
+       "tooth": "35",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
+       "tooth": "34",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
+       "tooth": "33",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"\"Тимчасова коронка/вінір клінічний\"\"",
+       "tooth": "33",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
+       "tooth": "32",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"\"Тимчасова коронка/вінір клінічний\"\"",
+       "tooth": "32",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
+       "tooth": "31",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"\"Тимчасова коронка/вінір клінічний\"\"",
+       "tooth": "31",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
+       "tooth": "41",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"\"Тимчасова коронка/вінір клінічний\"\"",
+       "tooth": "41",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
+       "tooth": "42",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"\"Тимчасова коронка/вінір клінічний\"\"",
+       "tooth": "42",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
+       "tooth": "43",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"\"Тимчасова коронка/вінір клінічний\"\"",
+       "tooth": "43",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
+       "tooth": "44",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"\"Тимчасова коронка/вінір клінічний\"\"",
+       "tooth": "44",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
+       "tooth": "45",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"Тимчасова коронка/вінір лабораторний тривалого носіння фрезерована\"",
+       "tooth": "47",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": true
+      },
+      {
+       "name": "Цифрове інтраоральне сканування",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "2500.00",
+       "done": true
+      },
+      {
+       "name": "\"Послуга \"\"Супраструктура тимчасова в концепції All-On-6 (PMMA+ титанова балка)\"\"\"",
+       "tooth": "в/щ",
+       "currency": "EUR",
+       "final": "950.00",
+       "done": true,
+       "price": "1100.00",
+       "discount": {
+        "type": "amount",
+        "value": "150"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "12400.00",
+      "EUR": "1830.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "12400.00",
+      "EUR": "1980.00"
+     }
+    },
+    {
+     "page": 5,
+     "title": "Протезування постійне через 6-12 місяців",
+     "chart": {
+      "upper": [],
+      "lower": [
+       "47",
+       "46",
+       "45",
+       "44",
+       "43",
+       "42",
+       "41",
+       "31",
+       "32",
+       "33",
+       "34",
+       "35",
+       "36",
+       "37"
+      ]
+     },
+     "items": [
+      {
+       "name": "Послуга \"Коронка на імпланті (діоксид цирконію, гвинтова фіксація).Встановлення\"",
+       "tooth": "37",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію високоестетична\"",
+       "tooth": "36",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка на імпланті (діоксид цирконію, гвинтова фіксація).Встановлення\"",
+       "tooth": "35",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію високоестетична\"",
+       "tooth": "34",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію високоестетична\"",
+       "tooth": "33",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію високоестетична\"",
+       "tooth": "32",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію високоестетична\"",
+       "tooth": "31",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію високоестетична\"",
+       "tooth": "41",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію високоестетична\"",
+       "tooth": "42",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію високоестетична\"",
+       "tooth": "43",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію високоестетична\"",
+       "tooth": "44",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію високоестетична\"",
+       "tooth": "45",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "\"Послуга \"\"Супраструктура в концепції All- On-6 (титанова балка+діоксид цирконію, гвинтова фіксація)\"\"\"",
+       "tooth": "в/щ",
+       "currency": "EUR",
+       "final": "2550.00",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка на імпланті (діоксид цирконію, гвинтова фіксація).Встановлення\"",
+       "tooth": "46",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію високоестетична\"",
+       "tooth": "47",
+       "currency": "EUR",
+       "final": "297.50",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Цифрове інтраоральне сканування",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "2125.00",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      },
+      {
+       "name": "Цифрове інтраоральне сканування",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "2125.00",
+       "done": false,
+       "discount": {
+        "type": "percent",
+        "value": "15"
+       }
+      }
+     ],
+     "total": {
+      "EUR": "6715.00",
+      "UAH": "4250.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "EUR": "7900.00",
+      "UAH": "5000.00"
+     },
+     "total_discount": "-15%"
+    }
+   ],
+   "title_raw": "",
+   "notes_raw": [],
+   "title": "",
+   "timing": "",
+   "duration": ""
+  }
+ ],
+ "terms": [
+  "План лікування/рахунок визначається, відповідно до запланованого обсягу робіт та затвердженого прейскуранту цін, на дату складання.",
+  "Даний план лікування/рахунок не є остаточним, та може змінюватись в процесі лікування, за попереднім погодженням з пацієнтом.",
+  "Оплата пацієнтом проводиться за фактично виконані роботи, або передплатою, згідно діючого затвердженого прейскуранту на день розрахунку.",
+  "З рекомендованим планом лікування ознайомлений та погоджуюсь.",
+  "Дата: \"___\" ___________ 202__р. Підпис:"
+ ],
+ "totals": [
+  {
+   "label": "Невиконані",
+   "done": false,
+   "amounts": {
+    "UAH": "17510.00",
+    "EUR": "6815.00"
+   },
+   "before_discount": {
+    "UAH": "20600.00",
+    "EUR": "8000.00"
+   }
+  },
+  {
+   "label": "Виконано",
+   "done": true,
+   "amounts": {
+    "UAH": "73500.00",
+    "EUR": "7930.00"
+   },
+   "before_discount": {
+    "UAH": "87800.00",
+    "EUR": "8080.00"
+   }
+  }
+ ]
+}

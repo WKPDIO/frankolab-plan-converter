@@ -696,8 +696,13 @@ def _crowns(teeth, fill=TOOTH, dashed=False):
 A4_IMPLANTS = [(65, 99.6, 0, .42, .64), (95, 99.6, 0, .42, .64), (28, 96.6, 30, .42, .76), (132, 96.6, -30, .42, .76)]
 
 
-def _a4_implants(fill, threads):
-    return "".join(_implant_g(x, y, a, sx, sy, fill, threads=threads) for x, y, a, sx, sy in A4_IMPLANTS)
+# All-on-6: two in front, two at the premolars, two at the first molars slightly tilted
+A6_IMPLANTS = [(66, 99.8, 0, .4, .62), (94, 99.8, 0, .4, .62), (45, 99.0, 0, .4, .6), (115, 99.0, 0, .4, .6),
+               (25, 96.4, 16, .4, .58), (135, 96.4, -16, .4, .58)]
+
+
+def _a4_implants(fill, threads, places=None):
+    return "".join(_implant_g(x, y, a, sx, sy, fill, threads=threads) for x, y, a, sx, sy in (places or A4_IMPLANTS))
 
 
 def all_on_4():
@@ -709,16 +714,29 @@ def all_on_4():
     return svg(body, u, "Імплантація All-on-4 на верхній щелепі")
 
 
-def superstructure():
+def all_on_6():
+    """All-on-6 на верхній щелепі: шість імплантатів — два спереду, два під премолярами, два під першими молярами;
+    майбутні зуби — пунктиром."""
+    u = "a6"
+    body = _maxilla(u) + _a4_implants(ACCENT, INK, A6_IMPLANTS) + _upper_gum()
+    body += _crowns(_upper_teeth(), dashed=True)
+    return svg(body, u, "Імплантація All-on-6 на верхній щелепі")
+
+
+def superstructure_6():
+    """Незнімний протез на шести імплантатах."""
+    return superstructure(A6_IMPLANTS, "s6", (25, 45, 66, 94, 115, 135))
+
+
+def superstructure(places=None, u="ss", screws=(36, 65, 95, 124)):
     """Незнімний протез на імплантатах: титанова балка в рожевому акриловому базисі, анатомічні зуби."""
-    u = "ss"
     teeth = _upper_teeth()
-    body = _maxilla(u) + _a4_implants(METAL, "#8a939e")
+    body = _maxilla(u) + _a4_implants(METAL, "#8a939e", places)
     body += _crowns(teeth)
     body += f'<path d="{_flange(teeth)}" fill="{PINK_BASE}" fill-opacity=".93" stroke="{PINK_EDGE}" stroke-width="1.1" stroke-linejoin="round"/>'
     body += f'<path d="M24 99Q80 108 136 99" fill="none" stroke="{INK}" stroke-width="5.6" stroke-linecap="round"/>'
     body += f'<path d="M24 99Q80 108 136 99" fill="none" stroke="{METAL}" stroke-width="3.6" stroke-linecap="round"/>'
-    for x in (36, 65, 95, 124):
+    for x in screws:
         body += f'<circle cx="{x}" cy="{99 + 9 * 4 * ((x - 24) / 112) * (1 - (x - 24) / 112) / 2:.1f}" r="1.2" fill="{INK}"/>'
     return svg(body, u, "Незнімний протез на імплантатах")
 
@@ -903,6 +921,31 @@ def retainer():
     return svg(body, u, "Ретейнер — вигляд зверху")
 
 
+IMPRESSION = "#d9e7f6"       # impression mass (light Sky Blue)
+IMPRESSION_EDGE = "#8fb1dc"
+
+
+def impression():
+    """Відбиток, вигляд зверху: ложка з ручкою спереду, заповнена відбитковою масою з відтисками зубів."""
+    u = "im"
+    lay, geom = arch_layout()
+    top = ARCH["upper"]["top"]
+    dy = 16                                         # room above the arch for the handle
+    handle = (f'<path d="M75.5 {top + dy - 5}L74.5 16C74 11 69 10 69 6.5Q69 3 73 3H87Q91 3 91 6.5C91 10 86 11 85.5 16L84.5 {top + dy - 5}Z" '
+              f'fill="{METAL}" stroke="{INK}" stroke-width="1.4" stroke-linejoin="round"/>'
+              f'<path d="M75 7.5H85" stroke="{METAL_SHADE}" stroke-width="1.4" stroke-linecap="round"/>')
+    body = f'<path d="{_band(lay, geom, 7.5, 9)}" fill="{METAL}" stroke="{INK}" stroke-width="1.5" stroke-linejoin="round"/>'
+    body += f'<path d="{_band(lay, geom, 5, 6.5)}" fill="{IMPRESSION}" stroke="{IMPRESSION_EDGE}" stroke-width="1" stroke-linejoin="round"/>'
+    for x, y, th, w, d, form, side, L in lay:      # imprints of the teeth: hollows in the mass, not teeth
+        g = _occl_grooves(w * .9, d * .9, form)
+        body += (f'<g transform="translate({x:.2f} {y:.2f}) rotate({th:.1f})">'
+                 f'<path d="{_occl_shape(w * .9, d * .9, form)}" fill="{IMPRESSION_EDGE}" fill-opacity=".28" '
+                 f'stroke="{IMPRESSION_EDGE}" stroke-width="1" stroke-linejoin="round"/>'
+                 + (f'<path d="{g}" fill="none" stroke="{IMPRESSION_EDGE}" stroke-width=".8" stroke-linecap="round"/>' if g else "")
+                 + '</g>')
+    return svg(handle + f'<g transform="translate(0 {dy})">{body}</g>', u, "Відбиток щелепи — вигляд зверху")
+
+
 def denture():
     """Повний знімний протез верхньої щелепи, вигляд з боку зубів: рожевий акриловий базис з краєм навколо
     зубів закриває піднебіння, штучні зуби стоять по дузі."""
@@ -1007,8 +1050,9 @@ ALL = ALL + [("Огляд", exam), ("Сканування", scan), ("Модел�
              ("Кісткова пластика", bone_graft), ("Синус-ліфтинг", sinus_lift), ("Пластика ясен", soft_tissue),
              ("Формувач ясен", healing_cap), ("Multi-Unit", multi_unit), ("Індив. абатмент", custom_abutment),
              ("Тимчасова коронка", temp_crown), ("Тимч. на імпланті", temp_implant_crown), ("Коронка з керамікою", crown_layered),
-             ("All-on-4", all_on_4), ("Протез на імплантатах", superstructure), ("Знімний протез", denture),
-             ("Сплінт", splint), ("Елайнери, капи", aligner), ("Ретенційна капа", retention_tray), ("Ретейнер", retainer), ("Сепарація", separation),
+             ("All-on-4", all_on_4), ("Протез на імплантатах", superstructure),
+             ("All-on-6", all_on_6), ("Протез на 6 імплантатах", superstructure_6), ("Знімний протез", denture),
+             ("Сплінт", splint), ("Елайнери, капи", aligner), ("Ретенційна капа", retention_tray), ("Ретейнер", retainer), ("Відбиток", impression), ("Сепарація", separation),
              ("Седація", sedation)]
 
 BY_KEY = {fn.__name__: fn for _, fn in ALL}
@@ -1022,9 +1066,10 @@ _seq = [0]
 # thumbnails are cropped closer to the subject; wide or tall scenes keep more of the frame
 THUMB_VIEW = {"default": "24 34 112 112", "ct_scan": "6 12 148 148", "sedation": "12 16 136 136",
               "modeling": "12 14 136 136", "axiography": "8 8 144 144", "sinus_lift": "8 8 144 144",
-              "all_on_4": "10 14 140 140", "superstructure": "10 14 140 140", "denture": "8 8 144 144",
+              "all_on_4": "10 14 140 140", "superstructure": "10 14 140 140",
+              "all_on_6": "10 14 140 140", "superstructure_6": "10 14 140 140", "denture": "8 8 144 144",
               "splint": "8 8 144 144", "aligner": "8 8 144 144", "retention_tray": "8 8 144 144",
-              "retainer": "8 8 144 144", "separation": "18 22 124 124", "scan": "22 20 124 124",
+              "retainer": "8 8 144 144", "impression": "6 0 148 148", "separation": "18 22 124 124", "scan": "22 20 124 124",
               "exam": "22 22 124 124", "endo": "22 22 124 124", "hygiene": "16 22 124 124", "srp": "14 22 124 124",
               "extraction": "20 16 128 128", "hopeless_tooth": "22 30 116 116", "crown_removal": "20 18 128 128", "post_removal": "20 18 128 128",
               "aesthetic": "22 30 116 116"}

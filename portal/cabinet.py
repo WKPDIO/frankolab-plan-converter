@@ -7,6 +7,8 @@ What it adds is the patient's status, which will come from the ClinicCards API:
         "done":     [{"key": "<service name>", "tooth": "11", "date": "2026-10-12"}, ...],   # performed works (acts)
         "payments": [{"date": "2026-10-12", "amount": "4800.00", "currency": "UAH"}, ...],
         "demo": True,            # optional: the page says the figures are an example
+        "progress_from_plan": True,   # optional: take progress from the plan's own done marks (a ClinicCards PDF has them)
+        "payments_known": False,      # optional: no payment data yet — show the value of the work, never a debt
     }
 
 Until the API is connected, `demo_status(plan)` makes believable example data.
@@ -60,7 +62,7 @@ def demo_status(plan, dic):
     day = 3
     for b in blocks[:cut]:
         for r in b["rows"]:
-            teeth = r["teeth_raw"] or [""] * r["qty"]
+            teeth = r["teeth_raw"] + [""] * (r["qty"] - len(r["teeth_raw"]))
             for t in teeth:
                 done.append({"key": r["key"], "tooth": t, "date": f"2026-10-{day:02d}"})
             value[r["currency"]] = value.get(r["currency"], Decimal(0)) + r["sum_raw"]
@@ -89,6 +91,7 @@ def build_cabinet(plan, dic, status):
             return True
         return False
 
+    from_plan = status.get("progress_from_plan", False)
     total, done_value = {}, {}
     n_all = n_done = 0
     phases = []
@@ -100,8 +103,11 @@ def build_cabinet(plan, dic, status):
         for b in ph["blocks"]:
             rows = []
             for r in b["rows"]:
-                teeth = r["teeth_raw"] or [""] * r["qty"]
-                k = sum(take(r["key"], t) for t in teeth)
+                if from_plan:
+                    k = r["done_n"]
+                else:
+                    teeth = r["teeth_raw"] + [""] * (r["qty"] - len(r["teeth_raw"]))
+                    k = sum(take(r["key"], t) for t in teeth)
                 state = "done" if k == r["qty"] else ("partial" if k else "planned")
                 unit = Decimal(r["final"])
                 R.add(total, r["currency"], r["sum_raw"])
@@ -135,6 +141,7 @@ def build_cabinet(plan, dic, status):
         pay_rows.append({"date": _date(p["date"]), "amount": R.money(p["amount"], p["currency"])})
     debt = {c: v - paid.get(c, Decimal(0)) for c, v in done_value.items() if v - paid.get(c, Decimal(0)) > 0}
     left = {c: v - paid.get(c, Decimal(0)) for c, v in total.items() if v - paid.get(c, Decimal(0)) > 0}
+    to_do = {c: v - done_value.get(c, Decimal(0)) for c, v in total.items() if v - done_value.get(c, Decimal(0)) > 0}
 
     acts = OrderedDict()
     for d in sorted(status.get("done", []), key=lambda x: x.get("date", ""), reverse=True):
@@ -157,7 +164,8 @@ def build_cabinet(plan, dic, status):
         "n_all": n_all, "n_done": n_done, "pct": round(100 * n_done / n_all) if n_all else 0,
         "n_stages": len(phases),
         "paid": _pair(paid), "debt": _pair(debt) if debt else "", "left": _pair(left) if left else "",
-        "total": _pair(total), "done_value": _pair(done_value),
+        "total": _pair(total), "done_value": _pair(done_value), "to_do": _pair(to_do) if to_do else "",
+        "payments_known": status.get("payments_known", True), "progress_from_plan": from_plan,
         "payments": pay_rows, "acts": act_rows, "demo": status.get("demo", False),
         "hello": first_name[1] if len(first_name) > 1 else h.get("patient", ""),
         "phone_href": "tel:+" + re.sub(r"\D", "", h.get("phone", "")),
