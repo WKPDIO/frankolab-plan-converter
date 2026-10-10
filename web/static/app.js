@@ -18,13 +18,13 @@
       var input = zone.querySelector('input[type="file"]');
       var name = zone.querySelector("[data-name]");
       var sub = zone.querySelector("[data-sub]");
-      var defName = name.textContent, defSub = sub.textContent;
+      var defName = name.textContent, defSub = sub.innerHTML;
 
       function show() {
         var f = input.files && input.files[0];
         zone.classList.toggle("has", !!f);
         name.textContent = f ? f.name : defName;
-        sub.textContent = f ? sizeText(f.size) : defSub;
+        if (f) sub.textContent = sizeText(f.size); else sub.innerHTML = defSub;
         refresh();
       }
       input.addEventListener("change", show);

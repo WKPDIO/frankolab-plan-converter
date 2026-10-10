@@ -60,7 +60,8 @@ label.field { display: block; font-size: 13px; color: var(--graphite); margin: 0
 .drop .ic svg { width: 24px; height: 24px; }
 .drop > span:nth-of-type(2) { min-width: 0; }
 .drop b { display: block; font-weight: 500; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.drop span.sub { display: block; font-size: 13px; color: var(--muted); margin-top: 1px; word-break: break-all; }
+.drop span.sub { display: block; font-size: 13px; color: var(--muted); margin-top: 1px; overflow-wrap: anywhere; }
+@media (hover: none) { .drop .desk { display: none; } }   /* a phone has nothing to drag */
 .drop .tag { font-size: 11px; padding: 3px 8px; border-radius: 99px; background: var(--ice); color: var(--graphite); white-space: nowrap; }
 .drop .tag.req { background: var(--linen); }
 .drop .clear { position: relative; z-index: 2; border: 0; background: none; color: var(--muted); font-size: 20px; line-height: 1; padding: 4px 6px; cursor: pointer; display: none; }
@@ -82,7 +83,10 @@ label.field { display: block; font-size: 13px; color: var(--graphite); margin: 0
 .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
 .fact { padding: 14px; border-radius: 12px; background: var(--white); font-size: 13px; color: var(--graphite); line-height: 1.4; }
 .fact b { display: block; color: var(--ink); font-weight: 500; font-size: 14px; margin-bottom: 2px; }
-@media (max-width: 640px) { .facts { grid-template-columns: 1fr; } h1 { font-size: 26px; } .drop { padding: 14px; gap: 12px; } .card { padding: 18px; } }
+@media (max-width: 640px) { .facts { grid-template-columns: 1fr; } h1 { font-size: 26px; } .drop { padding: 14px; gap: 4px 12px; grid-template-columns: 40px minmax(0, 1fr) auto; }
+  .drop .ic { width: 40px; height: 40px; grid-row: 1 / span 2; } .drop > span:nth-of-type(2) { grid-column: 2; grid-row: 1; }
+  .drop b { white-space: normal; overflow-wrap: anywhere; } .drop .tag { grid-column: 2; grid-row: 2; justify-self: start; }
+  .drop .clear { grid-column: 3; grid-row: 1 / span 2; } .card { padding: 18px; } }
 
 /* loading overlay */
 .busy { position: fixed; inset: 0; background: rgba(246,247,249,.9); backdrop-filter: blur(3px); display: none; place-items: center; z-index: 20; }

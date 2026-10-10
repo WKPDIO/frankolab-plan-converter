@@ -29,8 +29,15 @@ CHART_SIZE = 11.22
 MARKERS = {"✓": True, "●": False}       # row / total-line marker -> done?
 
 
+def rgb(col):
+    """a colour as a tuple of numbers, or None: a pattern fill comes as its name ('P23'), which is not a colour"""
+    if isinstance(col, (list, tuple)) and col and all(isinstance(x, (int, float)) for x in col):
+        return tuple(col)
+    return None
+
+
 def grey(w):
-    c = w.get("non_stroking_color")
+    c = rgb(w.get("non_stroking_color"))
     if not c:
         return None
     return round(c[0], 4) if len(c) in (1, 3) else None
@@ -38,7 +45,7 @@ def grey(w):
 
 def neutral(w):
     """text in a shade of grey (black, grey, white) — row text; the coloured ✓ / ● markers are not"""
-    c = w.get("non_stroking_color")
+    c = rgb(w.get("non_stroking_color"))
     if not c or len(c) not in (1, 3):
         return False
     return len(c) == 1 or max(c) - min(c) < 0.03
@@ -143,11 +150,11 @@ def page_elements(page, pno):
     blocks = []
     for c in page.curves:
         if c.get("fill"):
-            col = c.get("non_stroking_color") or ()
+            col = rgb(c.get("non_stroking_color")) or ()
             if len(col) == 3 and all(abs(x - 1.0) < 0.01 for x in col):
                 continue                       # white: the page background, or a white block (found by its outline)
         elif c.get("stroke"):
-            col = c.get("stroking_color") or ()  # outline: the only trace of a white block
+            col = rgb(c.get("stroking_color")) or ()  # outline: the only trace of a white block
         else:
             continue
         if (c["x1"] - c["x0"]) > 400 and (c["bottom"] - c["top"]) > 12:
