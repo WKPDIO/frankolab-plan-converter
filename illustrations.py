@@ -396,30 +396,40 @@ def whitening():
     return svg(body, u, "Професійне відбілювання зубів")
 
 
-PUS, PUS_EDGE = "#f3d77c", "#a8862e"
 INFLAMED_DEEP = "#c2635c"
+# a band of inflamed tissue in the bone all round the implant (sides and tip), the same width everywhere,
+# drawn as a few soft layers so it is strongest at the implant and fades into the bone
+def _peri_band(o):
+    ob = o * .62
+    return (f"M{70 - o:.1f} 102.6H{90 + o:.1f}C{90.5 + o:.1f} 116 {89.5 + o:.1f} 128 {87 + o * .8:.1f} {136.5 + ob * .6:.1f}"
+            f"Q80 {146 + ob * 1.6:.1f} {73 - o * .8:.1f} {136.5 + ob * .6:.1f}C{70.5 - o:.1f} 128 {69.5 - o:.1f} 116 {70 - o:.1f} 102.6Z")
+
+
+# a few brownish streaks inside the band, along the walls of the socket and under its tip
+PERI_STAINS = ("M66.6 107C68.6 111 68.8 120 67.2 125C65.2 120 64.8 111 66.6 107Z"
+               "M93.4 115C95.2 120 95.2 128 93 133C91.4 128 91.6 120 93.4 115Z"
+               "M73 141.2Q80 149.6 87 141.2Q80 146.4 73 141.2Z")
 
 
 def implant_removal():
-    """Видалення імплантату через периімплантит: навколо імплантату запалення з'їло кістку (червоний кратер),
-    ясна запалені, з-під них — гній. Імплантат виходить вгору, на його місці — лунка пунктиром."""
+    """Видалення імплантату через периімплантит: навколо імплантату в кістці — рівна смуга запалення,
+    подекуди буруватого відтінку; ясна над ним злегка почервонілі. Імплантат виходить вгору,
+    на його місці — лунка пунктиром."""
     u = "ir"
-    body = _jaw(u)
-    # the crater: bone eaten away by inflammation around the upper part of the implant
-    body += (f'<path d="M50 106C58 106 63 110 66 118C68 124 69 128 70 131H90C91 128 92 124 94 118C97 110 102 106 110 106Z" '
-             f'fill="{INFLAMED}" stroke="{INFLAMED_DEEP}" stroke-width="1.4" stroke-linejoin="round"/>')
-    body += f'<path d="{IMPLANT}" fill="none" stroke="{INK}" stroke-width="1.2" stroke-dasharray="3.5 3"/>'
+    body = (f'<defs><linearGradient id="irg" x1="46" x2="114" y1="0" y2="0" gradientUnits="userSpaceOnUse">'
+            f'<stop offset="0" stop-color="{INFLAMED}" stop-opacity="0"/><stop offset=".5" stop-color="{INFLAMED}" stop-opacity=".6"/>'
+            f'<stop offset="1" stop-color="{INFLAMED}" stop-opacity="0"/></linearGradient></defs>')
+    body += _jaw(u)
+    body += "".join(f'<path d="{_peri_band(o)}" fill="{INFLAMED}" fill-opacity=".34"/>' for o in (10, 8, 6, 4, 2))
+    body += (f'<path d="{PERI_STAINS}" fill="{DECAY}" fill-opacity=".65" stroke="{DECAY}" stroke-opacity=".3" '
+             f'stroke-width="2.2" stroke-linejoin="round"/>')
+    body += f'<path d="{IMPLANT}" fill="#d3dae3" stroke="{INK}" stroke-width="1.2" stroke-dasharray="3.5 3"/>'
     body += _gum()
-    # red, swollen gum at the edges of the crater, pus coming out
-    for cx in (60, 100):
-        body += f'<ellipse cx="{cx}" cy="95" rx="10" ry="5.5" fill="{INFLAMED}" stroke="{INFLAMED_DEEP}" stroke-width="1.2"/>'
-    body += (f'<path d="M57 92C54.5 89 53.5 86.6 53.5 84.8C53.5 82.6 55.1 81.2 57 81.2C58.9 81.2 60.5 82.6 60.5 84.8C60.5 86.6 59.5 89 57 92Z" '
-             f'fill="{PUS}" stroke="{PUS_EDGE}" stroke-width="1.1"/>'
-             f'<path d="M103 92C100.8 89.4 100 87.5 100 86C100 84.2 101.3 83 103 83C104.7 83 106 84.2 106 86C106 87.5 105.2 89.4 103 92Z" '
-             f'fill="{PUS}" stroke="{PUS_EDGE}" stroke-width="1.1"/>')
+    # the gum over the implant slightly reddened, evenly, fading to the sides
+    body += f'<path d="M46 92.4C58 90 69 89.4 80 89.5C91 89.4 102 90 114 92.4V105Q80 101.6 46 105Z" fill="url(#irg)"/>'
     # the implant on its way out
-    body += f'<g transform="translate(0 -40)"><path d="{IMPLANT}" fill="{METAL}" stroke="{INK}" stroke-width="1.8" stroke-linejoin="round"/>{_threads(INK)}</g>'
-    body += _arrow_up(130, 70, 34)
+    body += f'<g transform="translate(0 -28)"><path d="{IMPLANT}" fill="{METAL}" stroke="{INK}" stroke-width="1.8" stroke-linejoin="round"/>{_threads(INK)}</g>'
+    body += _arrow_up(130, 74, 38)
     return svg(body, u, "Видалення імплантату через запалення навколо нього")
 
 
@@ -609,23 +619,46 @@ def healing_cap():
 
 
 
-ABUTMENT = ("M70 104C66.5 100 61.5 95 60 90L65.5 88C66.5 80 68 71 70 64Q80 57.5 90 64C92 71 93.5 80 94.5 88"
-            "L100 90C98.5 95 93.5 100 90 104Z")
+# A custom abutment is the tooth's own shape made smaller by the thickness of the crown ("reduced anatomy"):
+# a short collar from the implant platform widens to a margin just under the gum, above it a core with nearly
+# upright walls whose top follows the tooth — two cusps on a molar, a straight edge on a front tooth.
+# Each pair: (abutment, the crown that sits on its margin). Local frame of the molar pictures (platform 70..90 at y=104).
+MOLAR_ABUTMENT = ("M70 104C68.4 99.6 61.2 96.6 60 92.5L62 92C61.6 84 62 77 63.2 72C64.2 68.4 66.5 66.6 70.5 66.6"
+                  "C75 66.6 77 69.6 80 69.6C83 69.6 85 66.6 89.5 66.6C93.5 66.6 95.8 68.4 96.8 72C98 77 98.4 84 98 92"
+                  "L100 92.5C98.8 96.6 91.6 99.6 90 104Z")
+MOLAR_ON_ABUTMENT = ("M60 92.5C55 88 50 80 50 71C50 63 54 58 61 57C67 56 72 58.5 76 59.5Q80 60.5 84 59.5"
+                     "C88 58.5 93 56 99 57C106 58 110 63 110 71C110 80 105 88 100 92.5Z")
+# front tooth: a narrower implant (scaled to .85 about x = 80, platform 71.5..88.5)
+INCISOR_ABUTMENT = ("M71.5 104C70.5 99.8 66.2 96.4 65.6 92.5L67.5 92C67 82 67.6 68 68.6 60C69 57.4 70.6 56 73.2 56H86.8"
+                    "C89.4 56 91 57.4 91.4 60C92.4 68 93 82 92.5 92L94.4 92.5C93.8 96.4 89.5 99.8 88.5 104Z")
+INCISOR_ON_ABUTMENT = "M65.6 92.5C61 79 59 63 60 53C60.5 48 63 46 68 46H92C97 46 99.5 48 100 53C101 63 99 79 94.4 92.5Z"
+
+
+def _abutment_unit(cx, s, abutment, crown, narrow=False, gum_y=92):
+    """implant + custom abutment + the crown over it (dashed, see-through), scaled by s, centred on cx"""
+    tx, ty = cx - 80 * s, gum_y - 90 * s
+    k = 1 / s
+    imp = f'<path d="{IMPLANT}" fill="{METAL}" stroke="{INK}" stroke-width="{1.5 * k:.2f}" stroke-linejoin="round"/>' + _threads("#8a939e")
+    if narrow:
+        imp = f'<g transform="matrix(.85 0 0 1 12 0)">{imp}</g>'
+    g = f'<g transform="translate({tx:.2f} {ty:.2f}) scale({s})">{imp}'
+    g += f'<path d="{crown}" fill="#ffffff" fill-opacity=".45"/>'
+    g += f'<path d="{abutment}" fill="{ACCENT}" stroke="{INK}" stroke-width="{1.5 * k:.2f}" stroke-linejoin="round"/>'
+    g += (f'<path d="{crown.rstrip("Z")}" fill="none" stroke="{INK}" stroke-width="{1.3 * k:.2f}" '
+          f'stroke-dasharray="{3.6 * k:.1f} {2.8 * k:.1f}" stroke-linejoin="round" stroke-linecap="round"/>')
+    return g + "</g>"
 
 
 def custom_abutment():
-    """Індивідуальний абатмент, як справжня деталь: від платформи імплантату розширюється до уступу на рівні ясен
-    (профіль виходу), вище — звужена кукса, на яку сяде коронка; коронка — прозора, пунктиром."""
+    """Індивідуальний абатмент — під кожен зуб свій: форма зуба, зменшена на товщину коронки. Від платформи
+    імплантату — короткий перехід до краю під яснами, вище — кукса, на яку сяде коронка (пунктиром).
+    Передній зуб — вузька кукса з рівним краєм, жувальний — ширша, з двома горбиками."""
     u = "ca"
     body = _jaw(u)
-    body += f'<path d="{IMPLANT}" fill="{METAL}" {SW}/>' + _threads("#8a939e")
-    body += f'<path d="{ABUTMENT}" fill="{ACCENT}" {SW}/>'
-    body += f'<path d="M73.5 67C72 74 71 81 70.5 87" fill="none" stroke="#ffffff" stroke-opacity=".6" stroke-width="2" stroke-linecap="round"/>'
-    body += f'<path d="M65.5 88H94.5" stroke="{INK}" stroke-width="1.1" stroke-opacity=".7"/>'
-    body += (f'<path d="{CROWN}" fill="#ffffff" fill-opacity=".35" stroke="{INK}" stroke-width="1.4" '
-             f'stroke-dasharray="4 3.2" stroke-linejoin="round"/>')
+    body += _abutment_unit(51, .8, INCISOR_ABUTMENT, INCISOR_ON_ABUTMENT, narrow=True)
+    body += _abutment_unit(109, .8, MOLAR_ABUTMENT, MOLAR_ON_ABUTMENT)
     body += _gum()
-    return svg(body, u, "Індивідуальний абатмент")
+    return svg(body, u, "Індивідуальні абатменти під передній і жувальний зуб")
 
 
 def temp_crown():
@@ -1213,7 +1246,7 @@ THUMB_VIEW = {"default": "24 34 112 112", "ct_scan": "6 12 148 148", "sedation":
               "all_on_6": "10 14 140 140", "superstructure_6": "10 14 140 140", "denture": "8 8 144 144",
               "splint": "8 8 144 144", "aligner": "8 8 144 144", "retention_tray": "8 8 144 144",
               "retainer": "8 8 144 144", "impression": "6 0 148 148", "perio_chart": "10 12 136 136", "whitening": "16 8 128 128", "braces": "20 30 120 120", "mini_implant": "18 32 124 124",
-              "implant_removal": "20 18 128 128", "interdental_brush": "18 12 128 128", "functiography": "8 10 144 144", "separation": "18 22 124 124", "scan": "22 20 124 124",
+              "implant_removal": "20 18 128 128", "custom_abutment": "20 28 120 120", "interdental_brush": "18 12 128 128", "functiography": "8 10 144 144", "separation": "18 22 124 124", "scan": "22 20 124 124",
               "exam": "22 22 124 124", "endo": "22 22 124 124", "hygiene": "16 22 124 124", "srp": "14 22 124 124",
               "extraction": "20 16 128 128", "hopeless_tooth": "22 30 116 116", "crown_removal": "20 18 128 128", "post_removal": "20 18 128 128",
               "aesthetic": "22 30 116 116"}

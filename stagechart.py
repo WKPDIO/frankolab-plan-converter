@@ -32,7 +32,7 @@ EFFECT_OF_PIC = {
     "filling": "filling", "aesthetic": "aesthetic", "endo": "endo", "fiber": "fiber", "post_removal": "post_removal",
     "core_buildup": "core", "crown_removal": "crown_removal", "temp_crown": "temp_crown", "crown": "crown",
     "crown_layered": "crown", "onlay": "onlay", "extraction": "extraction", "implant": "implant",
-    "healing_cap": "healing_cap", "custom_abutment": "abutment", "multi_unit": "abutment", "implant_crown": "implant_crown",
+    "healing_cap": "healing_cap", "custom_abutment": "abutment", "multi_unit": "multi_unit", "implant_crown": "implant_crown",
     "temp_implant_crown": "temp_implant_crown", "bone_graft": "bone_graft", "soft_tissue": "soft_tissue",
     "sinus_lift": "sinus_lift", "srp": "srp", "crown_lengthening": "crown_lengthening", "modeling": "modeling",
     "all_on_4": "all_on_4", "superstructure": "superstructure", "all_on_6": "all_on_6", "superstructure_6": "superstructure_6",
@@ -45,16 +45,16 @@ FULL_ARCH = {"all_on_4", "all_on_6"} | PROSTHESES
 JAW_EFFECTS = FULL_ARCH | {"denture", "aligner", "retention_tray", "splint", "retainer"}
 # work on the site, not on a tooth: when given per segment it attaches to the implant / extraction sites in that segment
 SITE_EFFECTS = {"bone_graft", "sinus_lift", "soft_tissue"}
-SITE_ANCHORS = {"implant", "extraction", "healing_cap", "abutment", "implant_crown", "temp_implant_crown", "a4_new"}
+SITE_ANCHORS = {"implant", "extraction", "healing_cap", "abutment", "multi_unit", "implant_crown", "temp_implant_crown", "a4_new"}
 IMPLANT_ANCHORS = SITE_ANCHORS - {"extraction"}
-IMPLANT_EFFECTS = {"implant", "implant_crown", "temp_implant_crown", "healing_cap", "abutment"}
+IMPLANT_EFFECTS = {"implant", "implant_crown", "temp_implant_crown", "healing_cap", "abutment", "multi_unit"}
 
 LABEL = {
     "filling": "Лікування карієсу, пломба", "aesthetic": "Естетична реставрація", "endo": "Лікування каналів",
     "fiber": "Зміцнення скловолокном", "post_removal": "Видалення штифта", "core": "Відновлення культі",
     "crown_removal": "Зняття старої коронки", "temp_crown": "Тимчасова коронка", "crown": "Постійна коронка",
     "onlay": "Накладка, вкладка, вінір", "extraction": "Видалення зуба", "implant": "Імплантат",
-    "healing_cap": "Формувач ясен", "abutment": "Абатмент", "implant_crown": "Коронка на імплантаті",
+    "healing_cap": "Формувач ясен", "abutment": "Абатмент", "multi_unit": "Multi-unit абатмент", "implant_crown": "Коронка на імплантаті",
     "temp_implant_crown": "Тимчасова коронка на імплантаті", "bone_graft": "Нарощування кістки",
     "soft_tissue": "Пластика ясен", "sinus_lift": "Синус-ліфтинг", "srp": "Глибоке чищення під яснами",
     "crown_lengthening": "Видовження коронки", "modeling": "Цифрове моделювання",
@@ -175,6 +175,36 @@ def _pontic_path(g):
     return _p(g, outline + [("Q", (0, hc + 2.6), (-cw / 2, hc)), ("Z",)])
 
 
+def _shift(cmds, dy):
+    return [(c[0],) + tuple((x, y + dy) for x, y in c[1:]) for c in cmds]
+
+
+def _abutment_path(g):
+    """custom abutment as reduced anatomy: the tooth's own crown outline made smaller by the thickness of the crown
+    (a narrower core with upright walls, no undercut, its top shaped like the tooth: an incisal edge, a canine tip,
+    cusps), on a short collar that widens from the implant platform to a margin just under the gum"""
+    hc, cw, w = g["hc"], g["cw"], g["w"]
+    iw, plat = min(4.2, cw * .8), hc + 2.6
+    base = min(w * .58, cw * .82)            # core width at the margin
+    top_w = base * .94                       # walls converge a little toward the top
+    hk = hc * .68                            # core height: the crown covers it with room to spare
+    m = hc + .35                             # margin, just under the gum line
+    core = _shift(G._crown_outline(g["kind"], top_w, base, hk), m - hk)   # from (-base/2, m) round to (base/2, m)
+    mw = base / 2 + .4                       # a narrow shoulder around the core
+    cmds = [("M", (-iw / 2, plat)), ("C", (-iw / 2 - .3, plat - .9), (-mw, m + 1.1), (-mw, m + .1)), ("L", (-base / 2, m))]
+    cmds += core[1:]
+    cmds += [("L", (mw, m + .1)), ("C", (mw, m + 1.1), (iw / 2 + .3, plat - .9), (iw / 2, plat)), ("Z",)]
+    return _p(g, cmds)
+
+
+def _multi_unit_path(g):
+    """multi-unit abutment: a small standard cone just above the gum, the same for every tooth"""
+    hc, cw = g["hc"], g["cw"]
+    iw, plat = min(4.2, cw * .8), hc + 2.6
+    return _p(g, [("M", (-iw / 2, plat)), ("L", (-iw * .47, hc + .3)), ("L", (-iw * .33, hc - 1.7)), ("Q", (0, hc - 2), (iw * .33, hc - 1.7)),
+                  ("L", (iw * .47, hc + .3)), ("L", (iw / 2, plat)), ("Z",)])
+
+
 def _stump(g):
     hc, cw = g["hc"], g["cw"]
     return _p(g, [("M", (-cw * .46, hc)), ("C", (-cw * .48, hc * .55), (-cw * .42, hc * .32), (-cw * .3, hc * .3)),
@@ -225,34 +255,31 @@ def draw_tooth(g, fx, uid, active=True):
         if "healing_cap" in fx:
             cap = _rect(g, -cw * .3, hc * .68, cw * .3, hc + .4, .9)
             base += f'<path d="{cap}" fill="{METAL}" stroke="{INK}" stroke-width=".8"/>'
+        if fx & {"abutment", "multi_unit"} and not fx & {"implant_crown", "temp_implant_crown", "prosthesis", "prosthesis_temp", "denture"}:
+            # the crown to come, dashed, behind the abutment that will carry it
+            base += (f'<path d="{g["crown"]}" fill="none" stroke="{INK}" stroke-width=".75" stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
         if "abutment" in fx:
-            # like the real part: widens from the implant platform to a shoulder at the gum (emergence profile),
-            # above it a tapered core that the crown sits on
-            iw, plat = min(4.2, cw * .8), hc + 2.6
-            ab = _p(g, [("M", (-iw / 2, plat)), ("C", (-iw / 2 - .5, plat - 1), (-cw * .42, hc + 1), (-cw * .42, hc)),
-                        ("L", (-cw * .33, hc - .7)), ("L", (-cw * .26, hc * .42)), ("Q", (0, hc * .3), (cw * .26, hc * .42)),
-                        ("L", (cw * .33, hc - .7)), ("L", (cw * .42, hc)),
-                        ("C", (cw * .42, hc + 1), (iw / 2 + .5, plat - 1), (iw / 2, plat)), ("Z",)])
-            base += f'<path d="{ab}" fill="{METAL}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
+            base += f'<path d="{_abutment_path(g)}" fill="{METAL}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
+        elif "multi_unit" in fx:
+            base += f'<path d="{_multi_unit_path(g)}" fill="{METAL}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
         if fx & {"implant_crown"} or "prosthesis" in fx:
             icp, plat = _implant_crown_path(g)
             # over an abutment of this stage the crown is a little see-through, so the abutment inside stays visible
-            op = ' fill-opacity=".72"' if "abutment" in fx else ""
+            op = ' fill-opacity=".72"' if fx & {"abutment", "multi_unit"} else ""
             base += f'<path d="{icp}" fill="{CROWN}"{op} stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
             base += _facets(g, clip, 1.4)
             base += f'<path d="{g["relief"]}" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width=".5" stroke-linecap="round"/>'
             base += f'<path d="{_p(g, [("M", (-min(4.2, cw * .8) / 2, plat)), ("L", (min(4.2, cw * .8) / 2, plat))])}" stroke="{INK}" stroke-width=".9" stroke-linecap="round"/>'
         elif fx & {"temp_implant_crown", "prosthesis_temp"}:      # a fixed temporary wins over a removable denture
             icp, plat = _implant_crown_path(g)
-            base += (f'<path d="{icp}" fill="{TEMP}" fill-opacity=".85" stroke="{TEMP_DEEP}" stroke-width=".9" '
+            top = ".6" if fx & {"abutment", "multi_unit"} else ".85"
+            base += (f'<path d="{icp}" fill="{TEMP}" fill-opacity="{top}" stroke="{TEMP_DEEP}" stroke-width=".9" '
                      f'stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
         elif "denture" in fx:
             base += f'<path d="{g["crown"]}" fill="#ffffff" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
-        elif fx & {"implant", "a4_future", "a4_new"} and "healing_cap" not in fx:
+        elif fx & {"implant", "a4_future", "a4_new"} and not fx & {"healing_cap", "abutment", "multi_unit"}:
             base += (f'<path d="{g["crown"]}" fill="#ffffff" fill-opacity=".5" stroke="{INK}" stroke-width=".75" '
                      f'stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
-        elif "abutment" in fx:
-            base += (f'<path d="{g["crown"]}" fill="none" stroke="{INK}" stroke-width=".75" stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
         if fx & {"prosthesis", "prosthesis_temp", "denture"} and "flange_local" in fx:
             fl = _rect(g, -w / 2 - .5, hc - .9, w / 2 + .5, hc + 2.8, .6)
             base += f'<path d="{fl}" fill="{PINK}" stroke="{PINK_EDGE}" stroke-width=".5"/>'

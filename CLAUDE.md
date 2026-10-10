@@ -56,7 +56,10 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
   molar buccal groove and cusp ridges); soft left-to-right gradient for volume.
 - Neutral anatomy; Storm Blue #99aabe = what the procedure does; dashed = future/temporary; hatching = bone material;
   metal grey = implant already in place; translucent gum drawn in front; a crown over an abutment of the same stage is
-  slightly see-through so the abutment shows; dental arches (trays, splint, denture) are broad and round, not a V; an implant crown ALWAYS narrows smoothly from the neck down to
+  slightly see-through so the abutment shows; a custom abutment is the tooth's own crown shape made smaller by the crown's thickness
+  (incisal edge / canine tip / cusps per tooth kind, upright walls, never a cone; stagechart._abutment_path) on a short
+  collar from the platform to a margin just under the gum; a multi-unit is a small standard cone; implant removal shows
+  an even soft band of inflammation round the implant in the bone, brownish in places — no pus, no crater; dental arches (trays, splint, denture) are broad and round, not a V; an implant crown ALWAYS narrows smoothly from the neck down to
   the implant platform (emergence profile, stagechart._implant_crown_path) — never a crown sitting on a thin post.
 - Upper-jaw scenes (All-on-4, sinus lift) use panoramic proportions; trays, splint, retainer, denture are drawn from above.
 - Brand palette: Rich black #212121, Graphite #474a50, Ice Blue #eaeff5, Storm Blue #99aabe, Soft Sand #d8c3a5,
