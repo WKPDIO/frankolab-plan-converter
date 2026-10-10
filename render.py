@@ -291,6 +291,9 @@ def build(plan, dic):
                 elif desc:
                     seen[g["key"]] = i
                 rows.append({
+                    # raw fields for other views (patient cabinet): full description, picture name, money as numbers
+                    "key": g["key"], "pic_name": pic, "effect": effect, "desc_full": (s or {}).get("desc", ""),
+                    "teeth_raw": list(g["teeth"]), "currency": g["currency"], "final": g["final"], "sum_raw": g["sum"],
                     "name": g["name"], "desc": desc, "ref": ref, "lab": bool((s or {}).get("lab")),
                     "incl": (s or {}).get("incl", ""),
                     "pic": Markup(ILL.thumb(pic, 1.4, 50)) if pic and pic != prev_pic else None,
