@@ -1,0 +1,825 @@
+{
+ "source": "example_11.pdf",
+ "header": {
+  "patient": "Пацієнт Приклад 11",
+  "doctor": "Олена Приклад",
+  "date": "10.10.2026",
+  "clinic_name": "ТОВ \"ФРАНКОЛАБ\"",
+  "address": "Івано-Франківськ — с. Черніїв, вул.Надвірнянська 2Б",
+  "phone": "+380500112000",
+  "email": "frankolabclinic@gmail.com",
+  "website": "h\u0000ps://www.frankolabclinic.com.ua/",
+  "plan_name": "Приклад 11"
+ },
+ "phases": [
+  {
+   "blocks": [
+    {
+     "page": 1,
+     "title": "Професійна гігієна порожнини рота",
+     "chart": {
+      "upper": [],
+      "lower": []
+     },
+     "items": [
+      {
+       "name": "Професійна гігієна порожнини рота",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "2800.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Професійна гігієна ротової порожнини (м'який зубний наліт)",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "1495.00",
+       "done": true,
+       "price": "2300.00",
+       "discount": {
+        "type": "percent",
+        "value": "35"
+       }
+      },
+      {
+       "name": "Професійна гігієна ротової порожнини (м'який зубний наліт)",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "1495.00",
+       "done": true,
+       "price": "2300.00",
+       "discount": {
+        "type": "percent",
+        "value": "35"
+       }
+      },
+      {
+       "name": "Професійна гігієна ротової порожнини (м'який зубний наліт)",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "2030.00",
+       "done": true,
+       "price": "2900.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Професійна гігієна ротової порожнини (м'який зубний наліт)",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "1160.00",
+       "done": true,
+       "price": "2900.00",
+       "discount": {
+        "type": "percent",
+        "value": "60"
+       }
+      },
+      {
+       "name": "Професійна гігієна ротової порожнини (м'який зубний наліт)",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "1160.00",
+       "done": true,
+       "price": "2900.00",
+       "discount": {
+        "type": "percent",
+        "value": "60"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "7340.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "16100.00"
+     }
+    },
+    {
+     "page": 1,
+     "title": "Лікування каріозних уражень",
+     "chart": {
+      "upper": [
+       "17",
+       "16",
+       "21",
+       "22",
+       "23",
+       "25",
+       "26",
+       "27"
+      ],
+      "lower": [
+       "47",
+       "46",
+       "35",
+       "36",
+       "37"
+      ]
+     },
+     "items": [
+      {
+       "name": "Лікування глибокого карієсу (фотополімерна пломба)",
+       "tooth": "17",
+       "currency": "UAH",
+       "final": "2310.00",
+       "done": true,
+       "price": "3300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Відновлення культі зуба",
+       "tooth": "16",
+       "currency": "UAH",
+       "final": "600.00",
+       "done": true,
+       "price": "2000.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "Лікування поверхневого карієсу (фотополімерна пломба)",
+       "tooth": "21",
+       "currency": "UAH",
+       "final": "690.00",
+       "done": true,
+       "price": "2300.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "Лікування поверхневого карієсу (фотополімерна пломба)",
+       "tooth": "22",
+       "currency": "UAH",
+       "final": "690.00",
+       "done": true,
+       "price": "2300.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "Лікування поверхневого карієсу (фотополімерна пломба)",
+       "tooth": "23",
+       "currency": "UAH",
+       "final": "690.00",
+       "done": true,
+       "price": "2300.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "Лікування середнього карієсу (фотополімерна пломба)",
+       "tooth": "25",
+       "currency": "UAH",
+       "final": "840.00",
+       "done": true,
+       "price": "2800.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "Відновлення культі зуба",
+       "tooth": "26",
+       "currency": "UAH",
+       "final": "840.00",
+       "done": true,
+       "price": "2800.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "Лікування середнього карієсу (фотополімерна пломба)",
+       "tooth": "27",
+       "currency": "UAH",
+       "final": "840.00",
+       "done": true,
+       "price": "2800.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "Лікування середнього карієсу (фотополімерна пломба)",
+       "tooth": "37",
+       "currency": "UAH",
+       "final": "1960.00",
+       "done": true,
+       "price": "2800.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Відновлення культі зуба",
+       "tooth": "36",
+       "currency": "UAH",
+       "final": "600.00",
+       "done": true,
+       "price": "2000.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "Лікування середнього карієсу (фотополімерна пломба)",
+       "tooth": "35",
+       "currency": "UAH",
+       "final": "1960.00",
+       "done": false,
+       "price": "2800.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування глибокого карієсу (фотополімерна пломба)",
+       "tooth": "46",
+       "currency": "UAH",
+       "final": "2310.00",
+       "done": true,
+       "price": "3300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування глибокого карієсу (фотополімерна пломба)",
+       "tooth": "47",
+       "currency": "UAH",
+       "final": "2310.00",
+       "done": true,
+       "price": "3300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "16640.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "34800.00"
+     },
+     "total_parts": [
+      {
+       "done": true,
+       "amounts": {
+        "UAH": "14680.00"
+       },
+       "percent": null
+      },
+      {
+       "done": false,
+       "amounts": {
+        "UAH": "1960.00"
+       },
+       "percent": null
+      }
+     ]
+    },
+    {
+     "page": 2,
+     "title": "Пародонтологічне лікування",
+     "chart": {
+      "upper": [],
+      "lower": [
+       "42",
+       "41",
+       "31",
+       "32"
+      ]
+     },
+     "items": [
+      {
+       "name": "SRP Однокореневого зуба",
+       "tooth": "32",
+       "currency": "UAH",
+       "final": "240.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "SRP Однокореневого зуба",
+       "tooth": "31",
+       "currency": "UAH",
+       "final": "240.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "SRP Однокореневого зуба",
+       "tooth": "41",
+       "currency": "UAH",
+       "final": "240.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "SRP Однокореневого зуба",
+       "tooth": "42",
+       "currency": "UAH",
+       "final": "240.00",
+       "done": true,
+       "price": "800.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "Консультація спеціаліста та заповнення пародонтологічної карти",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": false,
+       "price": "1500.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Експрес-консультація спеціаліста",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true
+      }
+     ],
+     "total": {
+      "UAH": "960.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "4700.00"
+     },
+     "total_parts": [
+      {
+       "done": true,
+       "amounts": {
+        "UAH": "960.00"
+       },
+       "percent": null
+      },
+      {
+       "done": false,
+       "amounts": {
+        "UAH": "0.00"
+       },
+       "percent": null
+      }
+     ]
+    },
+    {
+     "page": 2,
+     "title": "Ендодонтичне лікування",
+     "chart": {
+      "upper": [
+       "16"
+      ],
+      "lower": [
+       "36"
+      ]
+     },
+     "items": [
+      {
+       "name": "Ендодонтичне лікування зуба (моляр)",
+       "tooth": "16",
+       "currency": "UAH",
+       "final": "2550.00",
+       "done": true,
+       "price": "8500.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      },
+      {
+       "name": "Ендодонтичне лікування зуба (моляр)",
+       "tooth": "36",
+       "currency": "UAH",
+       "final": "2550.00",
+       "done": true,
+       "price": "8500.00",
+       "discount": {
+        "type": "percent",
+        "value": "70"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "5100.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "17000.00"
+     },
+     "total_discount": "-70%"
+    },
+    {
+     "page": 2,
+     "title": "Хірургічна санація",
+     "chart": {
+      "upper": [],
+      "lower": [
+       "38"
+      ]
+     },
+     "items": [
+      {
+       "name": "Атипове видалення зуба 1 ст. складності",
+       "tooth": "38",
+       "currency": "UAH",
+       "final": "2450.00",
+       "done": false,
+       "price": "3500.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "2450.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "3500.00"
+     },
+     "total_discount": "-30%"
+    },
+    {
+     "page": 3,
+     "title": "Ортодонтичне лікування",
+     "chart": {
+      "upper": [],
+      "lower": []
+     },
+     "items": [
+      {
+       "name": "Консультація спеціаліста",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "500.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Встановлення ортодонтичного мікроімпланту",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "80.00",
+       "done": false,
+       "price": "100.00",
+       "discount": {
+        "type": "percent",
+        "value": "20"
+       }
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "500.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "500.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "500.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "500.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "500.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "500.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "500.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "500.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "500.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "500.00",
+       "done": true
+      },
+      {
+       "name": "Зняття брекетів (1 щелепа)",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "1250.00",
+       "done": true,
+       "price": "2500.00",
+       "discount": {
+        "type": "percent",
+        "value": "50"
+       }
+      },
+      {
+       "name": "Зняття брекетів (1 щелепа)",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "1250.00",
+       "done": true,
+       "price": "2500.00",
+       "discount": {
+        "type": "percent",
+        "value": "50"
+       }
+      },
+      {
+       "name": "Встановлення ретейнера (1 щелепа)",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "1000.00",
+       "done": true,
+       "price": "2000.00",
+       "discount": {
+        "type": "percent",
+        "value": "50"
+       }
+      },
+      {
+       "name": "Виготовлення ретенційної капи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "3000.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      },
+      {
+       "name": "Цифрове інтраоральне сканування",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "0.00",
+       "done": true,
+       "price": "2500.00",
+       "discount": {
+        "type": "percent",
+        "value": "100"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "8500.00",
+      "EUR": "80.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "18000.00",
+      "EUR": "100.00"
+     },
+     "total_parts": [
+      {
+       "done": true,
+       "amounts": {
+        "UAH": "8500.00"
+       },
+       "percent": null
+      },
+      {
+       "done": false,
+       "amounts": {
+        "EUR": "80.00"
+       },
+       "percent": null
+      }
+     ]
+    },
+    {
+     "page": 3,
+     "title": "Протезування",
+     "chart": {
+      "upper": [
+       "16",
+       "26"
+      ],
+      "lower": [
+       "36"
+      ]
+     },
+     "items": [
+      {
+       "name": "Послуга \"Коронка/накладка склокерамічна\"",
+       "tooth": "16",
+       "currency": "EUR",
+       "final": "176.00",
+       "done": false,
+       "price": "220.00",
+       "discount": {
+        "type": "percent",
+        "value": "20"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка/накладка склокерамічна\"",
+       "tooth": "26",
+       "currency": "EUR",
+       "final": "176.00",
+       "done": false,
+       "price": "220.00",
+       "discount": {
+        "type": "percent",
+        "value": "20"
+       }
+      },
+      {
+       "name": "Послуга \"Коронка з діоксиду цирконію (базова)\"",
+       "tooth": "36",
+       "currency": "EUR",
+       "final": "176.00",
+       "done": false,
+       "price": "220.00",
+       "discount": {
+        "type": "percent",
+        "value": "20"
+       }
+      },
+      {
+       "name": "\"Послуга \"\"Тимчасова коронка/вінір лабораторний\"\"\"",
+       "tooth": "36",
+       "currency": "EUR",
+       "final": "20.80",
+       "done": true,
+       "price": "40.00",
+       "discount": {
+        "type": "percent",
+        "value": "48"
+       }
+      },
+      {
+       "name": "Цифрове інтраоральне сканування",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "1000.00",
+       "done": true,
+       "price": "2000.00",
+       "discount": {
+        "type": "percent",
+        "value": "50"
+       }
+      }
+     ],
+     "total": {
+      "EUR": "548.80",
+      "UAH": "1000.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "EUR": "700.00",
+      "UAH": "2000.00"
+     },
+     "total_parts": [
+      {
+       "done": true,
+       "amounts": {
+        "EUR": "20.80",
+        "UAH": "1000.00"
+       },
+       "percent": null
+      },
+      {
+       "done": false,
+       "amounts": {
+        "EUR": "528.00"
+       },
+       "percent": null
+      }
+     ]
+    }
+   ],
+   "title_raw": "",
+   "notes_raw": [],
+   "title": "",
+   "timing": "",
+   "duration": ""
+  }
+ ],
+ "terms": [
+  "Зуб 16 під питанням чи буде накладка чи коронка, вирішиться після препарування.",
+  "План лікування/рахунок визначається, відповідно до запланованого обсягу робіт та затвердженого прейскуранту цін, на дату складання.",
+  "Даний план лікування/рахунок не є остаточним, та може змінюватись в процесі лікування, за попереднім погодженням з пацієнтом.",
+  "Оплата пацієнтом проводиться за фактично виконані роботи, або передплатою, згідно діючого затвердженого прейскуранту на день розрахунку.",
+  "З рекомендованим планом лікування ознайомлений та погоджуюсь.",
+  "Дата: \"___\" ___________ 202__р. Підпис:"
+ ],
+ "totals": [
+  {
+   "label": "Невиконані",
+   "done": false,
+   "amounts": {
+    "UAH": "4410.00",
+    "EUR": "608.00"
+   },
+   "before_discount": {
+    "UAH": "7800.00",
+    "EUR": "760.00"
+   }
+  },
+  {
+   "label": "Виконано",
+   "done": true,
+   "amounts": {
+    "UAH": "37580.00",
+    "EUR": "20.80"
+   },
+   "before_discount": {
+    "UAH": "88300.00",
+    "EUR": "40.00"
+   }
+  }
+ ]
+}

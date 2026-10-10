@@ -32,10 +32,11 @@ def norm(name):
     s = re.sub(r"(\d)-\s+(?=[^\W\d_])", r"\1-", s)   # "3- го" -> "3-го"
     s = re.sub(r"(?<=[a-z])-\s+(?=[a-z])", "-", s)      # "all- on-6" -> "all-on-6"
     s = re.sub(r"\)\.\s*(?=\w)", "). ", s)                # "фіксація).встановлення" = "фіксація). встановлення"
+    s = re.sub(r"\bст\.(?=[^\W\d_])", "ст. ", s)               # "3 ст.складності" = "3 ст. складності"
     return s
 
 
-TITLE_FIXES = {"Тимачасове": "Тимчасове", "співвідношені": "співвідношенні"}
+TITLE_FIXES = {"Тимачасове": "Тимчасове", "співвідношені": "співвідношенні", "Постіне": "Постійне", "каріознихз": "каріозних"}
 
 
 def clean_title(t):
@@ -135,6 +136,7 @@ def display_name(name):
     s = re.sub(r"(?<=[A-Za-z])-\s+(?=[A-Za-z])", "-", s)
     s = re.sub(r"\)\.(?=[^\W\d_])", "). ", s)            # "фіксація).Встановлення" -> "фіксація). Встановлення"
     s = re.sub(r"\s*\+\s*", " + ", s)                         # "PMMA+ титанова балка" -> "PMMA + титанова балка"
+    s = re.sub(r"\bст\.(?=[^\W\d_])", "ст. ", s)
     return s[:1].upper() + s[1:]
 
 
@@ -211,7 +213,8 @@ def area_teeth(label):
 
 OTHER_NAME = {"ct_scan": "консультація і 3D-знімок", "exam": "консультація", "scan": "цифрове сканування", "impression": "відбиток щелепи",
               "perio_chart": "пародонтологічна карта", "interdental_brush": "підбір засобів домашнього догляду",
-              "functiography": "функціографія",
+              "functiography": "функціографія", "braces": "брекет-система", "mini_implant": "ортодонтичний мікроімплант",
+              "whitening": "відбілювання зубів", "implant_removal": "видалення імплантату",
               "hygiene": "професійна гігієна", "sedation": "лікування уві сні (седація)", "axiography": "аксіографія"}
 
 
@@ -372,7 +375,7 @@ def build(plan, dic):
                 pic, effect = effect_of(g["key"], s, rules)
                 if cat.get("temporary") and effect in ("superstructure", "superstructure_6"):
                     effect = "superstructure_temp"      # a prosthesis listed under temporary prosthetics is the temporary one
-                if not effect:
+                if not effect or not g["teeth"]:        # nothing to draw it on: named under the chart instead
                     nm = OTHER_NAME.get(pic, g["name"][:1].lower() + g["name"][1:])
                     if nm not in other:
                         other.append(nm)
@@ -459,6 +462,11 @@ def build(plan, dic):
         # a crown on the implant); a crown where a tooth is or was removed, with no implant, is a bridge pontic
         for n, e in fx_teeth.items():
             if e & SC.IMPLANT_EFFECTS:
+                # this stage works on an implant here: a plain crown on it is a crown on the implant
+                for natural, on_implant in (("crown", "implant_crown"), ("temp_crown", "temp_implant_crown")):
+                    if natural in e:
+                        e.discard(natural)
+                        e.add(on_implant)
                 continue
             if n in implanted:
                 for natural, on_implant in (("crown", "implant_crown"), ("temp_crown", "temp_implant_crown")):
@@ -480,6 +488,11 @@ def build(plan, dic):
         for k, v in ph_tot.items():
             add(grand, k, v)
         ph_title, ph_timing = phase_names(ph["title"], ph.get("timing", ""))
+        ph_note = ""
+        if ph_title and not re.search(r"етап", ph_title, re.I):
+            # the doctor wrote a note where the stage name goes ("Видалення плануємо після аксіографії"): the stage keeps
+            # its number as the name and the note is shown under it, as written
+            ph_note, ph_title = ph_title, ""
         legend_view = []
         for e in sorted(legend, key=SC.ORDER.index):
             labs = legend[e]
@@ -490,7 +503,7 @@ def build(plan, dic):
         view_phases.append({
             "map": Markup(SC.stage_chart(fx_teeth, jaw_fx, 640, known_sites)) if has_map else None,
             "legend": legend_view, "other": other,
-            "num": f"{i:02d}", "title": ph_title or f"Етап {i}", "timing": ph_timing,
+            "num": f"{i:02d}", "title": ph_title or f"Етап {i}", "timing": ph_timing, "note": ph_note,
             "duration": duration_text(ph.get("duration", "")),
             "what": [(b["plain"] or b["title"], b["tint"]) for b in blocks],
             "blocks": blocks, "total": money_pair({k: str(v) for k, v in ph_tot.items()}),

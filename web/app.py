@@ -41,8 +41,9 @@ from starlette.routing import Mount, Route  # noqa: E402
 from starlette.staticfiles import StaticFiles  # noqa: E402
 from starlette.templating import Jinja2Templates  # noqa: E402
 
+import parse_clinicards as P  # noqa: E402
 from portal.cabinet import render_cabinet  # noqa: E402
-from render import render_plan  # noqa: E402
+from render import clean_title, render_plan  # noqa: E402
 
 from .clinicards_api import ClinicCardsClient  # noqa: E402
 from .icons import icon  # noqa: E402
@@ -228,6 +229,13 @@ async def convert(request):
         return templates.TemplateResponse(request, "office.html.j2", {
             "error": "План не створено: суми в PDF не сходяться з позиціями, тож перевірте файл. Ми нічого не друкуємо, доки кожна сума не збігається.",
             "detail": detail, "ttl_min": TTL // 60}, status_code=422)
+    except P.CollapsedBlocks as e:
+        shutil.rmtree(job, ignore_errors=True)
+        names = ", ".join(f"«{clean_title(t)}»" for t in e.titles)
+        return templates.TemplateResponse(request, "office.html.j2", {
+            "error": f"У цьому PDF блоки згорнуті — видно лише їхні суми, а послуг немає: {names}. "
+                     "Розгорніть блоки в плані ClinicCards (щоб було видно кожну послугу), збережіть PDF ще раз і завантажте його.",
+            "ttl_min": TTL // 60}, status_code=422)
     except ValueError as e:
         shutil.rmtree(job, ignore_errors=True)
         return templates.TemplateResponse(request, "office.html.j2", {

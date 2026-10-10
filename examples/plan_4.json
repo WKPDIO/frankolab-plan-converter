@@ -1600,7 +1600,11 @@
       "EUR": "10331.40",
       "UAH": "2450.00"
      },
-     "continued": false
+     "continued": false,
+     "total_before_discount": {
+      "EUR": "10530.00",
+      "UAH": "2500.00"
+     }
     }
    ],
    "title_raw": "Другий етап через 6-8 місяців",

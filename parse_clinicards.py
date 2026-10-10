@@ -36,6 +36,17 @@ def grey(w):
     return round(c[0], 4) if len(c) in (1, 3) else None
 
 
+def neutral(w):
+    """text in a shade of grey (black, grey, white) — row text; the coloured ✓ / ● markers are not"""
+    c = w.get("non_stroking_color")
+    if not c or len(c) not in (1, 3):
+        return False
+    return len(c) == 1 or max(c) - min(c) < 0.03
+
+
+PUA = re.compile("[\ue000-\uf8ff]")      # icon-font glyphs ClinicCards puts before some rows
+
+
 def is_close(a, b, tol=0.01):
     return a is not None and abs(a - b) < tol
 
@@ -46,25 +57,37 @@ MONEY_RE = re.compile(r"(€?)\s*(\d{1,3}(?:\s\d{3})*(?:\.\d{2}))")
 TOKEN_RE = re.compile(r"(-?\d+(?:[.,]\d+)?%)|(€?)\s*(\d{1,3}(?:\s\d{3})*\.\d{2})")
 
 
+GROUP_RE = re.compile(r"(-?\d+(?:[.,]\d+)?%)|(,)|(€?)\s*(\d{1,3}(?:\s\d{3})*\.\d{2})")
+
+
 def parse_total_line(text):
-    """'2 900.00 -30% 2 030.00' / '6 500.00 6 442.00' / '€3 370.00, 25 000.00'
+    """'2 900.00 -30% 2 030.00' / '6 500.00 6 442.00' / '€3 370.00, 25 000.00' / '€7 600.00, 9 700.00 €7 450.00'
     -> {'final': {cur: Decimal}, 'base': {cur: Decimal}, 'percent': str|None}
-    The last amount of each currency is what the patient pays; an earlier one is the sum before discount."""
-    seen = {}
-    pct = None
-    for m in TOKEN_RE.finditer(text.replace(",", " , ")):
+    Amounts come in comma-separated groups, one amount per currency: the first group is the sum before discount, the
+    last one what the patient pays. A currency left out of the last group is fully discounted (pays 0)."""
+    groups, prev, pct = [[]], None, None
+    for m in GROUP_RE.finditer(text.replace(",", " , ")):
         if m.group(1):
-            pct = m.group(1)
+            pct, prev = m.group(1), "pct"
             continue
-        cur = "EUR" if m.group(2) else "UAH"
-        seen.setdefault(cur, []).append(Decimal(m.group(3).replace(" ", "")))
-    if not seen:
+        if m.group(2):
+            prev = "comma"
+            continue
+        if prev in ("amount", "pct") and groups[-1]:
+            groups.append([])
+        groups[-1].append(("EUR" if m.group(3) else "UAH", Decimal(m.group(4).replace(" ", ""))))
+        prev = "amount"
+    groups = [dict(g) for g in groups if g]
+    if not groups:
         raise ValueError(f"cannot parse total: {text!r}")
-    if pct and Decimal(pct.rstrip("%").replace(",", ".")) == Decimal(-100) and all(len(v) == 1 for v in seen.values()):
-        # ClinicCards prints a fully discounted total as "14 300.00 -100%": the base only, the zero is left out
-        return {"final": {k: Decimal("0.00") for k in seen}, "base": {k: v[0] for k, v in seen.items()}, "percent": pct}
-    final = {k: v[-1] for k, v in seen.items()}
-    base = {k: v[0] for k, v in seen.items() if len(v) > 1}
+    if len(groups) == 1:
+        if pct and Decimal(pct.rstrip("%").replace(",", ".")) == Decimal(-100):
+            # ClinicCards prints a fully discounted total as "14 300.00 -100%": the base only, the zero is left out
+            return {"final": {k: Decimal("0.00") for k in groups[0]}, "base": groups[0], "percent": pct}
+        return {"final": groups[0], "base": {}, "percent": pct}
+    base, final = groups[0], dict(groups[-1])
+    for k in base:
+        final.setdefault(k, Decimal("0.00"))
     return {"final": final, "base": base, "percent": pct}
 
 
@@ -119,10 +142,13 @@ def page_elements(page, pno):
     # block shapes: big filled curves that are not the white page background
     blocks = []
     for c in page.curves:
-        if not c.get("fill"):
-            continue
-        col = c.get("non_stroking_color") or ()
-        if len(col) == 3 and all(abs(x - 1.0) < 0.01 for x in col):
+        if c.get("fill"):
+            col = c.get("non_stroking_color") or ()
+            if len(col) == 3 and all(abs(x - 1.0) < 0.01 for x in col):
+                continue                       # white: the page background, or a white block (found by its outline)
+        elif c.get("stroke"):
+            col = c.get("stroking_color") or ()  # outline: the only trace of a white block
+        else:
             continue
         if (c["x1"] - c["x0"]) > 400 and (c["bottom"] - c["top"]) > 12:
             blocks.append({"page": pno, "top": c["top"], "bottom": c["bottom"], "x0": c["x0"], "x1": c["x1"],
@@ -138,6 +164,52 @@ def page_elements(page, pno):
     hlines = [l for l in page.lines if abs(l["top"] - l["bottom"]) < 0.5 and (l["x1"] - l["x0"]) > 300]
     vlines = [l for l in page.lines if abs(l["x0"] - l["x1"]) < 0.5]
     return words, uniq, rects, hlines, vlines
+
+
+class CollapsedBlocks(ValueError):
+    """the PDF was printed with blocks folded: their totals are there, their services are not"""
+
+    def __init__(self, titles):
+        self.titles = titles
+        super().__init__("collapsed blocks without services: " + "; ".join(titles))
+
+
+def _zero_free(amounts, rows, base=None):
+    """ClinicCards prints, without "-100%", the list-price sum of rows that are all free: if every row of a currency costs
+    0 and the printed amount is exactly their list-price sum, the patient pays 0 in that currency"""
+    out = dict(amounts)
+    for cur, v in amounts.items():
+        v = Decimal(v)
+        rs = [it for it in rows if it["currency"] == cur]
+        if v and rs and all(Decimal(it["final"]) == 0 for it in rs) and v == sum(Decimal(it.get("price") or it["final"]) for it in rs):
+            out[cur] = "0.00"
+            if base is not None:
+                base[cur] = str(v)
+    return out
+
+
+def fix_free_totals(plan):
+    items = [it for ph in plan["phases"] for b in ph["blocks"] for it in b["items"]]
+    marked = any("done" in it for it in items)
+    for ph in plan["phases"]:
+        for b in ph["blocks"]:
+            parts = b.get("total_parts", [])
+            if parts and all(part["done"] is not None for part in parts):
+                # one line per marker (✓ / ●): fix each against its own rows, the block total is their sum
+                total = {}
+                for part in parts:
+                    part["amounts"] = _zero_free(part["amounts"], [it for it in b["items"] if it.get("done") is part["done"]])
+                    for k, v in part["amounts"].items():
+                        total[k] = total.get(k, Decimal(0)) + Decimal(v)
+                b["total"] = {k: str(v) for k, v in total.items()}
+            elif b.get("total"):
+                before = b.setdefault("total_before_discount", {})
+                b["total"] = _zero_free(b["total"], b["items"], before)
+                if not before:
+                    del b["total_before_discount"]
+    for tot in plan["totals"]:
+        rows = [it for it in items if it.get("done") is tot["done"]] if marked else items
+        tot["amounts"] = _zero_free(tot["amounts"], rows, tot["before_discount"])
 
 
 def parse(path):
@@ -158,8 +230,11 @@ def parse(path):
                         used.add(id(w))
                 plan["header"]["plan_name"] = join_words([w for w in words if 140 <= w["top"] < 170 and abs(w["size"] - 10.5) < 0.1])
             for b in blocks:
-                inside = [w for w in words if b["top"] - 1 <= w["top"] <= b["bottom"] + 1 and id(w) not in used]
-                for w in inside:
+                beside = [w for w in words if b["top"] - 1 <= w["top"] <= b["bottom"] + 1 and id(w) not in used]
+                inside = [w for w in beside if b["x0"] - 2 <= w["x0"] and w["x1"] <= b["x1"] + 2]
+                # beside the block: ClinicCards' visit notes next to booked rows ("1 30.03.2026", "2 Візит не заплановано") —
+                # not part of the plan, and not a heading either
+                for w in beside:
                     used.add(id(w))
                 b_rects = [r for r in rects if b["top"] <= r["top"] and r["bottom"] <= b["bottom"] + 1]
                 b_h = [l for l in hlines if b["top"] <= l["top"] <= b["bottom"]]
@@ -201,6 +276,8 @@ def parse(path):
         if blk.get("continued") and current and current["blocks"]:
             merge_block(current["blocks"][-1], blk)
             continue
+        if not blk["items"] and not blk.get("total") and not blk.get("continued"):
+            continue          # an empty block (no services, no sum): nothing for the patient; a heading above it stays pending
         if pending or current is None:
             current = {"heading": pending, "blocks": []}
             plan["phases"].append(current)
@@ -209,6 +286,10 @@ def parse(path):
     plan["terms"] = group_terms(plan["terms"])
     for ph in plan["phases"]:
         ph.update(split_heading(ph.pop("heading")))
+    collapsed = [b["title"] or "без назви" for ph in plan["phases"] for b in ph["blocks"] if not b["items"]]
+    if collapsed:
+        raise CollapsedBlocks(collapsed)
+    fix_free_totals(plan)
     return plan
 
 
@@ -255,7 +336,7 @@ def parse_header(hdr, words):
 
 def parse_block(b, words, rects, hl, vl):
     blk = {"page": b["page"], "title": "", "chart": {"upper": [], "lower": []}, "items": [], "total": {}, "continued": False}
-    titles = [w for w in words if abs(w["size"] - 8.25) < 0.05 and is_close(grey(w), DARK) and w["x0"] >= 40]
+    titles = [w for w in words if abs(w["size"] - 8.25) < 0.05 and is_close(grey(w), DARK) and w["text"] not in MARKERS]
     # title = dark 8.25 words above the first table row
     row_bands = sorted({(round(r["top"], 1), round(r["bottom"], 1)) for r in rects})
     first_row_top = row_bands[0][0] if row_bands else b["bottom"]
@@ -271,8 +352,14 @@ def parse_block(b, words, rects, hl, vl):
         lo = sorted([w for w in chart_words if y is not None and w["top"] + w["bottom"] >= 2 * y], key=lambda w: w["x0"])
         blk["chart"] = {"upper": [w["text"] for w in up], "lower": [w["text"] for w in lo]}
     # rows
-    # row text is grey; the price before a discount is printed darker ("3 600.00 | 15% | 3 060.00")
-    item_words = [w for w in words if (is_close(grey(w), ITEM_GREY) or is_close(grey(w), DARK)) and w["text"] not in MARKERS]
+    # row text is a shade of grey: grey rows, the darker price before a discount ("3 600.00 | 15% | 3 060.00"), a lighter
+    # row with an icon, white on blue for a highlighted row (a visit booked for it); icon glyphs are dropped
+    item_words = []
+    for w in words:
+        if neutral(w) and w["text"] not in MARKERS:
+            text = PUA.sub("", w["text"])
+            if text.strip():
+                item_words.append({**w, "text": text})
     markers = [w for w in words if w["text"] in MARKERS]
     for top, bottom in row_bands:
         cells = sorted([r for r in rects if abs(r["top"] - top) < 0.6 and abs(r["bottom"] - bottom) < 0.6], key=lambda r: r["x0"])
@@ -346,7 +433,9 @@ def merge_block(a, b):
     for k in ("upper", "lower"):
         a["chart"][k].extend(x for x in b["chart"][k] if x not in a["chart"][k])
     if b.get("total"):
-        a["total"] = b["total"]
+        for k in ("total", "total_parts", "total_before_discount", "total_discount"):
+            if k in b:
+                a[k] = b[k]
 
 
 def split_heading(lines):
@@ -355,6 +444,10 @@ def split_heading(lines):
     if lines:
         title = lines[0].rstrip(".")
         notes = [l.rstrip(".") for l in lines[1:]]
+        # a long doctor's note as the heading wraps: lines that are not the duration ("Орієнтовно …") continue the title
+        while notes and not re.search(r"орієнтовн|\d\s*(дн|тиж|міс)", notes[0], re.I) and not re.search(r"етап", title, re.I):
+            title = f"{title} {notes.pop(0)}".strip()
+        title = re.sub(r"([.!?])(?=[А-ЯІЇЄҐA-Z])", r"\1 ", title)      # "лікування.До" -> "лікування. До"
     out = {"title_raw": title, "notes_raw": notes}
     m = re.match(r"^(.*?етап)\s*(.*)$", title, re.I)
     out["title"] = (m.group(1) if m else title).strip()

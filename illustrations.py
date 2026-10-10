@@ -25,6 +25,7 @@ METAL = "#cfd5dc"
 METAL_SHADE = "#b4bcc6"
 SAND = "#d8c3a5"
 SAND_EDGE = "#a88f6c"
+SKY_LIGHT = "#d6e7fc"
 
 SW = f'stroke="{INK}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"'
 
@@ -343,6 +344,66 @@ def interdental_brush():
                     for y, w in ((76, 3.6), (79, 5.2), (82, 5.8), (85, 5.2), (88, 3.6)))
     body += f'<path d="M80 73V91" stroke="{INK}" stroke-width="1.3" stroke-linecap="round"/>'
     return svg(body, u, "Міжзубний йоржик")
+
+
+def _incisor_at(cx, s, gum_y=92):
+    """a scaled front tooth, centred on cx, its cervical line on gum_y"""
+    tx, ty = cx - 80 * s, gum_y - 90 * s
+    return (f'<g transform="translate({tx:.2f} {ty:.2f}) scale({s})"><path d="{INCISOR}" fill="{TOOTH}"/>'
+            f'<path d="{INCISOR_SHADE}" fill="{SHADE}"/><path d="{INCISOR}" fill="none" stroke="{INK}" '
+            f'stroke-width="{1.6 / s:.2f}" stroke-linejoin="round"/></g>')
+
+
+def braces():
+    """Брекет-система: на передніх зубах — замочки, через них проходить дуга."""
+    u = "br"
+    xs = (46, 80, 114)
+    body = _jaw(u) + "".join(_incisor_at(x, .62) for x in xs) + _gum()
+    body += f'<path d="M26 77Q80 73 134 77" fill="none" stroke="{INK}" stroke-width="1.8" stroke-linecap="round"/>'
+    for x in xs:
+        body += (f'<rect x="{x - 5.5}" y="{70.5}" width="11" height="10" rx="2" fill="{METAL}" stroke="{INK}" stroke-width="1.2"/>'
+                 f'<path d="M{x - 5.5} 75.5H{x + 5.5}" stroke="{INK}" stroke-width="1"/>'
+                 f'<circle cx="{x}" cy="75.5" r="2.2" fill="none" stroke="{ACCENT_DEEP}" stroke-width="1.2"/>')
+    return svg(body, u, "Брекет-система")
+
+
+def mini_implant():
+    """Ортодонтичний мікроімплант: маленький гвинт у кістці між коренями — опора, від якої тягнуть зуби."""
+    u = "mi"
+    body = _jaw(u) + _tooth_at(46, .62) + _tooth_at(114, .62)
+    # the screw between the roots, its head just above the gum
+    body += (f'<path d="M76 97H84L82.6 121Q80 127 77.4 121Z" fill="{METAL}" stroke="{INK}" stroke-width="1.3" stroke-linejoin="round"/>'
+             + "".join(f'<path d="M76.4 {y + 1.6}L83.6 {y - 1.6}" stroke="#8a939e" stroke-width="1.1"/>' for y in (102, 107, 112, 117))
+             + f'<rect x="73" y="84" width="14" height="13" rx="2.5" fill="{METAL}" stroke="{INK}" stroke-width="1.3"/>'
+             + f'<path d="M73 90.5H87" stroke="{INK}" stroke-width="1"/>')
+    body += _gum()
+    # bracket on the tooth and the elastic pulling toward the screw
+    body += f'<rect x="40" y="66" width="12" height="9" rx="2" fill="{METAL}" stroke="{INK}" stroke-width="1.2"/>'
+    body += f'<path d="M52 71L75 87" stroke="{ACCENT_DEEP}" stroke-width="2.4" stroke-linecap="round"/>'
+    return svg(body, u, "Ортодонтичний мікроімплант")
+
+
+def whitening():
+    """Відбілювання: лампа над передніми зубами, світло на зубах, зуби світлішають."""
+    u = "wh"
+    body = _jaw(u)
+    body += f'<path d="M58 34L46 70H114L102 34Z" fill="{SKY_LIGHT}" fill-opacity=".7"/>'
+    body += _incisor_at(64, .72) + _incisor_at(96, .72) + _gum()
+    body += f'<rect x="50" y="16" width="60" height="18" rx="7" fill="#f6f8fb" {SW}/>'
+    body += f'<path d="M58 34H102" stroke="{ACCENT_DEEP}" stroke-width="2.6" stroke-linecap="round"/>'
+    body += f'<path d="M110 25H132" stroke="{INK}" stroke-width="5" stroke-linecap="round"/>'
+    body += _sparkle(124, 56, 6) + _sparkle(36, 52, 4)
+    return svg(body, u, "Професійне відбілювання зубів")
+
+
+def implant_removal():
+    """Видалення імплантату: імплантат виходить з кістки, на його місці — лунка."""
+    u = "ir"
+    body = _jaw(u)
+    body += f'<path d="{IMPLANT}" fill="none" stroke="{BONE_DOT}" stroke-width="1.5" stroke-dasharray="3.5 3"/>'
+    body += f'<g transform="translate(0 -40)"><path d="{IMPLANT}" fill="#e3e7ec" {SW}/>{_threads("#8a939e")}</g>'
+    body += _gum() + _arrow_up(124, 76, 40)
+    return svg(body, u, "Видалення імплантату")
 
 
 def filling():
@@ -1096,7 +1157,8 @@ def axiography():
 
 
 ALL = ALL + [("Огляд", exam), ("Сканування", scan), ("Моделювання", modeling), ("Аксіографія", axiography),
-             ("Глибоке чищення", srp), ("Пародонтологічна карта", perio_chart), ("Міжзубний йоржик", interdental_brush), ("Пломба", filling), ("Естетична реставрація", aesthetic),
+             ("Глибоке чищення", srp), ("Пародонтологічна карта", perio_chart), ("Міжзубний йоржик", interdental_brush),
+             ("Відбілювання", whitening), ("Брекет-система", braces), ("Мікроімплант", mini_implant), ("Видалення імплантату", implant_removal), ("Пломба", filling), ("Естетична реставрація", aesthetic),
              ("Відновлення культі", core_buildup), ("Скловолокно", fiber), ("Зняття коронки", crown_removal),
              ("Видалення штифта", post_removal), ("Видалення зуба", extraction), ("Зуб, який не зберегти", hopeless_tooth), ("Видовження коронки", crown_lengthening),
              ("Кісткова пластика", bone_graft), ("Синус-ліфтинг", sinus_lift), ("Пластика ясен", soft_tissue),
@@ -1121,7 +1183,8 @@ THUMB_VIEW = {"default": "24 34 112 112", "ct_scan": "6 12 148 148", "sedation":
               "all_on_4": "10 14 140 140", "superstructure": "10 14 140 140",
               "all_on_6": "10 14 140 140", "superstructure_6": "10 14 140 140", "denture": "8 8 144 144",
               "splint": "8 8 144 144", "aligner": "8 8 144 144", "retention_tray": "8 8 144 144",
-              "retainer": "8 8 144 144", "impression": "6 0 148 148", "perio_chart": "10 12 136 136", "interdental_brush": "18 12 128 128", "functiography": "8 10 144 144", "separation": "18 22 124 124", "scan": "22 20 124 124",
+              "retainer": "8 8 144 144", "impression": "6 0 148 148", "perio_chart": "10 12 136 136", "whitening": "16 8 128 128", "braces": "20 30 120 120", "mini_implant": "18 32 124 124",
+              "implant_removal": "20 18 128 128", "interdental_brush": "18 12 128 128", "functiography": "8 10 144 144", "separation": "18 22 124 124", "scan": "22 20 124 124",
               "exam": "22 22 124 124", "endo": "22 22 124 124", "hygiene": "16 22 124 124", "srp": "14 22 124 124",
               "extraction": "20 16 128 128", "hopeless_tooth": "22 30 116 116", "crown_removal": "20 18 128 128", "post_removal": "20 18 128 128",
               "aesthetic": "22 30 116 116"}

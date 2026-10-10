@@ -36,6 +36,17 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
 - A service given per segment or quadrant (квадрант 1–4 = 18–11, 21–28, 31–38, 41–48) means "somewhere in this area": bone/sinus/soft-tissue work on a segment is drawn only on the
   implant sites of that segment (extraction sites only when the segment gets no implant) (render.py area_fx, stagechart SITE_EFFECTS), never on healthy teeth.
 
+## ClinicCards PDF variants (parse_clinicards.py) — all seen in real plans
+- Block titles start at different x in different exports; a white block (empty or folded) is found by its grey outline.
+- Row text is any shade of grey: grey rows, a darker list price before a discount, a lighter row with an icon glyph (dropped),
+  white text on a blue (booked) row. Notes beside a block ("1 30.03.2026", "Візит не заплановано") are ignored.
+- Total lines are groups: "€7 600.00, 9 700.00 €7 450.00" = before discount, then paid; a currency missing from the last group
+  pays 0. Fully free rows may total as their list-price sum without "-100%": accepted only when every row of that currency is
+  0 and the sum matches exactly (parse_clinicards._zero_free).
+- A block with no rows and no sum is skipped; a block with a sum but no rows is folded → CollapsedBlocks (the site names the
+  blocks and asks to unfold them in ClinicCards). A stage heading without the word "етап" is the doctor's note: shown under
+  "Етап N", as written.
+
 ## Visual language (illustrations.py, stagechart.py)
 - Stage chart colour code (one hue per family, keep it): crowns/prostheses Storm Blue; temporaries Sky Blue dashed
   (a full-arch prosthesis too: effect superstructure_temp, or any superstructure in a "temporary" category block);

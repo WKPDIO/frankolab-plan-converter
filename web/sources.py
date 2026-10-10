@@ -43,6 +43,8 @@ class PdfSource:
     def plan(self):
         try:
             plan = P.parse(str(self.pdf_path))
+        except P.CollapsedBlocks:
+            raise                                   # a known case with its own message for the office
         except Exception as e:  # noqa: BLE001  an unknown layout: not a ClinicCards plan, or a format change
             raise ValueError(f"could not read the plan: {type(e).__name__}: {e}") from e
         if not plan.get("phases") or not any(b["items"] for ph in plan["phases"] for b in ph["blocks"]):

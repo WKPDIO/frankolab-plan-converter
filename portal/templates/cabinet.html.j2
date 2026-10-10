@@ -204,6 +204,7 @@ a.pill { text-decoration: none; }
       <span class="snum">{{ ph.num }}</span>
       <span>
         <span class="stitle">{{ ph.title }}</span><span class="chip {{ ph.state }}">{{ {'done': 'завершено', 'current': 'зараз', 'planned': 'попереду'}[ph.state] }}</span>
+        {% if ph.note %}<div class="smeta">{{ ph.note }}</div>{% endif %}
         <div class="smeta">{% if ph.timing %}{{ ph.timing }} · {% endif %}{{ ph.duration }}</div>
       </span>
       {{ chev }}

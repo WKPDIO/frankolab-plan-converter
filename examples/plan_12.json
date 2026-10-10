@@ -1,0 +1,579 @@
+{
+ "source": "example_12.pdf",
+ "header": {
+  "patient": "Пацієнт Приклад 12",
+  "doctor": "Олена Приклад",
+  "date": "10.10.2026",
+  "clinic_name": "ТОВ \"ФРАНКОЛАБ\"",
+  "address": "Івано-Франківськ — с. Черніїв, вул.Надвірнянська 2Б",
+  "phone": "+380500112000",
+  "email": "frankolabclinic@gmail.com",
+  "website": "h\u0000ps://www.frankolabclinic.com.ua/",
+  "plan_name": "Приклад 12"
+ },
+ "phases": [
+  {
+   "blocks": [
+    {
+     "page": 1,
+     "title": "Професійна гігієна порожнини рота",
+     "chart": {
+      "upper": [],
+      "lower": []
+     },
+     "items": [
+      {
+       "name": "Професійна гігієна порожнини рота",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "1960.00",
+       "done": true,
+       "price": "2800.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Професійна гігієна порожнини рота",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "2520.00",
+       "done": true,
+       "price": "3600.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "4480.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "6400.00"
+     },
+     "total_discount": "-30%"
+    },
+    {
+     "page": 1,
+     "title": "Лікування каріозних уражень",
+     "chart": {
+      "upper": [
+       "17",
+       "16",
+       "15",
+       "11",
+       "25",
+       "26",
+       "27"
+      ],
+      "lower": [
+       "47",
+       "46",
+       "36",
+       "37"
+      ]
+     },
+     "items": [
+      {
+       "name": "Лікування глибокого карієсу (фотополімерна пломба)",
+       "tooth": "17",
+       "currency": "UAH",
+       "final": "2310.00",
+       "done": true,
+       "price": "3300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування глибокого карієсу (фотополімерна пломба)",
+       "tooth": "16",
+       "currency": "UAH",
+       "final": "2310.00",
+       "done": true,
+       "price": "3300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування поверхневого карієсу (фотополімерна пломба)",
+       "tooth": "15",
+       "currency": "UAH",
+       "final": "1610.00",
+       "done": true,
+       "price": "2300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування поверхневого карієсу (фотополімерна пломба)",
+       "tooth": "11",
+       "currency": "UAH",
+       "final": "1610.00",
+       "done": false,
+       "price": "2300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування глибокого карієсу (фотополімерна пломба)",
+       "tooth": "25",
+       "currency": "UAH",
+       "final": "2310.00",
+       "done": true,
+       "price": "3300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування поверхневого карієсу (фотополімерна пломба)",
+       "tooth": "26",
+       "currency": "UAH",
+       "final": "2030.00",
+       "done": true,
+       "price": "2900.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування глибокого карієсу (фотополімерна пломба)",
+       "tooth": "27",
+       "currency": "UAH",
+       "final": "2310.00",
+       "done": true,
+       "price": "3300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування глибокого карієсу (фотополімерна пломба)",
+       "tooth": "37",
+       "currency": "UAH",
+       "final": "2310.00",
+       "done": true,
+       "price": "3300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування середнього карієсу (фотополімерна пломба)",
+       "tooth": "36",
+       "currency": "UAH",
+       "final": "1960.00",
+       "done": true,
+       "price": "2800.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування глибокого карієсу (фотополімерна пломба)",
+       "tooth": "46",
+       "currency": "UAH",
+       "final": "2310.00",
+       "done": true,
+       "price": "3300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Лікування глибокого карієсу (фотополімерна пломба)",
+       "tooth": "47",
+       "currency": "UAH",
+       "final": "2310.00",
+       "done": true,
+       "price": "3300.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "23380.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "33400.00"
+     },
+     "total_discount": "-30%",
+     "total_parts": [
+      {
+       "done": true,
+       "amounts": {
+        "UAH": "21770.00"
+       },
+       "percent": "-30%"
+      },
+      {
+       "done": false,
+       "amounts": {
+        "UAH": "1610.00"
+       },
+       "percent": "-30%"
+      }
+     ]
+    },
+    {
+     "page": 2,
+     "title": "Ендодонтичне лікування",
+     "chart": {
+      "upper": [
+       "16"
+      ],
+      "lower": []
+     },
+     "items": [
+      {
+       "name": "Ендодонтичне лікування зуба (моляр)",
+       "tooth": "16",
+       "currency": "UAH",
+       "final": "5950.00",
+       "done": true,
+       "price": "8500.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "5950.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "8500.00"
+     },
+     "total_discount": "-30%"
+    },
+    {
+     "page": 2,
+     "title": "Хірургічна санація",
+     "chart": {
+      "upper": [
+       "18",
+       "24",
+       "28"
+      ],
+      "lower": [
+       "48",
+       "45",
+       "38"
+      ]
+     },
+     "items": [
+      {
+       "name": "Видалення зуба",
+       "tooth": "18",
+       "currency": "UAH",
+       "final": "2100.00",
+       "done": true,
+       "price": "3000.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Видалення зуба",
+       "tooth": "24",
+       "currency": "UAH",
+       "final": "2100.00",
+       "done": true,
+       "price": "3000.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Видалення зуба",
+       "tooth": "28",
+       "currency": "UAH",
+       "final": "2100.00",
+       "done": true,
+       "price": "3000.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Атипове видалення зуба 1 ст. складності",
+       "tooth": "38",
+       "currency": "UAH",
+       "final": "2800.00",
+       "done": true,
+       "price": "4000.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Видалення зуба",
+       "tooth": "45",
+       "currency": "UAH",
+       "final": "2100.00",
+       "done": false,
+       "price": "3000.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Атипове видалення зуба 3 ст.складності",
+       "tooth": "48",
+       "currency": "UAH",
+       "final": "4200.00",
+       "done": true,
+       "price": "6000.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      }
+     ],
+     "total": {
+      "UAH": "15400.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "22000.00"
+     },
+     "total_discount": "-30%",
+     "total_parts": [
+      {
+       "done": true,
+       "amounts": {
+        "UAH": "13300.00"
+       },
+       "percent": "-30%"
+      },
+      {
+       "done": false,
+       "amounts": {
+        "UAH": "2100.00"
+       },
+       "percent": "-30%"
+      }
+     ]
+    }
+   ],
+   "title_raw": "",
+   "notes_raw": [],
+   "title": "",
+   "timing": "",
+   "duration": ""
+  },
+  {
+   "blocks": [
+    {
+     "page": 2,
+     "title": "Ортодонтичне лікування",
+     "chart": {
+      "upper": [],
+      "lower": []
+     },
+     "items": [
+      {
+       "name": "Консультація спеціаліста",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "350.00",
+       "done": true,
+       "price": "500.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Ортодонтичне лікування лігатурною металевою брекет-системою (1 щелепа)",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "490.00",
+       "done": true,
+       "price": "700.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Ортодонтичне лікування лігатурною металевою брекет-системою (1 щелепа)",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "490.00",
+       "done": false,
+       "price": "700.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Встановлення ортодонтичного мікроімпланту IZC/BCS",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "140.00",
+       "done": false,
+       "price": "200.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Встановлення ортодонтичного мікроімпланту IZC/BCS",
+       "tooth": "",
+       "currency": "EUR",
+       "final": "140.00",
+       "done": false,
+       "price": "200.00",
+       "discount": {
+        "type": "percent",
+        "value": "30"
+       }
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      },
+      {
+       "name": "Корекція брекет-системи",
+       "tooth": "",
+       "currency": "UAH",
+       "final": "800.00",
+       "done": true
+      }
+     ],
+     "total": {
+      "UAH": "5950.00",
+      "EUR": "1260.00"
+     },
+     "continued": false,
+     "total_before_discount": {
+      "UAH": "6100.00",
+      "EUR": "1800.00"
+     },
+     "total_parts": [
+      {
+       "done": true,
+       "amounts": {
+        "UAH": "5950.00",
+        "EUR": "490.00"
+       },
+       "percent": null
+      },
+      {
+       "done": false,
+       "amounts": {
+        "EUR": "770.00"
+       },
+       "percent": null
+      }
+     ]
+    }
+   ],
+   "title_raw": "Видалення премолярів під час ортодонтичного лікування. До ортодонтичного лікування видалення 8-мок",
+   "notes_raw": [],
+   "title": "Видалення премолярів під час ортодонтичного лікування. До ортодонтичного лікування видалення 8-мок",
+   "timing": "",
+   "duration": ""
+  }
+ ],
+ "terms": [
+  "План лікування/рахунок визначається, відповідно до запланованого обсягу робіт та затвердженого прейскуранту цін, на дату складання.",
+  "Даний план лікування/рахунок не є остаточним, та може змінюватись в процесі лікування, за попереднім погодженням з пацієнтом.",
+  "Оплата пацієнтом проводиться за фактично виконані роботи, або передплатою, згідно діючого затвердженого прейскуранту на день розрахунку.",
+  "З рекомендованим планом лікування ознайомлений та погоджуюсь.",
+  "Дата: \"___\" ___________ 202__р. Підпис:"
+ ],
+ "totals": [
+  {
+   "label": "Невиконані",
+   "done": false,
+   "amounts": {
+    "UAH": "3710.00",
+    "EUR": "770.00"
+   },
+   "before_discount": {
+    "UAH": "5300.00",
+    "EUR": "1100.00"
+   }
+  },
+  {
+   "label": "Виконано",
+   "done": true,
+   "amounts": {
+    "UAH": "51450.00",
+    "EUR": "490.00"
+   },
+   "before_discount": {
+    "UAH": "71100.00",
+    "EUR": "700.00"
+   }
+  }
+ ]
+}

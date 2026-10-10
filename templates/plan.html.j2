@@ -94,6 +94,7 @@ h1, h2, h3, p { margin: 0; }
 .st-num { font-size: var(--deco); font-weight: 100; line-height: .82; color: var(--storm-blue); letter-spacing: -.02em; }
 .st-head h2 { font-size: var(--h); line-height: 1.2; font-weight: 600; }
 .st-meta { font-size: var(--small); color: var(--graphite-grey); margin-top: 2px; }
+.st-note { color: var(--rich-black); max-width: 120mm; }
 .st-sum { text-align: right; }
 .st-sum .lbl { font-size: var(--small); color: var(--graphite-grey); }
 .st-sum .val { font-weight: 600; white-space: nowrap; }
@@ -238,6 +239,7 @@ table.sum tr.grand-row td { border-top: 1.5px solid var(--rich-black); border-bo
         <div class="tl-num">{{ ph.num }}</div>
         <div>
           <div class="tl-title">{{ ph.title }}{% if ph.done_state == 'all' %}<span class="done">виконано</span>{% elif ph.done_state == 'some' %}<span class="done part">частково виконано</span>{% endif %}</div>
+          {% if ph.note %}<div class="tl-meta">{{ ph.note }}</div>{% endif %}
           <div class="tl-meta">{{ ph.duration }}</div>
           <div class="tl-what">{% for w, tint in ph.what %}<span class="chip"><i style="background:{{ tint }}"></i>{{ w }}</span>{% endfor %}</div>
         </div>
@@ -278,6 +280,7 @@ table.sum tr.grand-row td { border-top: 1.5px solid var(--rich-black); border-bo
     <div class="st-num">{{ ph.num }}</div>
     <div>
       <h2>{{ ph.title }}</h2>
+      {% if ph.note %}<div class="st-meta st-note">{{ ph.note }}</div>{% endif %}
       <div class="st-meta">{% if ph.timing %}{{ ph.timing }} · {% endif %}{{ ph.duration }}</div>
     </div>
     <div class="st-sum"><div class="lbl">Вартість етапу</div><div class="val">{{ ph.total }}</div></div>
