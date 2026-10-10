@@ -22,6 +22,11 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
 - Hygiene levels differ by the amount of deposits (м'який наліт < без уточнення < стійкий наліт).
 
 ## Visual language (illustrations.py, stagechart.py)
+- Stage chart colour code (one hue per family, keep it): crowns/prostheses Storm Blue; temporaries Sky Blue dashed;
+  fillings/restorations sage green; root canals and posts coral; core build-up lavender; gum (soft tissue, crown lengthening) rose;
+  bone material sand with hatching; implants, abutments, healing caps metal grey; new implant full metal, existing one paler.
+- Tooth shapes (graphics.py): anatomical crowns with relief strokes (incisor lobes, canine labial ridge, premolar buccal ridge,
+  molar buccal groove and cusp ridges); soft left-to-right gradient for volume.
 - Neutral anatomy; Storm Blue #99aabe = what the procedure does; dashed = future/temporary; hatching = bone material;
   metal grey = implant already in place; translucent gum drawn in front; implant crown emerges from the platform with one joint line.
 - Upper-jaw scenes (All-on-4, sinus lift) use panoramic proportions; trays, splint, retainer, denture are drawn from above.

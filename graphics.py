@@ -79,24 +79,51 @@ ANATOMY = {
 ROOT_K = 0.9       # roots drawn a little shorter so the chart stays compact
 
 
-def _crown_edge(kind, w, hc):
-    """occlusal outline from the distal max-contour (-w/2, hD) to the mesial one (w/2, hM); mesial is +x"""
+def _crown_edge(kind, w, hc, pos=6):
+    """occlusal outline from the distal max-contour (-w/2, hD) to the mesial one (w/2, hM); mesial is +x.
+    Contact points sit where real teeth touch: incisors near the edge, canines and premolars lower."""
     if kind == "incisor":
-        hD, hM = hc * .30, hc * .2
-        seg = [("C", (-w / 2, hD * .35), (-w / 2 + w * .1, 0), (-w / 2 + w * .26, 0)), ("L", (w / 2 - w * .14, 0)),
-               ("C", (w / 2 - w * .03, 0), (w / 2, hM * .4), (w / 2, hM))]
+        hD, hM = hc * .34, hc * .18
+        seg = [("C", (-w / 2, hD * .3), (-w * .44, hc * .035), (-w * .3, hc * .02)), ("L", (w * .4, 0)),
+               ("C", (w * .47, 0), (w / 2, hM * .5), (w / 2, hM))]
     elif kind == "canine":
-        hD, hM = hc * .44, hc * .32
-        seg = [("C", (-w / 2, hD * .62), (-w * .2, hc * .1), (w * .04, 0)),
-               ("C", (w * .2, hc * .06), (w / 2, hM * .55), (w / 2, hM))]
+        hD, hM = hc * .46, hc * .34
+        seg = [("C", (-w / 2, hD * .55), (-w * .26, hc * .12), (w * .06, 0)),          # long distal slope
+               ("C", (w * .22, hc * .05), (w / 2, hM * .5), (w / 2, hM))]             # short mesial slope
     elif kind == "premolar":
-        hD, hM = hc * .4, hc * .36
-        seg = [("C", (-w / 2, hD * .5), (-w * .24, 0), (0, 0)), ("C", (w * .24, 0), (w / 2, hM * .5), (w / 2, hM))]
-    else:   # molar: two buccal cusps and the groove between them
-        hD, hM = hc * .3, hc * .28
-        seg = [("C", (-w / 2, hD * .3), (-w * .4, 0), (-w * .24, 0)), ("C", (-w * .1, 0), (-w * .06, hc * .13), (w * .02, hc * .13)),
-               ("C", (w * .09, hc * .13), (w * .12, 0), (w * .26, 0)), ("C", (w * .41, 0), (w / 2, hM * .3), (w / 2, hM))]
+        hD, hM = hc * .42, hc * .38
+        seg = [("C", (-w / 2, hD * .45), (-w * .3, hc * .02), (-w * .05, 0)), ("L", (w * .05, 0)),
+               ("C", (w * .3, hc * .02), (w / 2, hM * .45), (w / 2, hM))]
+    else:   # molar: mesio-buccal cusp larger, disto-buccal smaller, buccal groove between them
+        hD, hM = hc * .3, hc * .27
+        seg = [("C", (-w / 2, hD * .35), (-w * .44, hc * .03), (-w * .27, 0)),
+               ("C", (-w * .15, 0), (-w * .09, hc * .14), (-w * .02, hc * .15)),
+               ("C", (w * .06, hc * .15), (w * .1, 0), (w * .25, 0)),
+               ("C", (w * .41, 0), (w / 2, hM * .35), (w / 2, hM))]
     return hD, hM, seg
+
+
+def _relief(kind, w, hc, form):
+    """surface anatomy drawn as thin light strokes inside the crown: lobes of incisors, the labial ridge of a canine,
+    the buccal ridge of a premolar, the buccal groove and cusp ridges of a molar. Local coords, mesial +x."""
+    r = []
+    if kind == "incisor":
+        for x in (-w * .17, w * .17):
+            r += [("M", (x, hc * .2)), ("C", (x * 1.15, hc * .42), (x * 1.05, hc * .6), (x * .8, hc * .8))]
+    elif kind == "canine":
+        r += [("M", (w * .06, hc * .07)), ("C", (w * .07, hc * .3), (w * .04, hc * .55), (w * .01, hc * .8))]
+        for x in (-w * .24, w * .26):
+            r += [("M", (x, hc * .3)), ("C", (x * 1.05, hc * .45), (x * .95, hc * .58), (x * .8, hc * .72))]
+    elif kind == "premolar":
+        r += [("M", (0, hc * .08)), ("C", (-w * .01, hc * .3), (-w * .02, hc * .5), (-w * .03, hc * .72))]
+        r += [("M", (-w * .28, hc * .3)), ("Q", (-w * .3, hc * .5), (-w * .24, hc * .66))]
+        r += [("M", (w * .28, hc * .3)), ("Q", (w * .3, hc * .5), (w * .24, hc * .66))]
+    else:
+        r += [("M", (-w * .02, hc * .17)), ("C", (-w * .03, hc * .3), (-w * .045, hc * .42), (-w * .05, hc * .52))]
+        r += [("M", (-w * .09, hc * .55)), ("Q", (-w * .05, hc * .6), (-w * .01, hc * .55))]            # pit at the groove end
+        r += [("M", (w * .3, hc * .1)), ("C", (w * .3, hc * .3), (w * .26, hc * .45), (w * .17, hc * .56))]
+        r += [("M", (-w * .32, hc * .1)), ("C", (-w * .32, hc * .28), (-w * .28, hc * .42), (-w * .19, hc * .52))]
+    return r
 
 
 def _lobed(cw, hc, hr, lobes, notches):
@@ -160,15 +187,16 @@ def tooth_geom(n, cx, y0, s, upper, k=1.0, grow_down=None):
 
     def tf(x, y):
         return cx + sx * x * s, y0 + sy * y * s * k
-    hD, hM, edge = _crown_edge(kind, w, hc)
-    kf = .45
-    start = [("M", (-cw / 2, hc)), ("C", (-cw / 2 - (w - cw) * .12, hc - (hc - hD) * kf), (-w / 2, hD + (hc - hD) * kf), (-w / 2, hD))]
-    dn = [("C", (w / 2, hM + (hc - hM) * kf), (cw / 2 + (w - cw) * .12, hc - (hc - hM) * kf), (cw / 2, hc))]
+    hD, hM, edge = _crown_edge(kind, w, hc, pos)
+    # flanks: full width held through the middle third, then a quick curve into the neck (cervical constriction)
+    start = [("M", (-cw / 2, hc)), ("C", (-cw / 2 - (w - cw) * .3, hc * .93), (-w / 2, hD + (hc - hD) * .6), (-w / 2, hD))]
+    dn = [("C", (w / 2, hM + (hc - hM) * .6), (cw / 2 + (w - cw) * .3, hc * .93), (cw / 2, hc))]
     crown = start + edge + dn
     lobes, notches = _root_lobes(form, cw, hc, hr)
     return {
         "n": n, "w": w, "cw": cw, "hc": hc, "hr": hr, "form": form, "kind": kind, "upper": upper,
         "lobes": lobes, "tf": tf, "s": s, "cx": cx,
+        "relief": _fmt(_relief(kind, w, hc, form), tf),
         "sil": _fmt(crown + _lobed(cw, hc, hr, lobes, notches) + [("Z",)], tf),
         "crown": _fmt(crown + [("Q", (0, hc + hc * .09), (-cw / 2, hc)), ("Z",)], tf),
         "cej": _fmt([("M", (cw / 2, hc)), ("Q", (0, hc + hc * .09), (-cw / 2, hc))], tf),
@@ -206,9 +234,23 @@ def chart_layout(width):
             "height": bot + num_h + 3, "centres": centres, "mid": width / 2}
 
 
+_chart_seq = [0]
+
+
+def tooth_gradients(uid):
+    """soft left-to-right lighting for crowns and roots: 'on' (storm blue) and 'off' (white) variants"""
+    def g(gid, c0, c1):
+        return (f'<linearGradient id="{gid}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{c0}"/>'
+                f'<stop offset="1" stop-color="{c1}"/></linearGradient>')
+    return ("<defs>" + g(f"{uid}c_on", "#a7b6c8", "#8c9eb4") + g(f"{uid}r_on", "#d2dbe5", "#bfcad7")
+            + g(f"{uid}c_off", "#ffffff", "#eef2f6") + g(f"{uid}r_off", "#f7f9fb", "#eaeef3") + "</defs>")
+
+
 def chart(teeth, width=320, show_sides=True, label=True):
     """Full FDI chart in buccal view, anatomical tooth forms; `teeth` = tooth numbers (ints) to highlight."""
     teeth = set(teeth)
+    _chart_seq[0] += 1
+    uid = f"c{_chart_seq[0]}"
     gap = width * .0045
     mid_gap = width * .02
     total = max(sum(ANATOMY[j][p][0] for p in range(1, 9)) * 2 for j in ("upper", "lower"))
@@ -229,11 +271,12 @@ def chart(teeth, width=320, show_sides=True, label=True):
             for n in ns:
                 w = ANATOMY[jaw][n % 10][0] * s
                 cx = x + side * w / 2
-                sil, crown, cej, _ = tooth_paths(n, cx, y0, s, jaw == "upper")
+                g = tooth_geom(n, cx, y0, s, jaw == "upper")
+                sil, crown, cej = g["sil"], g["crown"], g["cej"]
                 on = "on" if n in teeth else "off"
-                roots.append(f'<path d="{sil}" class="ch-root-{on}"/>')
-                crowns.append(f'<path d="{crown}" class="ch-crown-{on}"/>')
-                lines.append(f'<path d="{sil}" class="ch-edge-{on}"/><path d="{cej}" class="ch-cej-{on}"/>')
+                roots.append(f'<path d="{sil}" fill="url(#{uid}r_{on})" class="ch-root-{on}"/>')
+                crowns.append(f'<path d="{crown}" fill="url(#{uid}c_{on})" class="ch-crown-{on}"/>')
+                lines.append(f'<path d="{g["relief"]}" class="ch-rel-{on}"/><path d="{sil}" class="ch-edge-{on}"/><path d="{cej}" class="ch-cej-{on}"/>')
                 ny = num_h - 1.5 if jaw == "upper" else height - 1.5
                 nums.append(f'<text x="{cx:.1f}" y="{ny:.1f}" class="{"ch-num-on" if n in teeth else "ch-num"}" text-anchor="middle">{n}</text>')
                 x += side * (w + gap)
@@ -242,7 +285,7 @@ def chart(teeth, width=320, show_sides=True, label=True):
     sides = '<div class="ch-sides"><span>права сторона</span><span>ліва сторона</span></div>' if show_sides else ""
     aria = ("Зубна формула: " + ", ".join(str(t) for t in UPPER + LOWER if t in teeth)) if label else ""
     svg = (f'<svg class="chart" width="{width}" height="{height:.0f}" viewBox="0 0 {width} {height:.1f}" '
-           f'role="img" aria-label="{aria}" xmlns="http://www.w3.org/2000/svg">{guide}{"".join(roots)}{"".join(crowns)}{"".join(lines)}{"".join(nums)}</svg>')
+           f'role="img" aria-label="{aria}" xmlns="http://www.w3.org/2000/svg">{tooth_gradients(uid)}{guide}{"".join(roots)}{"".join(crowns)}{"".join(lines)}{"".join(nums)}</svg>')
     return f'<div class="chart-wrap" style="width:{width}px">{svg}{sides}</div>'
 
 
