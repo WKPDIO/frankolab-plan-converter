@@ -14,7 +14,8 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
 - Patient files live only in DATA_DIR/<token>/ for TTL_MINUTES; the source PDF is deleted right after parsing. Keep it that way.
 - All patient-facing data goes through web/sources.py; the ClinicCards client (web/clinicards_api.py) has placeholder methods
   that raise NotImplementedError until the real endpoint list is known — do not invent endpoints.
-- Deploy: Dockerfile + render.yaml (Render, Frankfurt). One Chromium at a time (RENDER_LOCK) to fit a small instance.
+- Deploy: Dockerfile + render.yaml (Render, Frankfurt). One plan at a time (RENDER_LOCK) to fit a small instance; one Chromium
+  kept running between plans (render.Printer: fresh context per plan, restarted every 25 plans, after a crash, or when stuck).
 - Web pages share the cabinet's look: web/static/app.css tokens = cabinet tokens.
 
 ## Confirmed by the clinic

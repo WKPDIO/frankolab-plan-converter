@@ -43,7 +43,7 @@ from starlette.templating import Jinja2Templates  # noqa: E402
 
 import parse_clinicards as P  # noqa: E402
 from portal.cabinet import render_cabinet  # noqa: E402
-from render import clean_title, render_plan  # noqa: E402
+from render import Printer, clean_title, render_plan  # noqa: E402
 
 from .clinicards_api import ClinicCardsClient  # noqa: E402
 from .icons import icon  # noqa: E402
@@ -62,7 +62,8 @@ COOKIE = "fl_office"
 
 templates = Jinja2Templates(directory=str(ROOT / "web" / "templates"))
 templates.env.globals["icon"] = icon
-RENDER_LOCK = threading.Lock()          # one Chromium at a time keeps memory low on a small server
+RENDER_LOCK = threading.Lock()          # one plan at a time keeps memory low on a small server
+PRINTER = Printer()                     # one Chromium, started once and kept running between plans
 TOKEN_RE = re.compile(r"^[A-Za-z0-9_-]{16,64}$")
 
 
@@ -177,7 +178,7 @@ def _convert(job, pdf_bytes, pano_bytes):
         pano = job / "pano.jpg"
         img.save(pano, "JPEG", quality=88)       # re-encoded: no metadata from the original file
     with RENDER_LOCK:
-        pdf, report = render_plan(job / "plan.json", job, pano=pano, preview=job / "preview.png")
+        pdf, report = render_plan(job / "plan.json", job, pano=pano, preview=job / "preview.png", printer=PRINTER)
     for f in job.glob("*.html"):
         f.unlink()
     report["sum"] = {k: str(v) for k, v in report["sum"].items()}

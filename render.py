@@ -3,8 +3,11 @@
 usage: python3 render.py <plan.pdf|plan.json> [out_dir] [panorama.png]
 """
 import json
+import queue
 import re
 import sys
+import threading
+from concurrent.futures import Future, TimeoutError as FutureTimeout
 from collections import OrderedDict
 from decimal import Decimal
 from pathlib import Path
@@ -556,9 +559,97 @@ def build(plan, dic):
     return view, missing, flagged
 
 
-def render_plan(src, out_dir, pano=None, preview=None):
+CHROMIUM_ARGS = ["--disable-dev-shm-usage"]     # a small /dev/shm in containers would otherwise crash Chromium
+
+
+def _print_pdf(browser, html_path, pdf_path):
+    """one plan, in a fresh browser context (nothing shared between patients)"""
+    ctx = browser.new_context(viewport={"width": 794, "height": 1123}, device_scale_factor=1)
+    try:
+        pg = ctx.new_page()
+        pg.goto(Path(html_path).as_uri())          # waits for the load event: fonts, pictures, the panoramic image
+        pg.evaluate("document.fonts.ready")
+        pg.pdf(path=str(pdf_path), format="A4", print_background=True, prefer_css_page_size=True)
+    finally:
+        ctx.close()
+
+
+class Printer:
+    """Chromium kept running between plans, so a plan does not wait for the browser to start (on a small server that
+    start is one of the slowest steps). Plans are printed one at a time in the printer's own thread — Playwright's
+    sync API must stay in the thread that started it. If the browser dies, it is started again and the plan retried once.
+    Every FRESH_AFTER plans the browser is started anew, so its memory does not creep on a small server.
+    A plan not printed within STUCK_AFTER seconds means the printer itself is stuck (its Playwright driver is gone):
+    a new printer thread takes over and the plan is tried once more."""
+    FRESH_AFTER = 25
+    STUCK_AFTER = 120
+
+    def __init__(self):
+        self._start()
+
+    def _start(self):
+        self._jobs = queue.Queue()
+        threading.Thread(target=self._run, args=(self._jobs,), daemon=True, name="pdf-printer").start()
+
+    def _run(self, jobs):
+        from playwright.sync_api import sync_playwright
+        try:
+            pw = sync_playwright().start()
+        except Exception as e:  # noqa: BLE001  no Playwright at all: every plan gets the error instead of waiting
+            while True:
+                _, fut = jobs.get()
+                fut.set_exception(e)
+        browser = None
+
+        def ensure():
+            nonlocal browser
+            if browser is None or not browser.is_connected():
+                browser = pw.chromium.launch(args=CHROMIUM_ARGS)
+            return browser
+
+        def close():
+            nonlocal browser
+            try:
+                browser.close()
+            except Exception:  # noqa: BLE001
+                pass
+            browser = None
+        try:
+            ensure()                                   # warm up now, before the first plan arrives
+        except Exception:  # noqa: BLE001  tried again with the first plan
+            browser = None
+        printed = 0
+        while True:
+            (html_path, pdf_path), fut = jobs.get()
+            if printed and printed % self.FRESH_AFTER == 0:
+                close()
+            printed += 1
+            for attempt in (1, 2):
+                try:
+                    _print_pdf(ensure(), html_path, pdf_path)
+                    fut.set_result(pdf_path)
+                    break
+                except Exception as e:  # noqa: BLE001
+                    close()
+                    if attempt == 2:
+                        fut.set_exception(e)
+
+    def __call__(self, html_path, pdf_path):
+        for attempt in (1, 2):
+            fut = Future()
+            self._jobs.put(((html_path, pdf_path), fut))
+            try:
+                return fut.result(timeout=self.STUCK_AFTER)
+            except FutureTimeout:
+                self._start()
+                if attempt == 2:
+                    raise
+
+
+def render_plan(src, out_dir, pano=None, preview=None, printer=None):
     """ClinicCards PDF (or its parsed JSON) -> patient PDF. Stops if any sum does not match the source.
     preview — optional path for a PNG of the first page (used by the web app).
+    printer — a Printer to reuse a running Chromium (the web app); without it Chromium is started for this plan.
     Returns (pdf_path, report) — report has the item count, sums and missing descriptions."""
     src, out_dir = Path(src), Path(out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -576,16 +667,16 @@ def render_plan(src, out_dir, pano=None, preview=None):
     html_path = out_dir / f"План_лікування_{stem}.html"
     html_path.write_text(html)
     pdf_path = out_dir / f"План_лікування_{stem}.pdf"
-    from playwright.sync_api import sync_playwright
-    with sync_playwright() as pw:
-        # --disable-dev-shm-usage: small /dev/shm in containers would otherwise crash Chromium
-        b = pw.chromium.launch(args=["--disable-dev-shm-usage"])
-        pg = b.new_page(viewport={"width": 794, "height": 1123}, device_scale_factor=1)
-        pg.goto(html_path.as_uri())
-        pg.evaluate("document.fonts.ready")
-        pg.wait_for_timeout(200)
-        pg.pdf(path=str(pdf_path), format="A4", print_background=True, prefer_css_page_size=True)
-        b.close()
+    if printer:
+        printer(html_path, pdf_path)
+    else:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as pw:
+            b = pw.chromium.launch(args=CHROMIUM_ARGS)
+            try:
+                _print_pdf(b, html_path, pdf_path)
+            finally:
+                b.close()
     if preview:     # first page exactly as printed (pypdfium2 comes with pdfplumber)
         import pypdfium2 as pdfium
         doc = pdfium.PdfDocument(str(pdf_path))
