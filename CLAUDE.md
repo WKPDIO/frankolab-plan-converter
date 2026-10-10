@@ -24,8 +24,8 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
 - Included in the price: local anaesthesia, rubber dam / OptraGate (plan-wide note); endo — control X-rays and temporary filling;
   surgery — sutures; implant — implant + cover screw; формувач — the healing abutment; bone augmentation — bone material + membrane;
   sinus lift — bone material; soft-tissue augmentation — graft material; implant crowns (temporary and permanent) — Ti-base/abutment,
-  screw, fixation; crowns — fixation. Sedation price includes the anaesthesiologist and monitoring.
-- Pending: whether All-on-4 (€2 500) / All-on-6 (€3 000) include all the implants — keep `incl` off until confirmed.
+  screw, fixation; crowns — fixation; All-on-4 / All-on-6 implantation — all four / six implants.
+  Sedation price includes the anaesthesiologist and monitoring.
 - Sedation memo wins over the "eat before surgery" advice (no food 4 h before sedation). «Лише рідка їжа 30 днів» stays as written.
 - Hygiene levels differ by the amount of deposits (м'який наліт < без уточнення < стійкий наліт).
 - A service given per segment means "somewhere in this area": bone/sinus/soft-tissue work on a segment is drawn only on the
