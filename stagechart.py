@@ -25,6 +25,7 @@ OLD = "#e4e6ea"
 SAND, SAND_EDGE = "#d8c3a5", "#a88f6c"             # tartar
 PINK, PINK_EDGE = "#e6bdb2", "#b98c80"             # acrylic base of a prosthesis
 MODEL = "#9ac2f4"
+DECAY, DECAY_DEEP, INFLAMED = "#b9a48c", "#8c7257", "#e49a95"   # the tooth that cannot be saved
 
 # service picture -> what is drawn on the tooth
 EFFECT_OF_PIC = {
@@ -180,10 +181,12 @@ def draw_tooth(g, fx, uid, active=True):
             fl = _rect(g, -w / 2 - .5, hc - .9, w / 2 + .5, hc + 2.8, .6)
             base += f'<path d="{fl}" fill="{PINK}" stroke="{PINK_EDGE}" stroke-width=".5"/>'
     elif "extraction" in fx:
-        base += (f'<path d="{g["sil"]}" fill="#ffffff" fill-opacity=".4" stroke="{INK}" stroke-width=".75" stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
-        x = w * .2
-        base += (f'<path d="{_p(g, [("M", (-x, hc * .3)), ("L", (x, hc * .78)), ("M", (x, hc * .3)), ("L", (-x, hc * .78))])}" '
-                 f'stroke="{ENDO_DEEP}" stroke-width="1.6" stroke-linecap="round"/>')
+        # the tooth that cannot be saved: dashed outline, darkened root, a dark cavity in the crown and an inflamed tip
+        base += (f'<path d="{g["sil"]}" fill="{DECAY}" fill-opacity=".35" stroke="{INK}" stroke-width=".75" stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
+        cav = _ellipse_pts(g, w * .08, hc * .32, w * .2, hc * .2)
+        base += f'<g clip-path="url(#{clip})"><path d="{cav}" fill="{DECAY_DEEP}"/></g>'
+        x, y, h = g["lobes"][0]
+        base += f'<path d="{_ellipse_pts(g, x, y - h * 1.2, 1.7, 1.4)}" fill="{INFLAMED}" fill-opacity=".85"/>'
     else:
         base += f'<path d="{g["sil"]}" fill="{ROOT if active else "#f7f9fb"}"/>'
         base += f'<path d="{g["crown"]}" fill="#ffffff"/>'

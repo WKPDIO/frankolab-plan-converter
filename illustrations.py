@@ -383,17 +383,60 @@ def post_removal():
     return svg(body, u, "Видалення штифта")
 
 
+DECAY = "#b9a48c"          # darkened, softened tooth tissue
+DECAY_DEEP = "#8c7257"
+INFLAMED = "#e49a95"       # inflamed area at the root tip
+
+
+# the silhouette of a molar whose right cusp has broken away: same outline as MOLAR, but between the right cusp
+# and the groove the edge drops into a ragged crater instead of running over the cusp
+BROKEN_MOLAR = ("M58 90C55 85 50 79 50 71C50 63 54 58 61 57C67 56 72 58.5 76 59.5Q80 60.5 82 60"
+                "L84 66L88 63L91 70L95 66L99 72C103 73 106 69 108 71C110 71 110 79 102 90"
+                "C100.5 102 98.5 116 96.5 127C95.5 134 92 137 89.5 135C87.5 133 87 127 86 120"
+                "C85 113 83.5 108 80 107C76.5 108 75 113 74 120C73 127 72.5 133 70.5 135"
+                "C68 137 64.5 134 63.5 127C61.5 116 59.5 102 58 90Z")
+
+
+def _damaged_tooth():
+    """a tooth that cannot be saved: the right cusp has broken away over a deep cavity that reached the pulp,
+    the roots are darkened, one is cracked, with an inflammation at its tip. Same calm language, only the damage
+    carries colour."""
+    out = f'<path d="{BROKEN_MOLAR}" fill="{TOOTH}"/><path d="{ROOT_SHADE}" fill="{SHADE}"/>'
+    # darkened, weakened roots
+    out += (f'<path d="M58 90C59.5 102 61.5 116 63.5 127C64.5 134 68 137 70.5 135C72.5 133 73 127 74 120C75 113 76.5 108 80 107'
+            f'C83.5 108 85 113 86 120C87 127 87.5 133 89.5 135C92 137 95.5 134 96.5 127C98.5 116 100.5 102 102 90Z" '
+            f'fill="{DECAY}" fill-opacity=".5"/>')
+    # the cavity under the broken edge: soft, discoloured tissue around a dark hollow
+    out += (f'<path d="M82 60L84 66L88 63L91 70L95 66L99 72C96 78 92 84 86 86C80 87 74 82 72 74C71 68 74 63 78 61Z" '
+            f'fill="{DECAY}" fill-opacity=".8"/>')
+    out += f'<path d="M80 66C77 70 77 77 81 81C85 84 91 82 93 77C94 73 93 69 91 67C88 67 85 69 83 68C82 67 81 66 80 66Z" fill="{DECAY_DEEP}"/>'
+    # crack running from the cavity down the left root
+    out += f'<path d="M75 80L70 92L72.5 104L68.5 118" fill="none" stroke="{DECAY_DEEP}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>'
+    # inflammation at the apex of the left root
+    out += f'<ellipse cx="67" cy="134" rx="10.5" ry="8" fill="{INFLAMED}" fill-opacity=".5"/><ellipse cx="67" cy="134" rx="5.5" ry="4.2" fill="{INFLAMED}"/>'
+    out += f'<path d="{BROKEN_MOLAR}" fill="none" {SW}/>'
+    return out
+
+
 def extraction():
-    """Видалення зуба: зуб виходить з лунки."""
+    """Видалення зуба, який неможливо зберегти: глибока порожнина до нерва, тріснутий потемнілий корінь,
+    запалення біля верхівки. Зуб виходить із лунки, лунка — пунктиром."""
     u = "xt"
     body = _jaw(u)
     body += (f'<path d="M58 90C59.5 102 61.5 116 63.5 127C64.5 134 68 137 70.5 135C72.5 133 73 127 74 120C75 113 76.5 108 80 107'
              f'C83.5 108 85 113 86 120C87 127 87.5 133 89.5 135C92 137 95.5 134 96.5 127C98.5 116 100.5 102 102 90" '
              f'fill="#d3dae3" stroke="{INK}" stroke-width="1.2" stroke-dasharray="3.5 3"/>')
     body += _gum()
-    body += f'<g transform="translate(0 -34)">' + _tooth() + '</g>'
+    body += f'<g transform="translate(0 -30)">' + _damaged_tooth() + '</g>'
     body += _arrow_up(130, 60, 26)
-    return svg(body, u, "Видалення зуба")
+    return svg(body, u, "Видалення зуба, який неможливо зберегти")
+
+
+def hopeless_tooth():
+    """Зуб, який неможливо зберегти, на місці: для пояснення причини видалення."""
+    u = "hp"
+    body = _jaw(u) + _damaged_tooth() + _gum()
+    return svg(body, u, "Зуб, який неможливо зберегти")
 
 
 def crown_lengthening():
@@ -960,7 +1003,7 @@ def axiography():
 ALL = ALL + [("Огляд", exam), ("Сканування", scan), ("Моделювання", modeling), ("Аксіографія", axiography),
              ("Глибоке чищення", srp), ("Пломба", filling), ("Естетична реставрація", aesthetic),
              ("Відновлення культі", core_buildup), ("Скловолокно", fiber), ("Зняття коронки", crown_removal),
-             ("Видалення штифта", post_removal), ("Видалення зуба", extraction), ("Видовження коронки", crown_lengthening),
+             ("Видалення штифта", post_removal), ("Видалення зуба", extraction), ("Зуб, який не зберегти", hopeless_tooth), ("Видовження коронки", crown_lengthening),
              ("Кісткова пластика", bone_graft), ("Синус-ліфтинг", sinus_lift), ("Пластика ясен", soft_tissue),
              ("Формувач ясен", healing_cap), ("Multi-Unit", multi_unit), ("Індив. абатмент", custom_abutment),
              ("Тимчасова коронка", temp_crown), ("Тимч. на імпланті", temp_implant_crown), ("Коронка з керамікою", crown_layered),
@@ -983,7 +1026,7 @@ THUMB_VIEW = {"default": "24 34 112 112", "ct_scan": "6 12 148 148", "sedation":
               "splint": "8 8 144 144", "aligner": "8 8 144 144", "retention_tray": "8 8 144 144",
               "retainer": "8 8 144 144", "separation": "18 22 124 124", "scan": "22 20 124 124",
               "exam": "22 22 124 124", "endo": "22 22 124 124", "hygiene": "16 22 124 124", "srp": "14 22 124 124",
-              "extraction": "20 18 128 128", "crown_removal": "20 18 128 128", "post_removal": "20 18 128 128",
+              "extraction": "20 16 128 128", "hopeless_tooth": "22 30 116 116", "crown_removal": "20 18 128 128", "post_removal": "20 18 128 128",
               "aesthetic": "22 30 116 116"}
 
 
