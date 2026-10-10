@@ -1,0 +1,45 @@
+{% extends "base.html.j2" %}
+{% block title %}Новий план · FrankoLab{% endblock %}
+{% block nav %}<a class="link-btn" href="/cabinet/demo" target="_blank" rel="noopener">Демо-кабінет</a><form method="post" action="/logout" style="margin:0"><button class="link-btn" type="submit">Вийти</button></form>{% endblock %}
+{% block main %}
+<div class="wrap">
+  <p class="eyebrow">Конвертер</p>
+  <h1>Новий план для пацієнта</h1>
+  <p class="lead">Завантажте план лікування з ClinicCards у PDF. За кілька секунд отримаєте план із поясненнями, зубною формулою кожного етапу та кошторисом.</p>
+
+  <form class="card" id="convert" method="post" action="/convert" enctype="multipart/form-data">
+    <label class="drop" data-drop>
+      <input type="file" name="plan" accept="application/pdf,.pdf" required>
+      <span class="ic">{{ icon('doc') }}</span>
+      <span><b data-name>План лікування з ClinicCards</b><span class="sub" data-sub>PDF · перетягніть сюди або натисніть, щоб вибрати</span></span>
+      <span class="tag req">обов'язково</span><button class="clear" type="button" aria-label="Прибрати файл" data-clear>×</button>
+    </label>
+    <label class="drop" data-drop>
+      <input type="file" name="pano" accept="image/jpeg,image/png,.jpg,.jpeg,.png">
+      <span class="ic">{{ icon('image') }}</span>
+      <span><b data-name>Панорамний знімок</b><span class="sub" data-sub>JPG або PNG · стане на першу сторінку плану</span></span>
+      <span class="tag">за бажанням</span><button class="clear" type="button" aria-label="Прибрати файл" data-clear>×</button>
+    </label>
+    {% if error %}
+    <div class="note err">{{ icon('alert') }}<div>{{ error }}{% if detail %}<details><summary>Подробиці для розробника</summary><pre>{{ detail }}</pre></details>{% endif %}</div></div>
+    {% endif %}
+    <div class="actions"><button class="btn block" type="submit" data-submit disabled>Створити план</button></div>
+  </form>
+
+  <div class="facts">
+    <div class="fact"><b>Суми звіряються</b>Кожна сума в плані збігається з ClinicCards до копійки, інакше план не створиться.</div>
+    <div class="fact"><b>Нічого не зберігаємо</b>Файли пацієнта видаляються через {{ ttl_min }} хв або одразу, коли натиснете «Видалити».</div>
+    <div class="fact"><b>Описи з довідника</b>Пояснення й картинки беруться з довідника клініки й оновлюються для всіх одразу.</div>
+  </div>
+</div>
+<div class="busy" data-busy role="status" aria-live="polite">
+  <div class="busy-box">
+    <div class="tooth-spin">{{ icon('tooth') }}</div>
+    <b>Створюємо план</b>
+    <span>Зазвичай це займає 10–20 секунд</span>
+    <div class="bar"><i></i></div>
+  </div>
+</div>
+{% if request.query_params.get('deleted') %}<div class="toast">Файли пацієнта видалено</div>{% endif %}
+{% endblock %}
+{% block scripts %}<script src="/static/app.js" defer></script>{% endblock %}

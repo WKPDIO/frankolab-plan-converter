@@ -9,6 +9,14 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
 - Never commit patient data (PDFs, panoramas, parsed plans with names). Examples in `examples/` are anonymised.
 - Patient text follows the brand tone: plain, calm, no promises or pressure, no caps. `render.AVOID` lists banned words.
 
+## Web app (web/)
+- Starlette app: office converter behind one shared password (OFFICE_PASSWORD, HMAC cookie) + patient cabinet (/cabinet, /cabinet/demo).
+- Patient files live only in DATA_DIR/<token>/ for TTL_MINUTES; the source PDF is deleted right after parsing. Keep it that way.
+- All patient-facing data goes through web/sources.py; the ClinicCards client (web/clinicards_api.py) has placeholder methods
+  that raise NotImplementedError until the real endpoint list is known — do not invent endpoints.
+- Deploy: Dockerfile + render.yaml (Render, Frankfurt). One Chromium at a time (RENDER_LOCK) to fit a small instance.
+- Web pages share the cabinet's look: web/static/app.css tokens = cabinet tokens.
+
 ## Confirmed by the clinic
 - The lab makes every construction (crowns, temporaries, abutments, splints, caps, aligners, prostheses) → `lab: true`.
 - Сегмент = секстант (1: 18–14, 2: 13–23, 3: 24–28, 4: 34–38, 5: 33–43, 6: 44–48).

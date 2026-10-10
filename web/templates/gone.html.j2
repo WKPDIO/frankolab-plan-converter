@@ -1,0 +1,18 @@
+{% extends "base.html.j2" %}
+{% block title %}Не знайдено · FrankoLab{% endblock %}
+{% block header_width %}narrow{% endblock %}
+{% block footer_width %}narrow{% endblock %}
+{% block main %}
+<div class="wrap narrow">
+  {% if not_found %}
+  <p class="eyebrow" style="margin-top:28px">404</p>
+  <h1>Сторінку не знайдено</h1>
+  <p class="lead">Можливо, посилання застаріло.</p>
+  {% else %}
+  <p class="eyebrow" style="margin-top:28px">План видалено</p>
+  <h1>Цього плану вже немає</h1>
+  <p class="lead">Файли пацієнтів зберігаються лише {{ ttl_min }} хв і потім видаляються. Завантажте PDF з ClinicCards ще раз — це займе кілька секунд.</p>
+  {% endif %}
+  <div class="actions"><a class="btn" href="/">Створити план</a></div>
+</div>
+{% endblock %}

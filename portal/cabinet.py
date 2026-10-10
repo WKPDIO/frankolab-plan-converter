@@ -173,8 +173,10 @@ def _date(iso):
     return f"{int(m.group(3))} {MONTHS[int(m.group(2)) - 1]}" if m else iso
 
 
-def render_cabinet(plan, dic, status, out_path):
+def render_cabinet(plan, dic, status, out_path, **extra):
+    """extra goes to the template as is: preview (clinic preview banner), back_url (link back), home_url"""
     data = build_cabinet(plan, dic, status)
+    data.update(extra)
     env = Environment(loader=FileSystemLoader(str(ROOT / "portal" / "templates")), autoescape=True)
     font = b64encode((ROOT / "assets/fonts/Onest-wght.woff2").read_bytes()).decode()
     html = env.get_template("cabinet.html.j2").render(**data, font_b64=font)

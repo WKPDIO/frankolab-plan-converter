@@ -1,0 +1,17 @@
+# Render blueprint: New → Blueprint → pick this repository. Render asks for OFFICE_PASSWORD on the first deploy.
+services:
+  - type: web
+    name: frankolab-plans
+    runtime: docker
+    region: frankfurt          # EU: patient data stays in Europe
+    plan: starter
+    healthCheckPath: /healthz
+    autoDeploy: true           # every push to main goes live
+    envVars:
+      - key: OFFICE_PASSWORD   # the one office password
+        sync: false
+      - key: SECRET_KEY        # signs the login cookie
+        generateValue: true
+      - key: TTL_MINUTES
+        value: "60"
+      # later, in Render → Environment: CLINICCARDS_API_KEY — turns on the live patient cabinet

@@ -125,6 +125,10 @@ details.memo li + li { margin-top: 5px; }
 .contact p { margin: 4px 0 0; font-size: 14px; }
 .btn { display: block; text-align: center; margin-top: 14px; padding: 13px; border-radius: 12px; background: var(--ink); color: var(--white); text-decoration: none; font-weight: 500; }
 .btn.ghost { background: none; color: var(--ink); border: 1px solid var(--line); margin-top: 8px; }
+.preview-bar { background: var(--ink); color: var(--white); font-size: 12.5px; line-height: 1.4; }
+.preview-bar .wrap { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 16px; }
+.preview-bar a { color: var(--white); white-space: nowrap; text-decoration: none; font-weight: 500; }
+a.pill { text-decoration: none; }
 .demo-note { font-size: 12px; color: var(--graphite); text-align: center; margin: 18px 8px 0; }
 </style>
 </head>
@@ -137,9 +141,10 @@ details.memo li + li { margin-top: 5px; }
 {%- endmacro %}
 {% set chev %}<svg class="chev" viewBox="0 0 22 22"><path d="M6 8.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endset %}
 
+{% if preview %}<div class="preview-bar"><div class="wrap"><span>Попередній перегляд для клініки: так пацієнт побачить свій план. Прогрес і оплати з'являться після підключення ClinicCards.</span>{% if back_url %}<a href="{{ back_url }}">← Назад</a>{% endif %}</div></div>{% endif %}
 <header class="top"><div class="wrap">
   <div class="wm">FrankoLab<small>Clinic &amp; Tech Lab</small></div>
-  {% if demo %}<span class="pill">демо</span>{% endif %}
+  {% if demo %}<span class="pill">демо</span>{% elif home_url %}<a class="pill" href="{{ home_url }}">Вийти</a>{% endif %}
 </div></header>
 
 <main class="wrap">

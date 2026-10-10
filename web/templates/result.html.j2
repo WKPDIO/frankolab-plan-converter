@@ -1,0 +1,43 @@
+{% extends "base.html.j2" %}
+{% block title %}План готовий · FrankoLab{% endblock %}
+{% block header_width %}wide{% endblock %}
+{% block footer_width %}wide{% endblock %}
+{% block nav %}<a class="link-btn" href="/">Новий план</a><form method="post" action="/logout" style="margin:0"><button class="link-btn" type="submit">Вийти</button></form>{% endblock %}
+{% block main %}
+<div class="wrap wide">
+  <div class="result">
+    <a class="sheet" href="/r/{{ token }}/plan.pdf?view=1" target="_blank" rel="noopener" aria-label="Відкрити PDF">
+      <img src="/r/{{ token }}/preview.png" alt="Перша сторінка плану" width="794" height="1123">
+    </a>
+    <div>
+      <p class="eyebrow">План готовий</p>
+      <h1>{{ m.patient }}</h1>
+      <p class="lead">Лікар {{ m.doctor }} · план від {{ m.date }}</p>
+      <div class="stats">
+        <div>Етапів<b>{{ m.phases }}</b></div>
+        <div>Позицій<b>{{ m['items'] }}</b></div>
+        <div>Разом<b>{{ m.total }}</b></div>
+      </div>
+      <div class="note ok">{{ icon('check') }}<div>Усі суми збігаються з ClinicCards.</div></div>
+      {% if m.missing %}
+      <div class="note warn">{{ icon('alert') }}<div>
+        <b>{{ m.missing|length }} {{ 'послуга' if m.missing|length == 1 else ('послуги' if m.missing|length < 5 else 'послуг') }} без опису</b> — у плані вони є, просто без пояснення й картинки. Передайте список, і ми додамо їх у довідник.
+        <ul class="missing" id="missing">{% for x in m.missing %}<li>{{ x }}</li>{% endfor %}</ul>
+        <button class="btn quiet" type="button" data-copy="missing" style="margin-top:6px;padding-left:0">Скопіювати список</button>
+      </div></div>
+      {% endif %}
+      {% if m.avoid_words %}<div class="note warn">{{ icon('alert') }}<div>В описах трапились слова, яких уникаємо за брендбуком: {{ m.avoid_words|join(', ') }}.</div></div>{% endif %}
+      <div class="btn-row">
+        <a class="btn" href="/r/{{ token }}/plan.pdf">{{ icon('download') }}Завантажити PDF</a>
+        <a class="btn ghost" href="/r/{{ token }}/plan.pdf?view=1" target="_blank" rel="noopener">{{ icon('eye') }}Відкрити</a>
+        <a class="btn ghost" href="/r/{{ token }}/cabinet" target="_blank" rel="noopener">{{ icon('phone') }}Як побачить пацієнт</a>
+      </div>
+      <div class="foot">
+        <span>Файли пацієнта буде видалено автоматично через {{ left_min }} хв.</span>
+        <form method="post" action="/r/{{ token }}/delete"><button class="btn quiet" type="submit">Видалити зараз</button></form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/app.js" defer></script>{% endblock %}

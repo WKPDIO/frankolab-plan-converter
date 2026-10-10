@@ -1,0 +1,23 @@
+{% extends "base.html.j2" %}
+{% block title %}Мій план лікування · FrankoLab{% endblock %}
+{% block body_class %}patient{% endblock %}
+{% block home %}/cabinet{% endblock %}
+{% block header_width %}narrow{% endblock %}
+{% block footer_width %}narrow{% endblock %}
+{% block main %}
+<div class="wrap narrow">
+  <p class="eyebrow" style="margin-top:28px">Кабінет пацієнта</p>
+  <h1>Мій план лікування</h1>
+  <p class="lead">Ваш план з поясненням кожної процедури, що вже зроблено й що попереду, оплати — в одному місці.</p>
+  <form class="card" method="post" action="/cabinet" autocomplete="on">
+    <label class="field" for="phone">Номер телефону, який ви залишили в клініці</label>
+    <div class="phone"><span>+380</span><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="50 000 00 00" value="{{ phone[3:] if phone and phone.startswith('380') else (phone or '') }}"></div>
+    {% if notice %}<div class="note info">{{ icon('alert') }}<div>{{ notice }}</div></div>{% endif %}
+    <div class="actions"><button class="btn block" type="submit">Отримати код у SMS</button></div>
+    <div class="or">або</div>
+    <a class="btn ghost block" href="/cabinet/demo">Подивитися демо-кабінет</a>
+  </form>
+  <p class="fine">Ваш план бачите лише ви. Дані приходять з картки пацієнта в клініці.</p>
+</div>
+{% endblock %}
+{% block footer %}<span>FrankoLab · Івано-Франківськ</span><a href="tel:+380500112000">+380 50 011 20 00</a>{% endblock %}

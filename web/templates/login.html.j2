@@ -1,0 +1,21 @@
+{% extends "base.html.j2" %}
+{% block title %}Вхід · FrankoLab{% endblock %}
+{% block header_width %}narrow{% endblock %}
+{% block footer_width %}narrow{% endblock %}
+{% block main %}
+<div class="wrap narrow">
+  <p class="eyebrow" style="margin-top:28px">Для команди клініки</p>
+  <h1>Конвертер планів лікування</h1>
+  <p class="lead">План з ClinicCards перетворюється на зрозумілий документ для пацієнта: етапи, пояснення кожної процедури, зубна формула й кошторис.</p>
+  <form class="card" method="post" action="/login" autocomplete="on">
+    <input type="hidden" name="next" value="{{ next }}">
+    <input type="text" name="username" value="office" autocomplete="username" hidden>
+    <label class="field" for="pw">Пароль офісу</label>
+    <input class="input" id="pw" name="password" type="password" autocomplete="current-password" required autofocus>
+    {% if error %}<div class="note err">{{ icon('alert') }}<div>{{ error }}</div></div>{% endif %}
+    <div class="actions"><button class="btn block" type="submit">Увійти</button></div>
+  </form>
+  <p class="fine">Пароль один на весь офіс. Якщо забули — запитайте адміністратора.</p>
+</div>
+{% endblock %}
+{% block footer %}<span>FrankoLab · Івано-Франківськ</span><a href="/cabinet/demo">Демо-кабінет пацієнта</a>{% endblock %}

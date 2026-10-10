@@ -382,8 +382,9 @@ def build(plan, dic):
     return view, missing, flagged
 
 
-def render_plan(src, out_dir, pano=None):
+def render_plan(src, out_dir, pano=None, preview=None):
     """ClinicCards PDF (or its parsed JSON) -> patient PDF. Stops if any sum does not match the source.
+    preview — optional path for a PNG of the first page (used by the web app).
     Returns (pdf_path, report) — report has the item count, sums and missing descriptions."""
     src, out_dir = Path(src), Path(out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -402,14 +403,22 @@ def render_plan(src, out_dir, pano=None):
     pdf_path = out_dir / f"План_лікування_{stem}.pdf"
     from playwright.sync_api import sync_playwright
     with sync_playwright() as pw:
-        b = pw.chromium.launch()
-        pg = b.new_page()
+        # --disable-dev-shm-usage: small /dev/shm in containers would otherwise crash Chromium
+        b = pw.chromium.launch(args=["--disable-dev-shm-usage"])
+        pg = b.new_page(viewport={"width": 794, "height": 1123}, device_scale_factor=1)
         pg.goto(html_path.as_uri())
         pg.evaluate("document.fonts.ready")
         pg.wait_for_timeout(200)
         pg.pdf(path=str(pdf_path), format="A4", print_background=True, prefer_css_page_size=True)
         b.close()
-    report = {"items": chk["items"], "sum": chk["sum"], "printed": chk["printed"], "missing": missing, "avoid_words": flagged}
+    if preview:     # first page exactly as printed (pypdfium2 comes with pdfplumber)
+        import pypdfium2 as pdfium
+        doc = pdfium.PdfDocument(str(pdf_path))
+        doc[0].render(scale=1.4).to_pil().save(str(preview))
+        doc.close()
+    report = {"items": chk["items"], "sum": chk["sum"], "printed": chk["printed"], "missing": missing, "avoid_words": flagged,
+              "patient": plan["header"].get("patient", ""), "doctor": plan["header"].get("doctor", ""),
+              "date": plan["header"].get("date", ""), "phases": len(view["phases"]), "total": view["grand"]}
     return pdf_path, report
 
 
