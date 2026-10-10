@@ -117,6 +117,11 @@ def _implant(g, fill, tilt=0, length=None):
     return out
 
 
+def _facets(g, clip, k=1.0):
+    """the crown's proximal planes as faint tone, clipped to the crown"""
+    return (f'<g clip-path="url(#{clip})">' + "".join(f'<path d="{d}" fill="#1e2a3a" fill-opacity="{op * k:.3f}"/>' for d, op in g["facets"]) + "</g>")
+
+
 def _stump(g):
     hc, cw = g["hc"], g["cw"]
     return _p(g, [("M", (-cw * .46, hc)), ("C", (-cw * .48, hc * .55), (-cw * .42, hc * .32), (-cw * .3, hc * .3)),
@@ -159,7 +164,8 @@ def draw_tooth(g, fx, uid, active=True):
             base += f'<path d="{ab}" fill="{METAL}" stroke="{INK}" stroke-width=".8"/>'
         if fx & {"implant_crown"} or "prosthesis" in fx:
             base += f'<path d="{g["crown"]}" fill="{CROWN}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
-            base += f'<path d="{g["relief"]}" fill="none" stroke="#ffffff" stroke-opacity=".6" stroke-width=".5" stroke-linecap="round"/>'
+            base += _facets(g, clip, 1.4)
+            base += f'<path d="{g["relief"]}" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width=".5" stroke-linecap="round"/>'
         elif "denture" in fx:
             base += f'<path d="{g["crown"]}" fill="#ffffff" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
         elif "temp_implant_crown" in fx:
@@ -181,6 +187,7 @@ def draw_tooth(g, fx, uid, active=True):
     else:
         base += f'<path d="{g["sil"]}" fill="{ROOT if active else "#f7f9fb"}"/>'
         base += f'<path d="{g["crown"]}" fill="#ffffff"/>'
+        base += _facets(g, clip, 1 if active else .6)
         base += f'<path d="{g["relief"]}" fill="none" stroke="{"#c9d2dc" if active else "#dfe5ec"}" stroke-width=".5" stroke-linecap="round"/>'
         # root canal layers
         if "endo" in fx:
@@ -226,7 +233,8 @@ def draw_tooth(g, fx, uid, active=True):
             base += f'<path d="{g["crown"]}" fill="url(#{uid}o)" stroke="{INK}" stroke-width=".7" stroke-dasharray="2 1.4"/>'
         if "crown" in fx:
             base += f'<path d="{g["crown"]}" fill="{CROWN}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
-            base += f'<path d="{g["relief"]}" fill="none" stroke="#ffffff" stroke-opacity=".6" stroke-width=".5" stroke-linecap="round"/>'
+            base += _facets(g, clip, 1.4)
+            base += f'<path d="{g["relief"]}" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width=".5" stroke-linecap="round"/>'
         elif "temp_crown" in fx:
             base += (f'<path d="{g["crown"]}" fill="{TEMP}" fill-opacity=".8" stroke="{TEMP_DEEP}" stroke-width=".9" '
                      f'stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
