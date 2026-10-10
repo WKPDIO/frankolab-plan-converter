@@ -40,9 +40,42 @@ TITLE_FIXES = {"Тимачасове": "Тимчасове", "співвідно
 def clean_title(t):
     """block title as the patient sees it: no stray quotes, obvious ERP typos fixed, no trailing dot"""
     t = re.sub(r"[\"«»“”„]+", "", t).strip().rstrip(".").strip()
+    t = re.sub(r"^послуга\s+", "", t, flags=re.I)          # a block named by pasting a service: «Послуга "…"»
+    if t.count("(") > t.count(")"):                        # cut off inside brackets: drop the unfinished bracket
+        t = t[:t.rfind("(")].strip()
     for a, b in TITLE_FIXES.items():
         t = re.sub(rf"\b{a}\b", b, t)
     return t
+
+
+def block_title(raw, items):
+    """the block's title; ClinicCards cuts a long one mid-word, so a block named after one of its services
+    ("Супраструктура … (титанова балка+діоксид цир") is named after that service, without the details in brackets"""
+    title = clean_title(raw)
+    tn = norm(title)
+    pasted = bool(re.match(r"\W*послуга\b", raw.strip(), re.I))
+    if len(tn) >= 12:
+        for it in items:
+            full = norm(it["name"])
+            cut_mid_word = full.startswith(tn) and len(full) > len(tn) and full[len(tn)].isalnum() and tn[-1].isalnum()
+            if full != tn and full.startswith(tn) and (pasted or cut_mid_word):
+                return re.sub(r"\s*\(.*$", "", display_name(it["name"])).strip() or title
+    return title
+
+
+# block subtitle when a prosthetics block holds prostheses, not (only) crowns: categories → plain_with_prosthesis
+PROSTHESIS_PICS = {"superstructure", "superstructure_6", "denture"}
+CROWN_PICS = {"crown", "crown_layered", "temp_crown", "implant_crown", "temp_implant_crown", "onlay"}
+
+
+def block_plain(cat, rows):
+    variants = cat.get("plain_with_prosthesis")
+    pics = {r["pic_name"] for r in rows}
+    if not variants or not pics & PROSTHESIS_PICS:
+        return cat["plain"]
+    if pics & CROWN_PICS:
+        return variants["with_crowns"]
+    return variants["many"] if sum(r["qty"] for r in rows if r["pic_name"] in PROSTHESIS_PICS) > 1 else variants["one"]
 
 
 def pic_for(key, entry, rules):
@@ -51,6 +84,45 @@ def pic_for(key, entry, rules):
         name = next((r["pic"] for r in rules
                      if any(m in key for m in r["match"]) and all(m in key for m in r.get("all", []))), None)
     return name if name in ILL.BY_KEY else None
+
+
+def effect_of(key, entry, rules):
+    """(picture, what the stage chart draws) for a service: the entry's own effect, else the one of its picture"""
+    pic = pic_for(key, entry, rules)
+    return pic, (entry or {}).get("effect") or SC.EFFECT_OF_PIC.get(pic)
+
+
+def jaw_of_tooth(label):
+    t = (label or "").strip()
+    if t.isdigit() and len(t) == 2:
+        return "upper" if int(t) // 10 in (1, 2) else "lower"
+    return jaw_of(t)
+
+
+def plan_implant_sites(plan, services, rules):
+    """the implants of each jaw over the whole plan, {jaw: {tooth: tilt}}: a full-arch implantation (All-on-6 / All-on-4),
+    or else four or more single implants. A prosthesis in any stage is drawn on these, so a jaw never shows two sets."""
+    arch = {"upper": set(), "lower": set()}
+    single = {"upper": set(), "lower": set()}
+    for ph in plan["phases"]:
+        for b in ph["blocks"]:
+            for it in b["items"]:
+                key = norm(it["name"])
+                _, effect = effect_of(key, services.get(key), rules)
+                jaw = jaw_of_tooth(it["tooth"])
+                if not jaw:
+                    continue
+                if effect in ("all_on_4", "all_on_6"):
+                    arch[jaw].add(effect)
+                elif effect in SC.IMPLANT_EFFECTS and it["tooth"].strip().isdigit():
+                    single[jaw].add(int(it["tooth"]))
+    out = {}
+    for jaw in ("upper", "lower"):
+        if arch[jaw]:
+            out[jaw] = SC.in_jaw(SC.A6_POS if "all_on_6" in arch[jaw] else SC.A4_POS, jaw)
+        elif len(single[jaw]) >= 4:
+            out[jaw] = {n: 0 for n in single[jaw]}
+    return out
 
 
 def display_name(name):
@@ -99,9 +171,9 @@ def duration_text(s):
 
 def teeth_label(t, segments):
     t = t.strip()
-    m = re.fullmatch(r"сегмент\s*(\d)", t, re.I)
+    m = re.fullmatch(r"(сегмент|квадрант)\s*(\d)", t, re.I)
     if m:
-        return f"сегмент {m.group(1)}"
+        return f"{m.group(1).lower()}{NBSP}{m.group(2)}"     # the number never wraps away from its word
     return {"в/щ": "верхня щелепа", "н/щ": "нижня щелепа"}.get(t, t)
 
 
@@ -110,11 +182,18 @@ SEXTANTS = {"1": [18, 17, 16, 15, 14], "2": [13, 12, 11, 21, 22, 23], "3": [24, 
             "4": [34, 35, 36, 37, 38], "5": [33, 32, 31, 41, 42, 43], "6": [44, 45, 46, 47, 48]}
 
 
+# quadrants (квадранти): a quarter of the mouth, numbered like the first digit of a tooth
+QUADRANTS = {"1": "зуби 18–11", "2": "зуби 21–28", "3": "зуби 31–38", "4": "зуби 41–48"}
+
+
 def area_teeth(label):
     t = label.strip().lower()
     m = re.fullmatch(r"сегмент\s*(\d)", t)
     if m:
         return set(SEXTANTS.get(m.group(1), []))
+    m = re.fullmatch(r"квадрант\s*(\d)", t)
+    if m and m.group(1) in QUADRANTS:
+        return {int(m.group(1)) * 10 + i for i in range(1, 9)}
     if t in ("в/щ", "верхня щелепа"):
         return {q * 10 + i for q in (1, 2) for i in range(1, 9)}
     if t in ("н/щ", "нижня щелепа"):
@@ -225,6 +304,7 @@ def build(plan, dic):
     all_teeth = set()
     seen = {}   # service key -> number of the stage where its description was first shown
     seen_desc = {}  # description text -> the same, for different positions explained by one text
+    known_sites = plan_implant_sites(plan, services, rules)
     for i, ph in enumerate(plan["phases"], 1):
         ph_tot = {}
         blocks = []
@@ -232,13 +312,13 @@ def build(plan, dic):
         area_fx = []       # (teeth of the area, effect) for services given per segment / jaw, resolved after the stage
         legend, other = OrderedDict(), []
         for b in ph["blocks"]:
-            title = clean_title(b["title"])
+            title = block_title(b["title"], b["items"])
             cat = next((c for c in cats if any(m in title.lower() for m in c["match"])), {"plain": "", "icon": "tooth", "tint": "#eef1f4"})
             groups = OrderedDict()
             b_tot = {}
             b_done = 0
             teeth = set()
-            segs = []
+            segs, quads = [], []
             for it in b["items"]:
                 key = (norm(it["name"]), it["currency"], it.get("price"), json.dumps(it.get("discount"), sort_keys=True), it["final"])
                 g = groups.setdefault(key, {"name": display_name(it["name"]), "key": norm(it["name"]), "currency": it["currency"],
@@ -257,6 +337,9 @@ def build(plan, dic):
                     m = re.fullmatch(r"сегмент\s*(\d)", it["tooth"], re.I)
                     if m and m.group(1) not in segs:
                         segs.append(m.group(1))
+                    m = re.fullmatch(r"квадрант\s*(\d)", it["tooth"], re.I)
+                    if m and m.group(1) in QUADRANTS and m.group(1) not in quads:
+                        quads.append(m.group(1))
                     teeth |= area_teeth(it["tooth"])
                 add(b_tot, it["currency"], it["final"])
             rows = []
@@ -275,8 +358,9 @@ def build(plan, dic):
                 if g["discount"]:
                     d = g["discount"]
                     disc = f"−{d['value'].rstrip('0').rstrip('.') if '.' in d['value'] else d['value']}%" if d["type"] == "percent" else "−" + money(d["value"], g["currency"])
-                pic = pic_for(g["key"], s, rules)
-                effect = (s or {}).get("effect") or SC.EFFECT_OF_PIC.get(pic)
+                pic, effect = effect_of(g["key"], s, rules)
+                if cat.get("temporary") and effect in ("superstructure", "superstructure_6"):
+                    effect = "superstructure_temp"      # a prosthesis listed under temporary prosthetics is the temporary one
                 if not effect:
                     nm = OTHER_NAME.get(pic, g["name"][:1].lower() + g["name"][1:])
                     if nm not in other:
@@ -329,12 +413,13 @@ def build(plan, dic):
                 add(ph_tot, k, v)
             all_teeth |= teeth
             blocks.append({
-                "title": title, "plain": cat["plain"], "icon": Markup(icon(cat["icon"], 30)), "tint": cat.get("tint", "#eef1f4"),
+                "title": title, "plain": block_plain(cat, rows), "icon": Markup(icon(cat["icon"], 30)), "tint": cat.get("tint", "#eef1f4"),
                 "chart": None,
                 "rows": rows, "total": money_pair({k: str(v) for k, v in b_tot.items()}),
                 "total_uah": money(b_tot["UAH"], "UAH") if "UAH" in b_tot and (b_tot["UAH"] or not any(b_tot.values())) else "",
                 "total_eur": money(b_tot["EUR"], "EUR") if "EUR" in b_tot and (b_tot["EUR"] or not any(b_tot.values())) else "",
                 "segments": [(s, seg_names.get(s, "")) for s in segs],
+                "quadrants": [(q, QUADRANTS[q]) for q in sorted(quads)],
                 "keys": [g["key"] for g in groups.values()],
                 "memos_before": [], "memos_after": [],
                 "done_state": "all" if b_done and b_done == len(b["items"]) else ("some" if b_done else ""),
@@ -345,8 +430,7 @@ def build(plan, dic):
         # on an area is shown on all its teeth
         jaw_sites = set()
         for jaw, effects in jaw_fx.items():
-            for e in effects:
-                jaw_sites |= {n for n in SC.JAW_IMPLANT_SITES.get(e, {}) if (n // 10 in (1, 2)) == (jaw == "upper")}
+            jaw_sites |= set(SC.implant_sites(jaw, effects, known_sites.get(jaw)))
         for teeth_of_area, effect in area_fx:
             if effect in SC.SITE_EFFECTS:
                 # implant sites first: bone, sinus and gum work there is for the implant; extraction sites only
@@ -371,7 +455,7 @@ def build(plan, dic):
             legend_view.append({"glyph": Markup(SC.glyph(e, 36)), "label": SC.LABEL[e],
                                 "teeth": ", ".join(teeth_runs(digits) + words)})
         view_phases.append({
-            "map": Markup(SC.stage_chart(fx_teeth, jaw_fx, 640)) if has_map else None,
+            "map": Markup(SC.stage_chart(fx_teeth, jaw_fx, 640, known_sites)) if has_map else None,
             "legend": legend_view, "other": other,
             "num": f"{i:02d}", "title": ph_title or f"Етап {i}", "timing": ph_timing,
             "duration": duration_text(ph.get("duration", "")),

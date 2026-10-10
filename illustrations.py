@@ -921,6 +921,22 @@ def retainer():
     return svg(body, u, "Ретейнер — вигляд зверху")
 
 
+def functiography():
+    """Функціографія, вигляд зверху на нижню дугу: на пластинці — записана траєкторія рухів щелепи (вперед і вбоки)
+    з точкою, де щелепи змикаються природно; стрілка під дугою — рух щелепи з боку в бік."""
+    u = "fg"
+    lay, geom = arch_layout("lower")
+    body = _occl_teeth(lay)
+    trace = f'stroke="{ACCENT_DEEP}" stroke-width="1.7" stroke-dasharray="3 2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"'
+    body += f'<rect x="61" y="54" width="38" height="52" rx="10" fill="{LIGHT_ACCENT}" stroke="{ACCENT}" stroke-width="1.1"/>'
+    body += f'<path d="M66 68L80 95L94 68" {trace}/><path d="M80 95V61" {trace}/>'
+    body += f'<circle cx="80" cy="95" r="4" fill="{ACCENT}" stroke="{INK}" stroke-width="1.3"/>'
+    arrow = f'stroke="{INK}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"'
+    body += (f'<path d="M50 140Q80 148 110 140" {arrow}/>'
+             f'<path d="M55.5 136.2L50 140L55.8 143.4" {arrow}/><path d="M104.5 136.2L110 140L104.2 143.4" {arrow}/>')
+    return svg(body, u, "Функціографія — запис рухів щелепи")
+
+
 IMPRESSION = "#d9e7f6"       # impression mass (light Sky Blue)
 IMPRESSION_EDGE = "#8fb1dc"
 
@@ -1052,7 +1068,7 @@ ALL = ALL + [("Огляд", exam), ("Сканування", scan), ("Модел�
              ("Тимчасова коронка", temp_crown), ("Тимч. на імпланті", temp_implant_crown), ("Коронка з керамікою", crown_layered),
              ("All-on-4", all_on_4), ("Протез на імплантатах", superstructure),
              ("All-on-6", all_on_6), ("Протез на 6 імплантатах", superstructure_6), ("Знімний протез", denture),
-             ("Сплінт", splint), ("Елайнери, капи", aligner), ("Ретенційна капа", retention_tray), ("Ретейнер", retainer), ("Відбиток", impression), ("Сепарація", separation),
+             ("Сплінт", splint), ("Елайнери, капи", aligner), ("Ретенційна капа", retention_tray), ("Ретейнер", retainer), ("Відбиток", impression), ("Функціографія", functiography), ("Сепарація", separation),
              ("Седація", sedation)]
 
 BY_KEY = {fn.__name__: fn for _, fn in ALL}
@@ -1069,7 +1085,7 @@ THUMB_VIEW = {"default": "24 34 112 112", "ct_scan": "6 12 148 148", "sedation":
               "all_on_4": "10 14 140 140", "superstructure": "10 14 140 140",
               "all_on_6": "10 14 140 140", "superstructure_6": "10 14 140 140", "denture": "8 8 144 144",
               "splint": "8 8 144 144", "aligner": "8 8 144 144", "retention_tray": "8 8 144 144",
-              "retainer": "8 8 144 144", "impression": "6 0 148 148", "separation": "18 22 124 124", "scan": "22 20 124 124",
+              "retainer": "8 8 144 144", "impression": "6 0 148 148", "functiography": "8 10 144 144", "separation": "18 22 124 124", "scan": "22 20 124 124",
               "exam": "22 22 124 124", "endo": "22 22 124 124", "hygiene": "16 22 124 124", "srp": "14 22 124 124",
               "extraction": "20 16 128 128", "hopeless_tooth": "22 30 116 116", "crown_removal": "20 18 128 128", "post_removal": "20 18 128 128",
               "aesthetic": "22 30 116 116"}

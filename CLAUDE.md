@@ -28,11 +28,14 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
   Sedation price includes the anaesthesiologist and monitoring.
 - Sedation memo wins over the "eat before surgery" advice (no food 4 h before sedation). «Лише рідка їжа 30 днів» stays as written.
 - Hygiene levels differ by the amount of deposits (м'який наліт < без уточнення < стійкий наліт).
-- A service given per segment means "somewhere in this area": bone/sinus/soft-tissue work on a segment is drawn only on the
+- One set of implants per jaw: the implantation decides it (All-on-6 → six). A prosthesis never adds implants of its own —
+  a temporary bridge "in the All-on-4 concept" on six implants is drawn on six (stagechart.implant_sites, render.plan_implant_sites).
+- A service given per segment or quadrant (квадрант 1–4 = 18–11, 21–28, 31–38, 41–48) means "somewhere in this area": bone/sinus/soft-tissue work on a segment is drawn only on the
   implant sites of that segment (extraction sites only when the segment gets no implant) (render.py area_fx, stagechart SITE_EFFECTS), never on healthy teeth.
 
 ## Visual language (illustrations.py, stagechart.py)
-- Stage chart colour code (one hue per family, keep it): crowns/prostheses Storm Blue; temporaries Sky Blue dashed;
+- Stage chart colour code (one hue per family, keep it): crowns/prostheses Storm Blue; temporaries Sky Blue dashed
+  (a full-arch prosthesis too: effect superstructure_temp, or any superstructure in a "temporary" category block);
   fillings/restorations sage green; root canals and posts coral; core build-up lavender; gum (soft tissue, crown lengthening) rose;
   bone material sand with hatching; implants, abutments, healing caps metal grey; new implant full metal, existing one paler.
 - Tooth shapes (graphics.py): anatomical crowns with relief strokes (incisor lobes, canine labial ridge, premolar buccal ridge,

@@ -39,7 +39,10 @@ EFFECT_OF_PIC = {
     "denture": "denture", "aligner": "aligner",
     "retention_tray": "retention_tray", "splint": "splint", "retainer": "retainer", "separation": "separation",
 }
-JAW_EFFECTS = {"all_on_4", "superstructure", "all_on_6", "superstructure_6", "denture", "aligner", "retention_tray", "splint", "retainer"}
+# a fixed prosthesis on the implants of a whole jaw; "superstructure_temp" is the temporary one (set in services.json → effect)
+PROSTHESES = {"superstructure", "superstructure_6", "superstructure_temp"}
+FULL_ARCH = {"all_on_4", "all_on_6"} | PROSTHESES
+JAW_EFFECTS = FULL_ARCH | {"denture", "aligner", "retention_tray", "splint", "retainer"}
 # work on the site, not on a tooth: when given per segment it attaches to the implant / extraction sites in that segment
 SITE_EFFECTS = {"bone_graft", "sinus_lift", "soft_tissue"}
 SITE_ANCHORS = {"implant", "extraction", "healing_cap", "abutment", "implant_crown", "temp_implant_crown", "a4_new"}
@@ -55,7 +58,8 @@ LABEL = {
     "temp_implant_crown": "Тимчасова коронка на імплантаті", "bone_graft": "Нарощування кістки",
     "soft_tissue": "Пластика ясен", "sinus_lift": "Синус-ліфтинг", "srp": "Глибоке чищення під яснами",
     "crown_lengthening": "Видовження коронки", "modeling": "Цифрове моделювання",
-    "all_on_4": "All-on-4: чотири імплантати", "superstructure": "Незнімний протез на імплантатах",
+    "all_on_4": "All-on-4: чотири імплантати", "superstructure_temp": "Тимчасовий незнімний протез на імплантатах",
+    "superstructure": "Незнімний протез на імплантатах",
     "all_on_6": "All-on-6: шість імплантатів", "superstructure_6": "Незнімний протез на шести імплантатах",
     "denture": "Знімний протез", "aligner": "Елайнери", "retention_tray": "Ретенційна капа", "splint": "Сплінт",
     "retainer": "Ретейнер", "separation": "Сепарація",
@@ -66,8 +70,27 @@ ORDER = list(LABEL)
 A4_POS = {12: 0, 22: 0, 15: 28, 25: 28, 32: 0, 42: 0, 35: 28, 45: 28}
 # All-on-6: two in front, two at the premolars, two at the first molars (slightly tilted)
 A6_POS = {12: 0, 22: 0, 14: 0, 24: 0, 16: 18, 26: 18, 32: 0, 42: 0, 34: 0, 44: 0, 36: 18, 46: 18}
-# where a full-arch concept puts implants: used to place segment-level bone / sinus work on the right teeth
-JAW_IMPLANT_SITES = {"all_on_4": A4_POS, "superstructure": A4_POS, "all_on_6": A6_POS, "superstructure_6": A6_POS}
+
+
+def in_jaw(pos_map, jaw):
+    up = jaw == "upper"
+    return {n: t for n, t in pos_map.items() if (n // 10 in (1, 2)) == up}
+
+
+def implant_sites(jaw, effects, known=None):
+    """where the implants of a full-arch treatment stand on this jaw, {tooth: tilt}. One set per jaw:
+    the implantation decides (All-on-6 → six); a prosthesis sits on the implants the plan placed, whatever concept its
+    name gives — a temporary bridge "in the All-on-4 concept" on six implants still stands on six. known — the jaw's
+    implants from the whole plan (render.plan_implant_sites); only without them does the prosthesis concept decide."""
+    if "all_on_6" in effects:
+        return in_jaw(A6_POS, jaw)
+    if "all_on_4" in effects:
+        return in_jaw(A4_POS, jaw)
+    if not effects & PROSTHESES:
+        return {}
+    if known:
+        return dict(known)
+    return in_jaw(A6_POS if "superstructure_6" in effects else A4_POS, jaw)
 
 _ids = count(1)
 
@@ -172,13 +195,13 @@ def draw_tooth(g, fx, uid, active=True):
         under += f'<path d="{_p(g, dome)}" fill="url(#{uid}h)" stroke="{BONE_DEEP}" stroke-width=".6"/>'
 
     implantish = fx & (IMPLANT_EFFECTS | {"a4_new", "a4_metal"})
-    edentulous = bool(implantish or fx & {"a4_future", "prosthesis", "denture"})
+    edentulous = bool(implantish or fx & {"a4_future", "prosthesis", "prosthesis_temp", "denture"})
 
     if edentulous:
         if implantish:
             new = bool(fx & {"implant", "a4_new"})
             base += _implant(g, METAL if new else "#e3e7ec", tilt=fx_tilt(fx))
-            if fx & {"implant_crown", "temp_implant_crown", "prosthesis"} and not fx_tilt(fx):
+            if fx & {"implant_crown", "temp_implant_crown", "prosthesis", "prosthesis_temp"} and not fx_tilt(fx):
                 # hide the top of the implant under the emergence profile (the crown path is drawn over it)
                 icp, _ = _implant_crown_path(g)
                 base += f'<path d="{icp}" fill="{ROOT if active else "#f7f9fb"}"/>'
@@ -195,18 +218,18 @@ def draw_tooth(g, fx, uid, active=True):
             base += _facets(g, clip, 1.4)
             base += f'<path d="{g["relief"]}" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width=".5" stroke-linecap="round"/>'
             base += f'<path d="{_p(g, [("M", (-min(4.2, cw * .8) / 2, plat)), ("L", (min(4.2, cw * .8) / 2, plat))])}" stroke="{INK}" stroke-width=".9" stroke-linecap="round"/>'
-        elif "denture" in fx:
-            base += f'<path d="{g["crown"]}" fill="#ffffff" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
-        elif "temp_implant_crown" in fx:
+        elif fx & {"temp_implant_crown", "prosthesis_temp"}:      # a fixed temporary wins over a removable denture
             icp, plat = _implant_crown_path(g)
             base += (f'<path d="{icp}" fill="{TEMP}" fill-opacity=".85" stroke="{TEMP_DEEP}" stroke-width=".9" '
                      f'stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
+        elif "denture" in fx:
+            base += f'<path d="{g["crown"]}" fill="#ffffff" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
         elif fx & {"implant", "a4_future", "a4_new"} and "healing_cap" not in fx:
             base += (f'<path d="{g["crown"]}" fill="#ffffff" fill-opacity=".5" stroke="{INK}" stroke-width=".75" '
                      f'stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
         elif "abutment" in fx:
             base += (f'<path d="{g["crown"]}" fill="none" stroke="{INK}" stroke-width=".75" stroke-dasharray="2 1.6" stroke-linejoin="round"/>')
-        if fx & {"prosthesis", "denture"} and "flange_local" in fx:
+        if fx & {"prosthesis", "prosthesis_temp", "denture"} and "flange_local" in fx:
             fl = _rect(g, -w / 2 - .5, hc - .9, w / 2 + .5, hc + 2.8, .6)
             base += f'<path d="{fl}" fill="{PINK}" stroke="{PINK_EDGE}" stroke-width=".5"/>'
     elif "extraction" in fx:
@@ -302,31 +325,37 @@ def fx_tilt(fx):
     return 0
 
 
-def expand_jaw(fx_by_tooth, jaw_fx):
-    """turn jaw-wide effects into per-tooth ones"""
+def expand_jaw(fx_by_tooth, jaw_fx, known=None):
+    """turn jaw-wide effects into per-tooth ones; known — {jaw: {tooth: tilt}} implants the whole plan places"""
     fx = {n: set(v) for n, v in fx_by_tooth.items()}
     for jaw, effects in jaw_fx.items():
+        if not effects:
+            continue
         teeth = G.UPPER if jaw == "upper" else G.LOWER
+        arch = effects & FULL_ARCH
+        sites = implant_sites(jaw, effects, (known or {}).get(jaw))
+        implantation = effects & {"all_on_4", "all_on_6"}
+        # one prosthesis drawn per jaw: the permanent one wins over the temporary one in the same stage
+        prosthesis = ("prosthesis" if effects & {"superstructure", "superstructure_6"} else
+                      "prosthesis_temp" if "superstructure_temp" in effects else None)
+        last = max([6] + [n % 10 for n in sites]) if arch else (7 if "denture" in effects else 6)
         for n in teeth:
             pos = n % 10
             e = fx.setdefault(n, set())
-            full_arch = {"all_on_4", "superstructure", "all_on_6", "superstructure_6"}
-            last = 7 if "denture" in effects and not effects & full_arch else 6
-            if effects & (full_arch | {"denture"}) and pos > last:
+            if effects & (FULL_ARCH | {"denture"}) and pos > last:
                 e.add("absent")
                 continue
-            for eff, pos_map in (("all_on_4", A4_POS), ("all_on_6", A6_POS)):
-                if eff in effects:
-                    e.add("a4_future")
-                    if n in pos_map:
-                        e.add("a4_new")
-                        e.add(f"tilt:{pos_map[n]}")
-            for eff, pos_map in (("superstructure", A4_POS), ("superstructure_6", A6_POS)):
-                if eff in effects:
-                    e.add("prosthesis")
-                    if n in pos_map:
-                        e.add("a4_metal")
-                        e.add(f"tilt:{pos_map[n]}")
+            own_implant = bool(e & IMPLANT_EFFECTS)      # a single implant of this stage is drawn by its own effect
+            if implantation:
+                e.add("a4_future")
+                if n in sites:
+                    e.add("a4_new")
+            if prosthesis:
+                e.add(prosthesis)
+                if n in sites and not own_implant:
+                    e.add("a4_metal")
+            if n in sites and (implantation or prosthesis) and not own_implant:
+                e.add(f"tilt:{sites[n]}")
             if "denture" in effects:
                 e.add("denture")
             for t in ("aligner", "retention_tray", "splint"):
@@ -337,9 +366,9 @@ def expand_jaw(fx_by_tooth, jaw_fx):
     return fx
 
 
-def stage_chart(fx_by_tooth, jaw_fx=None, width=600):
+def stage_chart(fx_by_tooth, jaw_fx=None, width=600, known=None):
     uid = f"s{next(_ids)}"
-    fx = expand_jaw(fx_by_tooth, jaw_fx or {})
+    fx = expand_jaw(fx_by_tooth, jaw_fx or {}, known)
     L = G.chart_layout(width)
     s = L["s"]
     clips, unders, bases, overs, nums = [], [], [], [], []
@@ -353,7 +382,7 @@ def stage_chart(fx_by_tooth, jaw_fx=None, width=600):
             clips.append(c), unders.append(u), bases.append(b), overs.append(o)
             if "retainer" in e:
                 retainer_pts[jaw].append(g["tf"](0, g["hc"] * .5))
-            if e & {"prosthesis", "denture"}:
+            if e & {"prosthesis", "prosthesis_temp", "denture"}:
                 hc, w = g["hc"], g["w"]
                 a, b = sorted([g["tf"](-w / 2 - .35, hc - 1.1), g["tf"](w / 2 + .35, hc - 1.1)])
                 ta, tb = sorted([g["tf"](-w / 2 - .35, hc + 3.4), g["tf"](w / 2 + .35, hc + 3.4)])
@@ -391,7 +420,8 @@ def stage_chart(fx_by_tooth, jaw_fx=None, width=600):
 
 # ---- legend: one tooth per effect ------------------------------------------------------
 GLYPH_TOOTH = {"aesthetic": 21, "sinus_lift": 26, "retainer": 31, "separation": 35, "aligner": 34, "retention_tray": 36,
-               "splint": 36, "denture": 36, "superstructure": 36, "all_on_4": 35, "filling": 36, "crown_lengthening": 36}
+               "splint": 36, "denture": 36, "superstructure": 36, "superstructure_temp": 36, "all_on_4": 35, "filling": 36,
+               "crown_lengthening": 36}
 
 
 def glyph(effect, size=34):
@@ -409,6 +439,8 @@ def glyph(effect, size=34):
         fx = {"a4_new", "a4_future"}
     elif effect in ("superstructure", "superstructure_6"):
         fx = {"prosthesis", "a4_metal", "flange_local"}
+    elif effect == "superstructure_temp":
+        fx = {"prosthesis_temp", "a4_metal", "flange_local"}
     elif effect == "denture":
         fx = {"denture", "flange_local"}
     c, u, b, o = draw_tooth(g, fx, uid)

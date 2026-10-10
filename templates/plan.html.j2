@@ -323,7 +323,10 @@ table.sum tr.grand-row td { border-top: 1.5px solid var(--rich-black); border-bo
       <tbody class="g keep">
         {{ svc_row(b.rows[-1]) }}
         <tr class="total-row"><td class="c-name" colspan="{{ ncols - 2 if has_eur else ncols - 1 }}">Разом</td><td class="c-uah">{{ b.total_uah }}</td>{% if has_eur %}<td class="c-eur">{{ b.total_eur }}</td>{% endif %}</tr>
-        {% if b.segments %}<tr class="seg-row"><td colspan="{{ ncols }}"><p class="seg-note small muted">Сегмент — ділянка щелепи: {% for s, n in b.segments %}сегмент {{ s }} — {{ n }}{{ '; ' if not loop.last else '.' }}{% endfor %}</p></td></tr>{% endif %}
+        {% if b.segments or b.quadrants %}<tr class="seg-row"><td colspan="{{ ncols }}">
+          {% if b.segments %}<p class="seg-note small muted">Сегмент — ділянка щелепи: {% for s, n in b.segments %}сегмент {{ s }} — {{ n }}{{ '; ' if not loop.last else '.' }}{% endfor %}</p>{% endif %}
+          {% if b.quadrants %}<p class="seg-note small muted">Квадрант — половина щелепи: {% for q, n in b.quadrants %}квадрант {{ q }} — {{ n }}{{ '; ' if not loop.last else '.' }}{% endfor %}</p>{% endif %}
+        </td></tr>{% endif %}
       </tbody>
     </table>
   </article>
