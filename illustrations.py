@@ -397,13 +397,21 @@ def whitening():
 
 
 def implant_removal():
-    """Видалення імплантату: імплантат виходить з кістки, на його місці — лунка."""
+    """Видалення імплантату з периімплантитом: навколо шийки імплантату кістку зруйновано запаленням (кратер),
+    різьба оголена, ясна запалені, біля краю — гній; стрілка — імплантат видаляють."""
     u = "ir"
     body = _jaw(u)
-    body += f'<path d="{IMPLANT}" fill="none" stroke="{BONE_DOT}" stroke-width="1.5" stroke-dasharray="3.5 3"/>'
-    body += f'<g transform="translate(0 -40)"><path d="{IMPLANT}" fill="#e3e7ec" {SW}/>{_threads("#8a939e")}</g>'
-    body += _gum() + _arrow_up(124, 76, 40)
-    return svg(body, u, "Видалення імплантату")
+    # bone lost around the implant neck: a crater of inflamed tissue in place of bone
+    body += (f'<path d="M48 106C57 106 62 110 65 118C67 124 68.5 130 71 133H89C91.5 130 93 124 95 118C98 110 103 106 112 106Z" '
+             f'fill="{INFLAMED}" fill-opacity=".55" stroke="{BONE_DOT}" stroke-width="1"/>')
+    body += _gum()
+    # inflamed, swollen gum around the implant and a drop of pus at its edge
+    body += f'<path d="M56 95C63 88 72 86 80 86.5C88 86 97 88 104 95C97 98.5 88 100 80 100C72 100 63 98.5 56 95Z" fill="{INFLAMED}" fill-opacity=".75"/>'
+    # the implant on its way out: in front, its threads bare
+    body += f'<g transform="translate(0 -18)"><path d="{IMPLANT}" fill="#e3e7ec" {SW}/>{_threads("#8a939e")}</g>'
+    body += f'<path d="M100 88C103.5 84 105.5 81.5 105.5 78.8C105.5 76.2 103.6 74.6 101.4 74.6C99.2 74.6 97.3 76.2 97.3 78.8C97.3 81.5 98.8 84 100 88Z" fill="#efe1b0" stroke="{SAND_EDGE}" stroke-width="1.1"/>'
+    body += _arrow_up(124, 76, 40)
+    return svg(body, u, "Видалення імплантату, навколо якого запалення")
 
 
 def filling():
@@ -843,13 +851,18 @@ ARCH_TEETH = {   # mesio-distal width, bucco-lingual depth (mm), form
     "upper": [(8.5, 7.0, "inc"), (6.5, 6.0, "inc"), (7.5, 8.0, "can"), (7.0, 9.0, "pm"), (6.5, 9.0, "pm"), (10.0, 11.0, "mol"), (9.0, 11.0, "mol")],
     "lower": [(5.2, 6.0, "inc"), (5.6, 6.2, "inc"), (7.0, 7.5, "can"), (7.0, 7.8, "pm"), (7.0, 8.0, "pm"), (11.0, 10.5, "mol"), (10.5, 10.0, "mol")],
 }
-ARCH = {"upper": dict(a=52, depth=92, top=24), "lower": dict(a=49, depth=90, top=26)}
-ARCH_P = .42      # x = a * u^p: a little broader in front than a parabola, like a real dental arch
+# a real arch is wider than deep (molars ~1.3× the incisor-to-molar depth): a broad round front and nearly parallel
+# sides that open only a little toward the molars — not a narrow V
+ARCH = {"upper": dict(a=56, depth=80, top=28), "lower": dict(a=53, depth=78, top=30)}
+ARCH_M = 2.3      # superellipse exponent: 2 = ellipse quarter, higher = squarer front
 
 
 def _parabola(a, depth, top, n=700):
-    """right half of the arch: x = a*sqrt(u), y = top + depth*u, with cumulative length"""
-    pts = [(a * (i / n) ** ARCH_P, top + depth * i / n) for i in range(n + 1)]
+    """right half of the arch from the midline back: a superellipse quarter (round front, sides turning parallel),
+    opened slightly toward the back; y = top + depth*u, with cumulative length"""
+    def x(u):
+        return a * (1 - (1 - u) ** ARCH_M) ** (1 / ARCH_M) * (.9 + .1 * u)
+    pts = [(x(i / n), top + depth * i / n) for i in range(n + 1)]
     acc = [0.0]
     for i in range(1, len(pts)):
         acc.append(acc[-1] + math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]))

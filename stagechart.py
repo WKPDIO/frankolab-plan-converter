@@ -231,7 +231,9 @@ def draw_tooth(g, fx, uid, active=True):
             base += f'<path d="{ab}" fill="{METAL}" stroke="{INK}" stroke-width=".8"/>'
         if fx & {"implant_crown"} or "prosthesis" in fx:
             icp, plat = _implant_crown_path(g)
-            base += f'<path d="{icp}" fill="{CROWN}" stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
+            # over an abutment of this stage the crown is a little see-through, so the abutment inside stays visible
+            op = ' fill-opacity=".72"' if "abutment" in fx else ""
+            base += f'<path d="{icp}" fill="{CROWN}"{op} stroke="{INK}" stroke-width=".8" stroke-linejoin="round"/>'
             base += _facets(g, clip, 1.4)
             base += f'<path d="{g["relief"]}" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width=".5" stroke-linecap="round"/>'
             base += f'<path d="{_p(g, [("M", (-min(4.2, cw * .8) / 2, plat)), ("L", (min(4.2, cw * .8) / 2, plat))])}" stroke="{INK}" stroke-width=".9" stroke-linecap="round"/>'

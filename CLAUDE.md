@@ -55,7 +55,8 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
 - Tooth shapes (graphics.py): anatomical crowns with relief strokes (incisor lobes, canine labial ridge, premolar buccal ridge,
   molar buccal groove and cusp ridges); soft left-to-right gradient for volume.
 - Neutral anatomy; Storm Blue #99aabe = what the procedure does; dashed = future/temporary; hatching = bone material;
-  metal grey = implant already in place; translucent gum drawn in front; an implant crown ALWAYS narrows smoothly from the neck down to
+  metal grey = implant already in place; translucent gum drawn in front; a crown over an abutment of the same stage is
+  slightly see-through so the abutment shows; dental arches (trays, splint, denture) are broad and round, not a V; an implant crown ALWAYS narrows smoothly from the neck down to
   the implant platform (emergence profile, stagechart._implant_crown_path) — never a crown sitting on a thin post.
 - Upper-jaw scenes (All-on-4, sinus lift) use panoramic proportions; trays, splint, retainer, denture are drawn from above.
 - Brand palette: Rich black #212121, Graphite #474a50, Ice Blue #eaeff5, Storm Blue #99aabe, Soft Sand #d8c3a5,
