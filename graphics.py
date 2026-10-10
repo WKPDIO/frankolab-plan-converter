@@ -67,7 +67,7 @@ LOWER = [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38]
 # buccal view proportions, mm: crown width, cervical width, crown height, root length, root form
 # root forms: 1 — one root, 2 — two roots (mesial + distal / buccal + palatal), 3 — three roots, f — fused
 ANATOMY = {
-    "upper": {1: (8.5, 6.6, 10.5, 13.0, "1", "incisor"), 2: (6.6, 4.9, 9.0, 13.0, "1", "incisor"),
+    "upper": {1: (8.5, 6.6, 10.0, 13.0, "1", "incisor"), 2: (6.6, 4.9, 8.7, 13.0, "1", "incisor"),
               3: (7.6, 5.6, 10.0, 17.0, "1", "canine"), 4: (7.0, 5.0, 8.5, 14.0, "2b", "premolar"),
               5: (6.6, 5.0, 8.5, 14.0, "1", "premolar"), 6: (10.0, 8.0, 7.5, 12.5, "3", "molar"),
               7: (9.0, 7.0, 7.0, 12.0, "3", "molar"), 8: (8.5, 6.6, 6.5, 10.5, "f", "molar")},
@@ -79,29 +79,36 @@ ANATOMY = {
 ROOT_K = 0.9       # roots drawn a little shorter so the chart stays compact
 
 
-def _crown_edge(kind, w, hc, pos=6):
-    """occlusal outline from the distal max-contour (-w/2, hD) to the mesial one (w/2, hM); mesial is +x.
-    Contact points sit where real teeth touch: incisors near the edge, canines and premolars lower."""
+def _crown_outline(kind, w, cw, hc):
+    """crown silhouette from the distal cervical point (-cw/2, hc) to the mesial one (cw/2, hc); mesial is +x.
+    The shape follows a real buccal view: a narrow neck that flares quickly to a wide, slightly angular equator
+    in the middle third, then nearly straight flanks running to sharp incisal / cusp corners."""
+    def flare_up(sh):       # distal: a straight-ish flank from the neck up to the shoulder at height sh (fraction of hc)
+        return [("M", (-cw / 2, hc)), ("C", (-cw / 2 - (w - cw) * .12, hc * .92), (-w / 2 + (w - cw) * .06, hc * (sh + .08)), (-w / 2, hc * sh))]
+
+    def flare_down(sh):     # mesial: from the shoulder straight down into the neck
+        return [("C", (w / 2 - (w - cw) * .06, hc * (sh + .08)), (cw / 2 + (w - cw) * .12, hc * .92), (cw / 2, hc))]
+
     if kind == "incisor":
-        hD, hM = hc * .3, hc * .14
-        seg = [("C", (-w / 2, hD * .3), (-w * .46, hc * .03), (-w * .34, hc * .015)), ("L", (w * .42, 0)),
-               ("C", (w * .48, 0), (w / 2, hM * .4), (w / 2, hM))]
+        shD, shM = .4, .3
+        mid = [("L", (-w * .475, hc * .1)), ("C", (-w * .465, hc * .04), (-w * .44, hc * .012), (-w * .37, hc * .008)),
+               ("L", (w * .44, 0)), ("C", (w * .48, 0), (w * .49, hc * .02), (w * .49, hc * .07)), ("L", (w / 2, hc * shM))]
     elif kind == "canine":
-        hD, hM = hc * .46, hc * .34
-        seg = [("C", (-w / 2, hD * .55), (-w * .26, hc * .12), (0, hc * .012)),        # long distal slope
-               ("Q", (w * .06, -hc * .006), (w * .12, hc * .015)),                     # blunt cusp tip
-               ("C", (w * .24, hc * .06), (w / 2, hM * .5), (w / 2, hM))]             # short mesial slope
+        shD, shM = .46, .4
+        mid = [("L", (-w * .36, hc * .22)), ("C", (-w * .24, hc * .1), (-w * .08, hc * .02), (0, hc * .012)),
+               ("Q", (w * .06, -hc * .006), (w * .12, hc * .015)),
+               ("C", (w * .26, hc * .06), (w * .44, hc * .2), (w * .49, hc * .36)), ("L", (w / 2, hc * shM))]
     elif kind == "premolar":
-        hD, hM = hc * .42, hc * .38
-        seg = [("C", (-w / 2, hD * .45), (-w * .3, hc * .02), (-w * .05, 0)), ("L", (w * .05, 0)),
-               ("C", (w * .3, hc * .02), (w / 2, hM * .45), (w / 2, hM))]
+        shD, shM = .42, .4
+        mid = [("L", (-w * .45, hc * .2)), ("C", (-w * .36, hc * .05), (-w * .16, 0), (-w * .05, 0)), ("L", (w * .05, 0)),
+               ("C", (w * .16, 0), (w * .36, hc * .05), (w * .44, hc * .2)), ("L", (w / 2, hc * shM))]
     else:   # molar: mesio-buccal cusp larger, disto-buccal smaller, buccal groove between them
-        hD, hM = hc * .3, hc * .27
-        seg = [("C", (-w / 2, hD * .35), (-w * .44, hc * .03), (-w * .27, 0)),
+        shD, shM = .36, .34
+        mid = [("L", (-w * .48, hc * .14)), ("C", (-w * .44, hc * .04), (-w * .36, 0), (-w * .27, 0)),
                ("C", (-w * .15, 0), (-w * .09, hc * .14), (-w * .02, hc * .15)),
                ("C", (w * .06, hc * .15), (w * .1, 0), (w * .25, 0)),
-               ("C", (w * .41, 0), (w / 2, hM * .35), (w / 2, hM))]
-    return hD, hM, seg
+               ("C", (w * .35, 0), (w * .44, hc * .04), (w * .47, hc * .14)), ("L", (w / 2, hc * shM))]
+    return flare_up(shD) + mid + flare_down(shM)
 
 
 def _relief(kind, w, hc, form):
@@ -219,11 +226,7 @@ def tooth_geom(n, cx, y0, s, upper, k=1.0, grow_down=None):
 
     def tf(x, y):
         return cx + sx * x * s, y0 + sy * y * s * k
-    hD, hM, edge = _crown_edge(kind, w, hc, pos)
-    # flanks: full width held through the middle third, then a quick curve into the neck (cervical constriction)
-    start = [("M", (-cw / 2, hc)), ("C", (-cw / 2 - (w - cw) * .3, hc * .93), (-w / 2, hD + (hc - hD) * .6), (-w / 2, hD))]
-    dn = [("C", (w / 2, hM + (hc - hM) * .6), (cw / 2 + (w - cw) * .3, hc * .93), (cw / 2, hc))]
-    crown = start + edge + dn
+    crown = _crown_outline(kind, w, cw, hc)
     lobes, notches = _root_lobes(form, cw, hc, hr)
     return {
         "n": n, "w": w, "cw": cw, "hc": hc, "hr": hr, "form": form, "kind": kind, "upper": upper,
