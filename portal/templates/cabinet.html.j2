@@ -194,7 +194,7 @@ a.pill { text-decoration: none; }
       <ul class="list act">{% for it in a["items"] %}<li>{{ it.name }}{% if it.teeth %}<small>Зуби: {{ it.teeth }}</small>{% endif %}</li>{% endfor %}</ul>{% endfor %}
     </details>
     {% endif %}
-    <p class="note">{% if has_eur %}Суми в євро сплачуються в гривнях за комерційним курсом на день оплати. {% endif %}{{ included_note }}</p>
+    {% if has_eur or included_note %}<p class="note">{% if has_eur %}Суми в євро сплачуються в гривнях за комерційним курсом на день оплати. {% endif %}{{ included_note }}</p>{% endif %}
   </section>
 
   <h2 class="sec">Етапи лікування</h2>

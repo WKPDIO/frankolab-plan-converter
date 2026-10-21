@@ -22,7 +22,7 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
 - The lab makes every construction (crowns, temporaries, abutments, splints, caps, aligners, prostheses) → `lab: true`.
 - Сегмент = секстант (1: 18–14, 2: 13–23, 3: 24–28, 4: 34–38, 5: 33–43, 6: 44–48).
 - Price-list duplicates stay as they are.
-- Included in the price: local anaesthesia, rubber dam / OptraGate (plan-wide note); endo — control X-rays and temporary filling;
+- Included in the price: local anaesthesia, rubber dam / OptraGate (not printed: the clinic asked to drop that plan-wide note); endo — control X-rays and temporary filling;
   surgery — sutures; implant — implant + cover screw; формувач — the healing abutment; bone augmentation — bone material + membrane;
   sinus lift — bone material; soft-tissue augmentation — graft material; implant crowns (temporary and permanent) — Ti-base/abutment,
   screw, fixation; crowns — fixation; All-on-4 / All-on-6 implantation — all four / six implants.
