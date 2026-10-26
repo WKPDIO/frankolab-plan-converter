@@ -508,7 +508,7 @@ def build(plan, dic):
             "legend": legend_view, "other": other,
             "num": f"{i:02d}", "title": ph_title or f"Етап {i}", "timing": ph_timing, "note": ph_note,
             "duration": duration_text(ph.get("duration", "")),
-            "what": [(b["plain"] or b["title"], b["tint"]) for b in blocks],
+            "what": [(b["title"], b["tint"]) for b in blocks],      # the block names as in ClinicCards; explanations come later
             "blocks": blocks, "total": money_pair({k: str(v) for k, v in ph_tot.items()}),
             "total_uah": money(ph_tot["UAH"], "UAH") if ph_tot.get("UAH") else "",
             "total_eur": money(ph_tot["EUR"], "EUR") if ph_tot.get("EUR") else "",
