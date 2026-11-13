@@ -3,6 +3,7 @@
   --ink: #212121; --graphite: #474a50; --muted: #6b7079; --ice: #eaeff5; --storm: #99aabe; --storm-deep: #6f839c;
   --sand: #d8c3a5; --sand-soft: #f3ebe0; --linen: #f0e7de; --sky: #9ac2f4; --white: #ffffff; --bg: #f6f7f9;
   --line: rgba(33,33,33,.1); --ok: #5f9478; --ok-soft: #e6f1ea; --warn: #a88f6c; --err: #b25a4a; --err-soft: #f7e7e3;
+  --copper: #b4532a;   /* brand book 2026: the one accent, only for actions — buttons, links */
   --r: 14px; color-scheme: light;
 }
 * { box-sizing: border-box; }
@@ -18,10 +19,8 @@ button, input { font: inherit; color: inherit; }
 .top { background: rgba(246,247,249,.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
 .top .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
-.wm { font-size: 20px; font-weight: 400; letter-spacing: -.01em; line-height: 1; text-decoration: none; display: flex; align-items: center; gap: 12px; }
-.wm small { display: block; font-size: 9px; letter-spacing: .02em; color: var(--graphite); margin-top: 3px; }
-.wm .mark { width: 1px; height: 26px; background: var(--storm); position: relative; }
-.wm .mark::after { content: ""; position: absolute; left: -6px; top: 12px; width: 13px; height: 1px; background: var(--storm); }
+.wm { display: flex; align-items: center; text-decoration: none; }
+.wm .logo { display: block; height: 30px; width: auto; margin-left: -5px; }   /* the SVG carries its own clear space */
 .top nav { display: flex; align-items: center; gap: 6px; }
 .link-btn { background: none; border: 0; padding: 8px 10px; border-radius: 10px; font-size: 14px; color: var(--graphite); cursor: pointer; text-decoration: none; }
 .link-btn:hover { background: var(--ice); color: var(--ink); }
@@ -33,12 +32,12 @@ h1 { font-size: 30px; font-weight: 600; letter-spacing: -.02em; line-height: 1.1
 .card { background: var(--white); border-radius: var(--r); padding: 22px; margin-top: 20px; box-shadow: 0 1px 0 rgba(33,33,33,.04); }
 
 /* buttons */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 18px; border-radius: 12px; border: 0;
-  background: var(--ink); color: var(--white); font-weight: 500; text-decoration: none; cursor: pointer; transition: opacity .15s; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 18px; border-radius: 28px; border: 0;
+  background: var(--copper); color: var(--white); font-weight: 600; text-decoration: none; cursor: pointer; transition: opacity .15s; }
 .btn:hover { opacity: .88; }
 .btn[disabled] { opacity: .4; cursor: default; }
 .btn.block { width: 100%; }
-.btn.ghost { background: var(--white); color: var(--ink); border: 1px solid var(--line); }
+.btn.ghost { background: var(--white); color: var(--ink); border: 1px solid var(--ink); }
 .btn.ghost:hover { background: var(--ice); opacity: 1; }
 .btn.quiet { background: none; color: var(--graphite); padding: 8px 10px; }
 .btn svg { width: 18px; height: 18px; flex: 0 0 auto; }

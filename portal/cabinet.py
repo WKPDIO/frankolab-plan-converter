@@ -187,7 +187,7 @@ def render_cabinet(plan, dic, status, out_path, **extra):
     data.update(extra)
     env = Environment(loader=FileSystemLoader(str(ROOT / "portal" / "templates")), autoescape=True)
     font = b64encode((ROOT / "assets/fonts/Onest-wght.woff2").read_bytes()).decode()
-    html = env.get_template("cabinet.html.j2").render(**data, font_b64=font)
+    html = env.get_template("cabinet.html.j2").render(**{"logo": R.logo(), **data}, font_b64=font)
     Path(out_path).write_text(html)
     return out_path, data
 

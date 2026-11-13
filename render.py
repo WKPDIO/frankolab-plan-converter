@@ -23,6 +23,15 @@ import illustrations as ILL  # noqa: E402
 import stagechart as SC  # noqa: E402
 
 ROOT = Path(__file__).parent
+BRAND = ROOT / "assets" / "brand"          # brand book 2026: logos as outlined SVG
+COPPER = "#b4532a"                          # the brand's one accent — marks and totals, never a tint or a fill
+BRAND_ADDRESS = "77460, Івано-Франківськ, с. Черніїв, вул. Надвірнянська, 2Б"
+
+
+def logo(variant="dark", label="FrankoLab"):
+    """the brand logo (tooth mark | copper bar | FRANKOLAB) as inline SVG; variant dark or white"""
+    svg = (BRAND / f"logo_{variant}.svg").read_text().strip()
+    return Markup(svg.replace("<svg ", f'<svg class="logo" role="img" aria-label="{label}" ', 1))
 NBSP = " "
 AVOID = ["продаємо", "терміново", "дешево", "акці", "гарантован", "найкращ", "унікальн", "100%", "тільки сьогодні"]
 
@@ -532,6 +541,8 @@ def build(plan, dic):
     h = dict(plan["header"])
     h["website"] = h.get("website", "").replace("\x00", "tt").replace("h ps", "https")
     h["phone_fmt"] = phone_fmt(h.get("phone", ""))
+    if "надвірнянськ" in h.get("address", "").lower():
+        h["address"] = BRAND_ADDRESS       # the clinic's address as the brand book writes it
     qr = None
     if h.get("website"):
         qr = Markup(segno.make(h["website"], error="m").svg_inline(scale=2, border=0, dark="#212121"))
@@ -539,7 +550,7 @@ def build(plan, dic):
     terms = [t for t in plan["terms"] if not t.startswith("З рекомендованим") and not t.startswith("Дата:")]
     consent = next((t for t in plan["terms"] if t.startswith("З рекомендованим")), "")
     view = {
-        "h": h, "site_short": site_short, "qr": qr, "phases": view_phases, "has_discount": has_discount,
+        "h": h, "logo": logo(), "site_short": site_short, "qr": qr, "phases": view_phases, "has_discount": has_discount,
         "grand": money_pair({k: str(v) for k, v in grand.items()}),
         "grand_uah": money(grand["UAH"], "UAH") if grand.get("UAH") else "",
         "grand_eur": money(grand["EUR"], "EUR") if grand.get("EUR") else "",

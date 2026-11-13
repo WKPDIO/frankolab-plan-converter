@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#f6f7f9">
+<meta name="theme-color" content="#212121">
 <title>{% block title %}FrankoLab · Плани лікування{% endblock %}</title>
 <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/static/icon-192.png">
@@ -14,7 +14,7 @@
 </head>
 <body class="{% block body_class %}{% endblock %}">
 <header class="top"><div class="wrap {% block header_width %}{% endblock %}">
-  <a class="wm" href="{% block home %}/{% endblock %}"><span class="mark"></span><span>FrankoLab<small>Clinic &amp; Tech Lab</small></span></a>
+  <a class="wm" href="{% block home %}/{% endblock %}" aria-label="FrankoLab">{{ logo() }}</a>
   <nav>{% block nav %}{% endblock %}</nav>
 </div></header>
 <main>{% block main %}{% endblock %}</main>

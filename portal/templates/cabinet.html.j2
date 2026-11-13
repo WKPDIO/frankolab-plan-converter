@@ -10,6 +10,7 @@
 :root {
   --ink: #212121; --graphite: #474a50; --ice: #eaeff5; --storm: #99aabe; --storm-deep: #6f839c;
   --sand: #d8c3a5; --linen: #f0e7de; --sky: #9ac2f4; --white: #ffffff; --line: rgba(33,33,33,.1);
+  --copper: #b4532a;   /* brand book 2026: the one accent, only for actions */
   --r: 14px; color-scheme: light;
 }
 * { box-sizing: border-box; }
@@ -20,8 +21,7 @@ a { color: inherit; }
 .top { position: sticky; top: 0; z-index: 5; background: rgba(246,247,249,.92); backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
 .top .wrap { display: flex; align-items: center; justify-content: space-between; height: 54px; padding-bottom: 0; }
-.wm { font-size: 19px; font-weight: 400; letter-spacing: -.01em; line-height: 1; }
-.wm small { display: block; font-size: 8.5px; letter-spacing: .02em; color: var(--graphite); margin-top: 3px; }
+.wm .logo { display: block; height: 28px; width: auto; margin-left: -5px; }
 .pill { font-size: 11px; padding: 3px 9px; border-radius: 99px; background: var(--linen); color: var(--graphite); }
 
 .hello { padding: 22px 2px 6px; }
@@ -123,8 +123,8 @@ details.memo li + li { margin-top: 5px; }
 .stotal b { font-weight: 600; }
 
 .contact p { margin: 4px 0 0; font-size: 14px; }
-.btn { display: block; text-align: center; margin-top: 14px; padding: 13px; border-radius: 12px; background: var(--ink); color: var(--white); text-decoration: none; font-weight: 500; }
-.btn.ghost { background: none; color: var(--ink); border: 1px solid var(--line); margin-top: 8px; }
+.btn { display: block; text-align: center; margin-top: 14px; padding: 13px; border-radius: 28px; background: var(--copper); color: var(--white); text-decoration: none; font-weight: 600; }
+.btn.ghost { background: none; color: var(--ink); border: 1px solid var(--ink); margin-top: 8px; }
 .preview-bar { background: var(--ink); color: var(--white); font-size: 12.5px; line-height: 1.4; }
 .preview-bar .wrap { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 16px; }
 .preview-bar a { color: var(--white); white-space: nowrap; text-decoration: none; font-weight: 500; }
@@ -143,7 +143,7 @@ a.pill { text-decoration: none; }
 
 {% if preview %}<div class="preview-bar"><div class="wrap"><span>Попередній перегляд для клініки: так пацієнт побачить свій план. {% if progress_from_plan %}Прогрес узято з позначок «виконано» в плані; оплати з'являться після підключення ClinicCards.{% else %}Прогрес і оплати з'являться після підключення ClinicCards.{% endif %}</span>{% if back_url %}<a href="{{ back_url }}">← Назад</a>{% endif %}</div></div>{% endif %}
 <header class="top"><div class="wrap">
-  <div class="wm">FrankoLab<small>Clinic &amp; Tech Lab</small></div>
+  <div class="wm">{{ logo }}</div>
   {% if demo %}<span class="pill">демо</span>{% elif home_url %}<a class="pill" href="{{ home_url }}">Вийти</a>{% endif %}
 </div></header>
 
