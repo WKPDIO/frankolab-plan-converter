@@ -286,6 +286,14 @@ def phase_names(title, timing):
     return title, timing
 
 
+GENERIC_STAGE = re.compile(r"^(етап\s*\d*|\S+\s+етап)$", re.I)   # "Етап 2", "Другий етап" — only says the number again
+
+
+def stage_head(title):
+    """the stage heading beside its big number: a plain "Етап" when the title would just repeat the number"""
+    return "Етап" if GENERIC_STAGE.match((title or "").strip()) else title
+
+
 def phone_fmt(p):
     d = re.sub(r"\D", "", p)
     if len(d) == 12 and d.startswith("380"):
@@ -515,7 +523,8 @@ def build(plan, dic):
         view_phases.append({
             "map": Markup(SC.stage_chart(fx_teeth, jaw_fx, 640, known_sites)) if has_map else None,
             "legend": legend_view, "other": other,
-            "num": f"{i:02d}", "title": ph_title or f"Етап {i}", "timing": ph_timing, "note": ph_note,
+            "num": f"{i:02d}", "title": ph_title or f"Етап {i}", "head": stage_head(ph_title or f"Етап {i}"),
+            "label": f"Етап {i}" if stage_head(ph_title or f"Етап {i}") == "Етап" else f"Етап {i} · {ph_title}", "timing": ph_timing, "note": ph_note,
             "duration": duration_text(ph.get("duration", "")),
             "what": [(b["title"], b["tint"]) for b in blocks],      # the block names as in ClinicCards; explanations come later
             "blocks": blocks, "total": money_pair({k: str(v) for k, v in ph_tot.items()}),

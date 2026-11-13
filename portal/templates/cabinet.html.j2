@@ -66,7 +66,7 @@ h2.sec { font-size: 18px; font-weight: 600; margin: 30px 2px 4px; letter-spacing
 
 details.stage { background: var(--white); border-radius: var(--r); margin-top: 12px; overflow: hidden; }
 details.stage > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 16px 18px; }
-.snum { font-size: 34px; font-weight: 200; color: var(--storm); line-height: 1; letter-spacing: -.02em; }
+.snum { font-size: 34px; font-weight: 200; color: var(--copper); line-height: 1; letter-spacing: -.02em; }
 .stitle { font-size: 16px; font-weight: 600; line-height: 1.25; }
 .smeta { font-size: 12px; color: var(--graphite); margin-top: 3px; }
 .chip { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 99px; margin-left: 6px; vertical-align: 2px; }
@@ -203,7 +203,7 @@ a.pill { text-decoration: none; }
     <summary>
       <span class="snum">{{ ph.num }}</span>
       <span>
-        <span class="stitle">{{ ph.title }}</span><span class="chip {{ ph.state }}">{{ {'done': 'завершено', 'current': 'зараз', 'planned': 'попереду'}[ph.state] }}</span>
+        <span class="stitle">{{ ph.head or ph.title }}</span><span class="chip {{ ph.state }}">{{ {'done': 'завершено', 'current': 'зараз', 'planned': 'попереду'}[ph.state] }}</span>
         {% if ph.note %}<div class="smeta">{{ ph.note }}</div>{% endif %}
         <div class="smeta">{% if ph.timing %}{{ ph.timing }} · {% endif %}{{ ph.duration }}</div>
       </span>

@@ -65,7 +65,8 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
 - Upper-jaw scenes (All-on-4, sinus lift) use panoramic proportions; trays, splint, retainer, denture are drawn from above.
 - Brand book 2026 (assets/brand: logos as outlined SVG, colors.txt): Rich Black #212121, Graphite #474a50, Ice Blue #eaeff5,
   Storm Blue #99aabe, Warm Linen #f0e7de, White; Copper #b4532a is the ONE accent — no tints, no gradients, ≤ 5–10 % of a page:
-  in patient documents only marks and totals (grand total), on web pages only actions (buttons 28 px radius). Font: Onest (OFL).
+  in patient documents only the stage numbers (the clinic asked: sums stay black), on web pages only actions (buttons 28 px
+  radius). A stage heading never repeats its big number: a generic "Етап N" / "Другий етап" shows as "Етап" (render.stage_head). Font: Onest (OFL).
   Logo = tooth mark | copper bar | FRANKOLAB (render.logo()); never redraw, recolour, stretch or "bite" it. Favicon = the mark on a
   copper square. Documents: logo on top, title Onest Bold, address as BRAND_ADDRESS at the bottom.
   Stage-chart family colours (Sky Blue temporaries, Soft Sand bone) are infographic codes, not brand colours — kept for meaning.

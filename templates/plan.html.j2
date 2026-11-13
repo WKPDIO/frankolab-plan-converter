@@ -8,7 +8,7 @@
 :root {
   --rich-black: #212121; --graphite-grey: #474a50; --ice-blue: #eaeff5; --pure-white: #ffffff;
   --storm-blue: #99aabe; --soft-sand: #d8c3a5; --warm-linen: #f0e7de; --hairline: #99aabe;
-  --copper: #b4532a;   /* brand book 2026: the one accent — only marks and totals in patient documents */
+  --copper: #b4532a;   /* brand book 2026: the one accent — here only the stage numbers (the clinic asked: sums stay black) */
   --X: 14px; --small: 11.2px; --h: 21px; --deco: 56px;
 }
 @page {
@@ -51,7 +51,7 @@ h1, h2, h3, p { margin: 0; }
 .tl { list-style: none; margin: 12px 0 0; padding: 0; }
 .tl-stage { display: grid; grid-template-columns: 74px 1fr auto; column-gap: 14px; align-items: start;
   border-top: .75px solid var(--hairline); padding: 12px 0 12px; break-inside: avoid; }
-.tl-num { font-size: var(--deco); font-weight: 100; line-height: .82; color: var(--storm-blue); letter-spacing: -.02em; }
+.tl-num { font-size: var(--deco); font-weight: 100; line-height: .82; color: var(--copper); letter-spacing: -.02em; }
 .tl-title { font-weight: 600; }
 .tl-meta { font-size: var(--small); color: var(--graphite-grey); margin-top: 1px; }
 .tl-what { margin-top: 6px; font-weight: 300; }
@@ -64,7 +64,7 @@ h1, h2, h3, p { margin: 0; }
 .tl-gap::before { content: ""; width: 0; height: 22px; border-left: .75px dashed var(--storm-blue); margin-right: 4px; }
 .grand { display: flex; justify-content: space-between; align-items: baseline; border-top: 1.5px solid var(--rich-black); padding-top: 10px; }
 .grand .lbl { font-weight: 600; }
-.grand .val { font-size: var(--h); font-weight: 600; white-space: nowrap; color: var(--copper); }
+.grand .val { font-size: var(--h); font-weight: 600; white-space: nowrap; }
 .rate-note { margin-top: 6px; }
 
 .teeth-overview { margin-top: 26px; break-inside: avoid; }
@@ -89,7 +89,7 @@ h1, h2, h3, p { margin: 0; }
 .stage.first { break-before: auto; margin-top: 30px; }
 .st-head { display: grid; grid-template-columns: 74px 1fr auto; column-gap: 14px; align-items: end;
   padding-bottom: 12px; border-bottom: 1.5px solid var(--rich-black); }
-.st-num { font-size: var(--deco); font-weight: 100; line-height: .82; color: var(--storm-blue); letter-spacing: -.02em; }
+.st-num { font-size: var(--deco); font-weight: 100; line-height: .82; color: var(--copper); letter-spacing: -.02em; }
 .st-head h2 { font-size: var(--h); line-height: 1.2; font-weight: 600; }
 .st-meta { font-size: var(--small); color: var(--graphite-grey); margin-top: 2px; }
 .st-note { color: var(--rich-black); max-width: 120mm; }
@@ -186,7 +186,6 @@ table.sum th:first-child { text-align: left; padding-left: 0; }
 table.sum td { padding: 9px 0 9px 10px; border-bottom: .5px solid #d5dce6; text-align: right; white-space: nowrap; }
 table.sum td:first-child { text-align: left; padding-left: 0; white-space: normal; }
 table.sum tr.grand-row td { border-top: 1.5px solid var(--rich-black); border-bottom: none; font-weight: 600; font-size: 15px; }
-table.sum tr.grand-row td:not(:first-child) { color: var(--copper); }
 .terms { margin-top: 24px; font-size: var(--small); color: var(--graphite-grey); max-width: 150mm; }
 .terms p + p { margin-top: 4px; }
 .consent { margin-top: 22px; }
@@ -232,7 +231,7 @@ table.sum tr.grand-row td:not(:first-child) { color: var(--copper); }
       <li class="tl-stage">
         <div class="tl-num">{{ ph.num }}</div>
         <div>
-          <div class="tl-title">{{ ph.title }}{% if ph.done_state == 'all' %}<span class="done">виконано</span>{% elif ph.done_state == 'some' %}<span class="done part">частково виконано</span>{% endif %}</div>
+          <div class="tl-title">{{ ph.head }}{% if ph.done_state == 'all' %}<span class="done">виконано</span>{% elif ph.done_state == 'some' %}<span class="done part">частково виконано</span>{% endif %}</div>
           {% if ph.note %}<div class="tl-meta">{{ ph.note }}</div>{% endif %}
           <div class="tl-meta">{{ ph.duration }}</div>
           <div class="tl-what">{% for w, tint in ph.what %}<span class="chip"><i style="background:{{ tint }}"></i>{{ w }}</span>{% endfor %}</div>
@@ -273,7 +272,7 @@ table.sum tr.grand-row td:not(:first-child) { color: var(--copper); }
   <header class="st-head">
     <div class="st-num">{{ ph.num }}</div>
     <div>
-      <h2>{{ ph.title }}</h2>
+      <h2>{{ ph.head }}</h2>
       {% if ph.note %}<div class="st-meta st-note">{{ ph.note }}</div>{% endif %}
       <div class="st-meta">{% if ph.timing %}{{ ph.timing }} · {% endif %}{{ ph.duration }}</div>
     </div>
@@ -339,7 +338,7 @@ table.sum tr.grand-row td:not(:first-child) { color: var(--copper); }
     <thead><tr><th>Етап</th><th>Тривалість</th><th>Гривні</th>{% if has_eur %}<th>Євро</th>{% endif %}</tr></thead>
     <tbody>
       {% for ph in phases %}
-      <tr><td>{{ ph.num }} · {{ ph.title }}{% if ph.timing %} <span class="small muted">({{ ph.timing }})</span>{% endif %}</td><td class="small muted">{{ ph.duration }}</td><td>{{ ph.total_uah or '—' }}</td>{% if has_eur %}<td>{{ ph.total_eur or '—' }}</td>{% endif %}</tr>
+      <tr><td>{{ ph.label }}{% if ph.timing %} <span class="small muted">({{ ph.timing }})</span>{% endif %}</td><td class="small muted">{{ ph.duration }}</td><td>{{ ph.total_uah or '—' }}</td>{% if has_eur %}<td>{{ ph.total_eur or '—' }}</td>{% endif %}</tr>
       {% endfor %}
       <tr class="grand-row"><td>Разом за планом</td><td></td><td>{{ grand_uah or '—' }}</td>{% if has_eur %}<td>{{ grand_eur or '—' }}</td>{% endif %}</tr>
       {% if has_progress %}
