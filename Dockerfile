@@ -11,7 +11,9 @@ WORKDIR /app
 # dependencies first, so code changes rebuild in seconds
 COPY requirements.txt /tmp/req/requirements.txt
 COPY web/requirements.txt /tmp/req/web.txt
-RUN pip install --no-cache-dir -r /tmp/req/requirements.txt -r /tmp/req/web.txt \
+# libatomic1: newer Playwright drivers (node) need it, and the slim image does not have it
+RUN apt-get update && apt-get install -y --no-install-recommends libatomic1 \
+ && pip install --no-cache-dir -r /tmp/req/requirements.txt -r /tmp/req/web.txt \
  && python -m playwright install --with-deps chromium \
  && rm -rf /var/lib/apt/lists/* /root/.cache
 
