@@ -45,6 +45,7 @@ import parse_clinicards as P  # noqa: E402
 from portal.cabinet import render_cabinet  # noqa: E402
 from render import Printer, clean_title, logo, render_plan  # noqa: E402
 
+from .api import routes as api_routes  # noqa: E402
 from .clinicards_api import ClinicCardsClient  # noqa: E402
 from .icons import icon  # noqa: E402
 from .sources import DemoSource, PdfSource, dictionary, status_from_plan  # noqa: E402
@@ -350,6 +351,7 @@ routes = [
     Route("/cabinet", patient_login_submit, methods=["POST"]),
     Route("/cabinet/demo", patient_demo, methods=["GET"]),
     Route("/healthz", healthz, methods=["GET"]),
+    *api_routes(),
     Mount("/static", StaticFiles(directory=str(ROOT / "web" / "static")), name="static"),
     Mount("/fonts", StaticFiles(directory=str(ROOT / "assets" / "fonts")), name="fonts"),
 ]

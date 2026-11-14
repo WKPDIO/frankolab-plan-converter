@@ -16,6 +16,8 @@ all patient-facing text is Ukrainian. README.md describes the pipeline and files
   that raise NotImplementedError until the real endpoint list is known — do not invent endpoints.
 - Deploy: Dockerfile + render.yaml (Render, Frankfurt). One plan at a time (RENDER_LOCK) to fit a small instance; one Chromium
   kept running between plans (render.Printer: fresh context per plan, restarted every 25 plans, after a crash, or when stuck).
+- API for the clinic's new site (web/api.py, docs/API.md): Bearer CONVERTER_API_KEY; POST /api/v1/plans → JSON (names as in
+  ClinicCards) + plan.pdf / preview.png / cabinet.html, same 60-min store and printer as the office pages. Keep docs/API.md in step.
 - Web pages share the cabinet's look: web/static/app.css tokens = cabinet tokens.
 
 ## Confirmed by the clinic

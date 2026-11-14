@@ -12,6 +12,8 @@ services:
         sync: false
       - key: SECRET_KEY        # signs the login cookie
         generateValue: true
+      - key: CONVERTER_API_KEY # API for the new site (docs/API.md); comma-separated to rotate
+        generateValue: true
       - key: TTL_MINUTES
         value: "60"
       # later, in Render → Environment: CLINICCARDS_API_KEY — turns on the live patient cabinet
